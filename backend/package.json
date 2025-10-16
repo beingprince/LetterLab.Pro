@@ -13,9 +13,7 @@
     "cors": "^2.8.5",
     "dotenv": "^16.6.1",
     "express": "^4.21.2",
-    "mongoose": "^8.19.1",
-    "moongoose": "^0.0.5"
-  },
+    "mongoose": "^8.19.1"  },
   "engines": {
     "node": ">=20.0.0"
   }
