@@ -17,10 +17,10 @@ import usersRouter from "./routes/users.js";
 // ───────────────────────────────────────────────────────────────────────────────
 // Feature flags & config (from .env)
 const ENABLE_CHAT  = process.env.ENABLE_CHAT === "1";      // 0 (off) or 1 (on)
-const ENABLE_EMAIL = process.env.ENABLE_EMAIL !== "0";     // default ON
+const ENABLE_EMAIL = process.env.ENABLE_EMAIL !== "1";     // default ON
 const ALLOWED_ORIGINS = [
     'http://localhost:5173', // Your local frontend (if needed)
-    'https://www.letterlab.pro/' // Add your Vercel URL here!
+    'https://letter-lab-pro-git-main-beingprinces-projects.vercel.app/' // Add your Vercel URL here!
 ];
 // 1) Initialize app FIRST
 const app = express();
