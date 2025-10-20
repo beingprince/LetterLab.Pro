@@ -2,7 +2,9 @@
   "name": "frontend",
   "private": true,
   "version": "0.0.0",
-  "engines": { "node": "20.x" },
+  "engines": {
+    "node": "20.x"
+  },
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -28,6 +30,7 @@
     "eslint": "^9.36.0",
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-react-refresh": "^0.4.22",
-    "globals": "^16.4.0"
+    "globals": "^16.4.0",
+    "rollup": "^4.52.5"
   }
 }
