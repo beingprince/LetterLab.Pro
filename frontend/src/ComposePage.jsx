@@ -7,6 +7,8 @@ import {
 import { keyframes, useTheme } from '@mui/material/styles';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import SendIcon from '@mui/icons-material/Send';
+import { apiRequest } from './api';
+
 
 // --- Reusable GlassBubble ---
 const GlassBubble = ({ children, sx = {}, typing = false, reserveCorner = false }) => (
@@ -209,41 +211,46 @@ export default function ComposePage({ headerHeight = 72 }) {
   useEffect(() => { autoscroll(); }, [conversation, isGenerating, streamingText]);
 
   const handleSendMessage = async () => {
-    if (input.trim() === '' || isGenerating || !guestProfile) return;
-    const userMessage = { sender: 'user', text: input, id: Date.now().toString() };
-    setConversation(prev => [...prev, userMessage]);
-    setInput('');
-    setIsGenerating(true);
-    setStreamingText('');
-    setIsFinishing(false);
+  if (input.trim() === '' || isGenerating || !guestProfile) return;
 
-    try {
-      const res = await fetch('/api/generate-email', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ notes: userMessage.text })
-      });
-      const data = await res.json();
-      const aiText = data?.text || 'Error generating email';
-      let index = 0;
-      const interval = setInterval(() => {
-        setStreamingText(aiText.substring(0, index++));
-        if (index > aiText.length) {
-          clearInterval(interval);
-          setIsFinishing(true);
-          setTimeout(() => {
-            setConversation(prev => [...prev, { sender: 'ai', text: aiText, id: Date.now().toString() }]);
-            setIsGenerating(false);
-            setIsFinishing(false);
-            setStreamingText('');
-          }, 500);
-        }
-      }, 25);
-    } catch (e) {
-      console.error(e);
-      setIsGenerating(false);
-      setConversation(prev => [...prev, { sender: 'ai', text: 'Network error', id: Date.now().toString() }]);
-    }
-  };
+  const userMessage = { sender: 'user', text: input, id: Date.now().toString() };
+  setConversation(prev => [...prev, userMessage]);
+  setInput('');
+  setIsGenerating(true);
+  setStreamingText('');
+  setIsFinishing(false);
+
+  try {
+    // use Render API via VITE_API_URL
+    const data = await apiRequest('/api/generate-email', 'POST', { notes: userMessage.text });
+
+    const aiText = data?.text || 'Error generating email';
+    let index = 0;
+    const interval = setInterval(() => {
+      setStreamingText(aiText.substring(0, index++));
+      if (index > aiText.length) {
+        clearInterval(interval);
+        setIsFinishing(true);
+        setTimeout(() => {
+          setConversation(prev => [
+            ...prev,
+            { sender: 'ai', text: aiText, id: Date.now().toString() }
+          ]);
+          setIsGenerating(false);
+          setIsFinishing(false);
+          setStreamingText('');
+        }, 500);
+      }
+    }, 25);
+  } catch (e) {
+    console.error(e);
+    setIsGenerating(false);
+    setConversation(prev => [
+      ...prev,
+      { sender: 'ai', text: 'Network error', id: Date.now().toString() }
+    ]);
+  }
+};
 
   const handleKeyPress = (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSendMessage(); } };
 
