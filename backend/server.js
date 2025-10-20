@@ -18,12 +18,10 @@ import usersRouter from "./routes/users.js";
 // Feature flags & config (from .env)
 const ENABLE_CHAT  = process.env.ENABLE_CHAT === "1";      // 0 (off) or 1 (on)
 const ENABLE_EMAIL = process.env.ENABLE_EMAIL !== "0";     // default ON
-const ALLOWED_ORIGINS = (process.env.CORS_ORIGINS || "")
-  .split(",")
-  .map(s => s.trim())
-  .filter(Boolean);
-
-// ───────────────────────────────────────────────────────────────────────────────
+const ALLOWED_ORIGINS = [
+    'http://localhost:5173', // Your local frontend (if needed)
+    'https://www.letterlab.pro/' // Add your Vercel URL here!
+];
 // 1) Initialize app FIRST
 const app = express();
 
@@ -34,7 +32,7 @@ app.use(helmet());
 // Strict CORS allowlist (CLI/curl without Origin is allowed)
 app.use(cors({
   origin: (origin, cb) => {
-    if (!origin) return cb(null, true); // non-browser (curl, Postman)
+    if (!origin) return cb(null, true);
     if (!ALLOWED_ORIGINS.length || ALLOWED_ORIGINS.includes(origin)) return cb(null, true);
     return cb(new Error("Not allowed by CORS"));
   },
