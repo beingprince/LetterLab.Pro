@@ -10,10 +10,15 @@
   },
   "dependencies": {
     "@google/genai": "^1.24.0",
+    "bcryptjs": "^3.0.2",
     "cors": "^2.8.5",
     "dotenv": "^16.6.1",
     "express": "^4.21.2",
-    "mongoose": "^8.19.1"  },
+    "express-rate-limit": "^8.1.0",
+    "helmet": "^8.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.19.1"
+  },
   "engines": {
     "node": ">=20.0.0"
   }
