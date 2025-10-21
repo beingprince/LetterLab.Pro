@@ -17,7 +17,7 @@ import usersRouter from "./routes/users.js";
 // ───────────────────────────────────────────────────────────────────────────────
 // Feature flags & config (from .env)
 const ENABLE_CHAT  = process.env.ENABLE_CHAT === "1";      // 0 (off) or 1 (on)
-const ENABLE_EMAIL = process.env.ENABLE_EMAIL !== "1";     // default ON
+const ENABLE_EMAIL = process.env.ENABLE_EMAIL !== "0";     // default ON
 
 // ⭐ UPDATED: include both custom domains and Vercel preview; no trailing slashes
 const ALLOWED_ORIGINS = [
@@ -35,31 +35,24 @@ const app = express();
 app.use(helmet());
 
 // ⭐ UPDATED: robust CORS (handles preflight + Vercel previews)
-app.use(
-  cors({
-    origin: (origin, cb) => {
-      // allow server-to-server / curl / health checks
-      if (!origin) return cb(null, true);
+app.use(cors({
+  origin(origin, cb) {
+    if (!origin) return cb(null, true);        // server-to-server/health
+    if (ALLOWED_ORIGINS.includes(origin)) return cb(null, true);
 
-      // exact allowlist first
-      if (ALLOWED_ORIGINS.includes(origin)) return cb(null, true);
+    // allow any vercel preview domain
+    try {
+      const host = new URL(origin).hostname;
+      if (host.endsWith(".vercel.app")) return cb(null, true);
+    } catch {}
 
-      // allow any *.vercel.app preview build (useful for PR/preview deployments)
-      try {
-        const host = new URL(origin).hostname;
-        if (host.endsWith(".vercel.app")) return cb(null, true);
-      } catch (_) { /* ignore */ }
-
-      return cb(new Error("Not allowed by CORS"));
-    },
-    methods: ["GET", "POST", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization"],
-    credentials: false,
-    maxAge: 86400,
-  })
-);
-
-// handle preflight explicitly
+    return cb(new Error("Not allowed by CORS"));
+  },
+  methods: ["GET", "POST", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+  credentials: false,
+  maxAge: 86400,
+}));
 app.options("*", cors());
 
 // Tighter body size limits to control cost
