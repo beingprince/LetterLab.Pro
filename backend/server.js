@@ -18,26 +18,49 @@ import usersRouter from "./routes/users.js";
 // Feature flags & config (from .env)
 const ENABLE_CHAT  = process.env.ENABLE_CHAT === "1";      // 0 (off) or 1 (on)
 const ENABLE_EMAIL = process.env.ENABLE_EMAIL !== "1";     // default ON
+
+// ⭐ UPDATED: include both custom domains and Vercel preview; no trailing slashes
 const ALLOWED_ORIGINS = [
-    'http://localhost:5173', // Your local frontend (if needed)
-    'https://letter-lab-pro-git-main-beingprinces-projects.vercel.app/' // Add your Vercel URL here!
+  "http://localhost:5173",
+  "https://letterlab.pro",
+  "https://www.letterlab.pro",
+  "https://letter-lab-84tso78qn-beingprinces-projects.vercel.app", // your prod Vercel URL
 ];
+
 // 1) Initialize app FIRST
 const app = express();
 
 // ───────────────────────────────────────────────────────────────────────────────
-// 2) Security + CORS + body limits (PASTE HERE, BEFORE ROUTES)
+// 2) Security + CORS + body limits (BEFORE routes)
 app.use(helmet());
 
-// Strict CORS allowlist (CLI/curl without Origin is allowed)
-app.use(cors({
-  origin: (origin, cb) => {
-    if (!origin) return cb(null, true);
-    if (!ALLOWED_ORIGINS.length || ALLOWED_ORIGINS.includes(origin)) return cb(null, true);
-    return cb(new Error("Not allowed by CORS"));
-  },
-  credentials: false,
-}));
+// ⭐ UPDATED: robust CORS (handles preflight + Vercel previews)
+app.use(
+  cors({
+    origin: (origin, cb) => {
+      // allow server-to-server / curl / health checks
+      if (!origin) return cb(null, true);
+
+      // exact allowlist first
+      if (ALLOWED_ORIGINS.includes(origin)) return cb(null, true);
+
+      // allow any *.vercel.app preview build (useful for PR/preview deployments)
+      try {
+        const host = new URL(origin).hostname;
+        if (host.endsWith(".vercel.app")) return cb(null, true);
+      } catch (_) { /* ignore */ }
+
+      return cb(new Error("Not allowed by CORS"));
+    },
+    methods: ["GET", "POST", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+    credentials: false,
+    maxAge: 86400,
+  })
+);
+
+// handle preflight explicitly
+app.options("*", cors());
 
 // Tighter body size limits to control cost
 app.use(express.json({ limit: "16kb" }));
@@ -45,10 +68,10 @@ app.use(express.text({ type: ["text/plain", "text/*"], limit: "16kb" }));
 app.use(express.urlencoded({ extended: true, limit: "16kb" }));
 
 // ───────────────────────────────────────────────────────────────────────────────
-// 3) Rate Limiters (GLOBAL first, then for model-backed routes)
+// 3) Rate Limiters
 const apiLimiter = rateLimit({
-  windowMs: 60 * 1000, // 1 minute
-  max: 60,             // 60 req/min per IP (all /api)
+  windowMs: 60 * 1000,
+  max: 60,
   standardHeaders: true,
   legacyHeaders: false,
 });
@@ -56,7 +79,7 @@ app.use("/api/", apiLimiter);
 
 const modelLimiter = rateLimit({
   windowMs: 60 * 1000,
-  max: 10, // 10 req/min for model-backed routes
+  max: 10,
 });
 
 // ───────────────────────────────────────────────────────────────────────────────
@@ -79,17 +102,14 @@ function safeStitch(response) {
   return parts.map((p) => p?.text || "").join("");
 }
 
-// 👉 Helper: sanitize text input (prevents huge prompts)
 function sanitizeText(s, max = 4000) {
   if (typeof s !== "string") return "";
   return s.trim().slice(0, max);
 }
 
 // ───────────────────────────────────────────────────────────────────────────────
-// 5) Health endpoints
-app.get("/", (_req, res) =>
-  res.type("text/plain").send("LetterLab backend is running.")
-);
+// 5) Health
+app.get("/", (_req, res) => res.type("text/plain").send("LetterLab backend is running."));
 
 app.get("/healthz", (_req, res) => {
   const { isConnected, readyState } = mongoState();
@@ -117,7 +137,7 @@ app.get("/api/health", async (_req, res) => {
 });
 
 // ───────────────────────────────────────────────────────────────────────────────
-// 6) Public auth endpoints
+// 6) Public auth
 app.use("/api/users", usersRouter);
 
 // ───────────────────────────────────────────────────────────────────────────────
@@ -126,17 +146,16 @@ app.use("/api/conversations", auth, conversationRoutes);
 app.use("/api/usage", auth, usageRouter);
 
 // ───────────────────────────────────────────────────────────────────────────────
-// 8) Email generator (gated + limited + sanitized)
+// 8) Email generator
 if (ENABLE_EMAIL) {
   app.post("/api/generate-email", modelLimiter, async (req, res) => {
     try {
       const notes = sanitizeText(req.body?.notes, 4000);
       const tone  = sanitizeText(req.body?.tone || "Professional", 40);
 
-      // Optional guard: avoid credit burn on greetings
       if (/^\s*(hi|hello|hey)\b/i.test(notes) && notes.length < 80) {
         return res.status(400).json({
-          error: "This looks like a greeting, not email notes. Use /api/chat for casual messages."
+          error: "This looks like a greeting, not email notes. Use /api/chat for casual messages.",
         });
       }
 
@@ -163,14 +182,13 @@ User notes:
 }
 
 // ───────────────────────────────────────────────────────────────────────────────
-// 9) Casual chat (only if enabled)
+// 9) Casual chat
 if (ENABLE_CHAT) {
   app.post("/api/chat", modelLimiter, async (req, res) => {
     try {
       const message = sanitizeText(req.body?.message, 2000);
       if (!message) return res.status(400).json({ error: "Missing 'message'" });
 
-      // Credit saver: short-circuit small greetings locally (no model call)
       const m = message.toLowerCase();
       const looksLikeGreeting =
         m.length <= 60 &&
@@ -178,7 +196,7 @@ if (ENABLE_CHAT) {
 
       if (looksLikeGreeting) {
         return res.json({
-          text: "Hey! I’m doing well 😊 Chat casually here, or switch to Email Mode for a polished draft."
+          text: "Hey! I’m doing well 😊 Chat casually here, or switch to Email Mode for a polished draft.",
         });
       }
 
@@ -199,7 +217,7 @@ if (ENABLE_CHAT) {
 }
 
 // ───────────────────────────────────────────────────────────────────────────────
-// 10) Serve frontend in production
+// 10) Serve frontend in production (optional when hosting both on Render)
 if (process.env.NODE_ENV === "production") {
   const distPath = path.resolve(__dirname, "../frontend/dist");
   app.use(express.static(distPath));
