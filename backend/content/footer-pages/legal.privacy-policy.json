@@ -1,0 +1,17 @@
+{
+  "slug": "legal/privacy-policy",
+  "title": "Privacy Policy",
+  "lead": "This policy describes how LetterLab collects, uses, and protects your information. Last updated: March 1, 2026.",
+  "seo": { "title": "Privacy Policy | LetterLab", "description": "How we handle your data." },
+  "lastUpdated": "March 1, 2026",
+  "sections": [
+    { "id": "overview", "title": "Overview", "body": ["LetterLab (\"we,\" \"our,\" or \"us\") provides a writing assistance service. This Privacy Policy explains what information we collect, how we use it, and your choices. By using LetterLab, you agree to this policy."] },
+    { "id": "information-we-collect", "title": "Information we collect", "body": ["We collect information you provide directly (e.g., account credentials, email content you submit for drafting, and contact form messages). We also collect usage data such as feature use and error logs to operate and improve the service. We do not sell your personal information."] },
+    { "id": "how-we-use", "title": "How we use information", "body": ["We use your information to provide, secure, and improve LetterLab; to communicate with you; and to comply with law. Content you submit for drafting is processed to generate suggestions and is not used to train third-party models for other purposes."] },
+    { "id": "cookies", "title": "Cookies", "body": ["We use cookies and similar technologies for session management, preferences, and analytics. You can manage cookie preferences in Cookies Settings. Essential cookies are required for the service to function."] },
+    { "id": "data-retention", "title": "Data retention", "body": ["We retain your data only as long as needed to provide the service and meet legal obligations. You may request deletion of your account and associated data; we will process such requests in line with our retention policy and applicable law."] },
+    { "id": "security", "title": "Security", "body": ["We use reasonable technical and organizational measures to protect your data. No system is completely secure; we do not guarantee absolute security."] },
+    { "id": "your-choices", "title": "Your choices", "body": ["You can access and update account information in your profile. You can disable non-essential cookies in Cookies Settings. You may request deletion of your account and data by contacting us."] },
+    { "id": "contact", "title": "Contact", "body": ["For privacy-related questions or requests, contact us via the Contact page or at privacy@letterlab.pro."] }
+  ]
+}

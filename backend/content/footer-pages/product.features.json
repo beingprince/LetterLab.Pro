@@ -1,0 +1,64 @@
+{
+  "slug": "product/features",
+  "title": "Features",
+  "lead": "LetterLab helps you draft professional messages faster while keeping you in control of tone, structure, and intent. Every tool is designed to support clear communication—not replace your voice.",
+  "seo": { "title": "Features | LetterLab", "description": "Professional writing assistance with tone control, clarity, and consistency." },
+  "sections": [
+    {
+      "id": "drafting-engine",
+      "label": "Core Engine",
+      "title": "Draft faster without losing your voice",
+      "paragraph": "LetterLab generates structured first drafts that respect your intent. Instead of replacing your writing style, it provides a clean starting point you can refine with clarity and control.",
+      "bullets": [
+        "Generate a structured draft in seconds",
+        "Adjust tone between formal, neutral, and friendly",
+        "Improve clarity without adding filler",
+        "Maintain consistency across messages"
+      ],
+      "cta": "See drafting workflow",
+      "previewType": "draft"
+    },
+    {
+      "id": "tone-intelligence",
+      "label": "Control",
+      "title": "Precise tone adjustments",
+      "paragraph": "Professional communication depends on nuance. LetterLab allows you to fine-tune tone, confidence level, and formality without rewriting from scratch.",
+      "bullets": [
+        "Make language more confident or softer",
+        "Shorten overly long paragraphs",
+        "Remove repetitive phrases",
+        "Improve sentence flow"
+      ],
+      "cta": "Explore tone control",
+      "previewType": "tone"
+    },
+    {
+      "id": "structure-clarity",
+      "label": "Structure",
+      "title": "Clear messages that get replies",
+      "paragraph": "Emails should be easy to scan. LetterLab emphasizes purpose-first writing, reducing ambiguity and helping recipients understand next steps immediately.",
+      "bullets": [
+        "Strong subject line suggestions",
+        "Clear purpose in first sentence",
+        "Organized context in middle",
+        "Direct call-to-action ending"
+      ],
+      "cta": "See structure examples",
+      "previewType": "structure"
+    },
+    {
+      "id": "proof-review",
+      "label": "Review",
+      "title": "Send with confidence",
+      "paragraph": "Before sending, review grammar, formatting, and clarity in one pass. LetterLab highlights awkward phrasing and suggests improvements while keeping your original meaning intact.",
+      "bullets": [
+        "Grammar and punctuation checks",
+        "Sentence-level clarity suggestions",
+        "Readability improvements",
+        "Quick final review mode"
+      ],
+      "cta": "Try review mode",
+      "previewType": "review"
+    }
+  ]
+}

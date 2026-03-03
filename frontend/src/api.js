@@ -4,27 +4,47 @@
 const rawBase = import.meta.env.VITE_API_URL || "http://localhost:5000";
 const BASE = rawBase.replace(/\/+$/, ""); // strip trailing slashes
 
-export async function apiRequest(path, method = "GET", body = null, token = null) {
-  const headers = { "Content-Type": "application/json" };
-  if (token) headers.Authorization = `Bearer ${token}`;
+const LS_KEY = 'letterlab_user';
+const TOKEN_KEY = 'authToken'; // Standardized token key
 
-  // ensure there’s only one "/" between BASE and path
-  const urlPath = path.startsWith("/") ? path : `/${path}`;
 
-  const res = await fetch(`${BASE}${urlPath}`, {
+
+
+export async function apiRequest(endpoint, method = 'GET', body = null) {
+  // Try to get token from standardized storage
+  let token = localStorage.getItem(TOKEN_KEY);
+
+  // Fallback: try getting it from letterlab_user object (legacy support)
+  if (!token) {
+    try {
+      const user = JSON.parse(localStorage.getItem(LS_KEY));
+      token = user?.token;
+    } catch (e) {
+      console.error('Failed to parse user data:', e);
+    }
+  }
+
+  const headers = {
+    'Content-Type': 'application/json',
+  };
+
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
+  }
+
+  // Ensure endpoint starts with /
+  const path = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
+
+  const response = await fetch(`${BASE}${path}`, {
     method,
     headers,
     body: body ? JSON.stringify(body) : null,
   });
 
-  const text = await res.text();
-  let data;
-  try {
-    data = JSON.parse(text);
-  } catch {
-    data = { error: text };
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(errorData.error || `HTTP ${response.status}`);
   }
 
-  if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
-  return data;
+  return response.json();
 }

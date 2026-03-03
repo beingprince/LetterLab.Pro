@@ -1,0 +1,99 @@
+.FooterAccordion__group-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--fp-text);
+  margin: 0 0 16px;
+}
+
+.FooterAccordion__list {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.FooterAccordion__item {
+  border-bottom: 1px solid var(--fp-border);
+}
+
+.FooterAccordion__item:first-child {
+  border-top: 1px solid var(--fp-border);
+}
+
+.FooterAccordion__trigger {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--fp-16, 16px);
+  padding: var(--fp-16, 16px) 0;
+  min-height: 48px;
+  font: inherit;
+  font-size: var(--fp-font-body, 16px);
+  font-weight: 600;
+  color: var(--fp-text);
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  transition: color 0.2s ease;
+}
+
+.FooterAccordion__trigger:hover {
+  color: var(--fp-accent-light);
+}
+
+.FooterAccordion__trigger:focus-visible {
+  outline: 2px solid var(--fp-accent-light);
+  outline-offset: 2px;
+}
+
+.FooterAccordion__icon {
+  flex-shrink: 0;
+  color: var(--fp-text-secondary);
+  transition: transform 0.25s ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .FooterAccordion__icon {
+    transition: none;
+  }
+}
+
+.FooterAccordion__trigger[aria-expanded="true"] + .FooterAccordion__panel .FooterAccordion__content,
+.FooterAccordion__panel[data-open="true"] .FooterAccordion__content {
+  display: block;
+}
+
+.FooterAccordion__trigger[aria-expanded="true"] .FooterAccordion__icon {
+  transform: rotate(180deg);
+}
+
+.FooterAccordion__panel {
+  overflow: hidden;
+}
+
+.FooterAccordion__content {
+  display: none;
+  padding-bottom: var(--fp-24, 24px);
+  padding-right: var(--fp-32, 32px);
+}
+
+.FooterAccordion__panel[data-open="true"] .FooterAccordion__content {
+  display: block;
+}
+
+.FooterAccordion__content p {
+  margin: 0 0 var(--fp-16, 16px);
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--fp-text-secondary);
+  max-width: var(--fp-line-length, 65ch);
+}
+
+.FooterAccordion__content p:last-child {
+  margin-bottom: 0;
+}
+
+.FooterAccordion__description {
+  margin-bottom: var(--fp-8, 8px);
+}

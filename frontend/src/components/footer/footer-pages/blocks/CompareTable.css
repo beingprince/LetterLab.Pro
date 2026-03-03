@@ -1,0 +1,58 @@
+.CompareTable__wrap {
+  overflow-x: auto;
+  margin: 24px 0;
+  -webkit-overflow-scrolling: touch;
+}
+
+.CompareTable {
+  width: 100%;
+  min-width: 320px;
+  border-collapse: collapse;
+  font-size: 15px;
+}
+
+.CompareTable th,
+.CompareTable td {
+  padding: 12px 16px;
+  text-align: left;
+  border-bottom: 1px solid var(--fp-border);
+  vertical-align: top;
+}
+
+.CompareTable th {
+  font-weight: 600;
+  color: var(--fp-text);
+  background: var(--fp-bg-alt);
+}
+
+.CompareTable__label-col {
+  font-weight: 500;
+  color: var(--fp-text-secondary);
+  width: 28%;
+}
+
+.CompareTable__highlight {
+  background: rgba(30, 58, 138, 0.04);
+}
+
+.CompareTable__badge {
+  display: block;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--fp-text-secondary);
+  margin-top: 4px;
+}
+
+@media (max-width: 767px) {
+  .CompareTable__wrap {
+    margin-left: -16px;
+    margin-right: -16px;
+    padding: 0 16px;
+  }
+
+  .CompareTable th,
+  .CompareTable td {
+    padding: 10px 12px;
+    font-size: 14px;
+  }
+}

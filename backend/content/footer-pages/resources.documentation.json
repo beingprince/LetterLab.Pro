@@ -1,0 +1,26 @@
+{
+  "slug": "resources/documentation",
+  "title": "Documentation",
+  "lead": "Documentation explains how LetterLab behaves, how key features are structured, and what constraints the interface enforces to keep writing predictable.",
+  "seo": { "title": "Documentation | LetterLab", "description": "How LetterLab works: drafting, tone, templates, and data." },
+  "sections": [
+    { "id": "overview", "type": "plain", "title": "Overview", "body": ["LetterLab is a writing assistant focused on professional email and short messages. The product emphasizes predictable editing controls, minimal friction, and visible constraints so you stay in control of tone and content."], "bullets": ["predictable editing controls", "minimal friction", "visible constraints"] },
+    { "id": "drafting-workflow", "type": "plain", "title": "Drafting workflow", "body": ["1. Enter your notes or context in the composer.", "2. Choose a tone (formal, neutral, or friendly) if needed.", "3. Generate a first draft. Review and edit the result.", "4. Use suggestions to refine subject line, opening, or closing.", "5. Send when you are satisfied, or copy to your email client."] },
+    { "id": "tone-control", "type": "plain", "title": "Tone control", "body": ["Tone presets affect word choice and sentence structure, not your intent. You can switch between presets and regenerate, or edit manually. The system does not override explicit instructions in your notes."] },
+    { "id": "templates", "type": "plain", "title": "Templates", "body": ["Templates are optional patterns for common situations (e.g., follow-up, thank-you, request). They suggest structure and phrasing; you can edit or ignore any part."] },
+    { "id": "data-handling", "type": "plain", "title": "Data handling", "body": ["Content you enter is used to generate drafts and suggestions. We do not train models on your content for purposes other than serving your request. For full details, see the Privacy Policy."], "bullets": ["Input is processed to produce your draft.", "We do not use your content to train third-party models.", "Data retention is described in the Privacy Policy."] },
+    {
+      "id": "troubleshooting",
+      "type": "accordion",
+      "title": "Troubleshooting",
+      "items": [
+        { "title": "Output too long", "body": ["Use the \"Shorten\" or \"Tighten\" option if available, or add a note asking for a briefer draft. You can also edit the draft directly and remove sentences."] },
+        { "title": "Tone feels off", "body": ["Try a different tone preset or add a line in your notes (e.g., \"Keep it more formal\" or \"Sound friendlier\"). Regenerate and compare."] },
+        { "title": "Message sounds repetitive", "body": ["Reduce repeated phrases in your notes. If the draft repeats the same idea, edit one section and use \"Improve flow\" or similar to vary wording."] },
+        { "title": "Subject line generic", "body": ["Include the main goal of the email in your notes. Subject suggestions work best when the message purpose is clear."] },
+        { "title": "Formatting odd in email client", "body": ["LetterLab outputs plain text or simple formatting. Pasting into some clients can change line breaks. If needed, send a test to yourself first."] },
+        { "title": "Limits reached", "body": ["Usage limits are shown in the UI. If you hit a limit, wait until the next reset window or check your plan in Account or Pricing."] }
+      ]
+    }
+  ]
+}

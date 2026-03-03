@@ -1,0 +1,47 @@
+.StatusBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+  color: var(--fp-text);
+  background: var(--fp-bg-alt);
+  border: 1px solid var(--fp-border);
+  border-radius: 9999px;
+  min-height: 40px;
+  transition: opacity 0.2s ease;
+}
+
+.StatusBadge:hover {
+  opacity: 0.9;
+}
+
+.StatusBadge:focus-visible {
+  outline: 2px solid var(--fp-accent-light);
+  outline-offset: 2px;
+}
+
+.StatusBadge__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.StatusBadge--ok .StatusBadge__dot {
+  background: var(--fp-status-ok, #059669);
+}
+
+.StatusBadge--warn .StatusBadge__dot {
+  background: var(--fp-status-warn, #d97706);
+}
+
+.StatusBadge--error .StatusBadge__dot {
+  background: var(--fp-status-error, #dc2626);
+}
+
+.StatusBadge__label {
+  color: inherit;
+}

@@ -1,0 +1,18 @@
+{
+  "slug": "legal/cookies-settings",
+  "title": "Cookies Settings",
+  "lead": "Manage your cookie preferences. Your choices are stored locally and can be reset at any time.",
+  "seo": { "title": "Cookies Settings | LetterLab", "description": "Manage cookie preferences." },
+  "sections": [
+    {
+      "id": "categories",
+      "type": "cookie-categories",
+      "items": [
+        { "id": "necessary", "label": "Strictly necessary", "description": "Required for the site to function (e.g., session, security).", "required": true },
+        { "id": "preferences", "label": "Preferences", "description": "Remember your settings (e.g., theme, language).", "required": false },
+        { "id": "analytics", "label": "Analytics", "description": "Help us understand how the site is used. Not in use currently.", "required": false },
+        { "id": "marketing", "label": "Marketing", "description": "Used for advertising or retargeting. Not in use currently.", "required": false }
+      ]
+    }
+  ]
+}

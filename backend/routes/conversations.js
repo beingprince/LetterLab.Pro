@@ -2,8 +2,82 @@
 import express from "express";
 import mongoose from "mongoose";
 import Conversation from "../models/Conversation.js";
+import { outlookClient } from "../emailClients.js";
+import { auth } from "../middleware/auth.js";
+import fs from "fs";
 
 const router = express.Router();
+
+// Protect all conversation routes with authentication
+router.use(auth);
+
+// 📧 Pull conversation thread from Outlook
+router.get("/outlook/thread", async (req, res) => {
+  try {
+    const { email } = req.query;
+
+    // Extract token from Header or Query
+    // The "Authorization" header is now the App JWT (for the auth middleware).
+    // The Outlook Access Token is passed in the query param "accessToken".
+    const accessToken = req.query.accessToken;
+
+    console.log("🔹 [DEBUG] Incoming /outlook/thread:", {
+      query: req.query,
+      authHeader: req.headers.authorization,
+      extractedTokenLength: accessToken ? accessToken.length : 0
+    });
+
+    if (!email || !accessToken) {
+      return res.status(400).json({ error: "Missing email or access token" });
+    }
+
+    console.log("🔹 Outlook thread request:", {
+      email,
+      tokenLength: accessToken.length,
+      tokenPreview: accessToken.substring(0, 10) + "...",
+      tokenStartChar: accessToken ? accessToken.charCodeAt(0) : 'N/A',
+      tokenEndChar: accessToken ? accessToken.charCodeAt(accessToken.length - 1) : 'N/A',
+      hasQuotes: accessToken.startsWith('"') || accessToken.endsWith('"')
+    });
+
+    // Strip quotes if present (common issue with localStorage serialization)
+    const cleanToken = (accessToken.startsWith('"') && accessToken.endsWith('"'))
+      ? accessToken.slice(1, -1)
+      : accessToken;
+
+    const client = outlookClient(cleanToken);
+
+    // ✅ Use $search instead of invalid filter
+    const result = await client
+      .api("/me/messages")
+      .search(`"${email}"`)
+      .select("subject,from,toRecipients,bodyPreview,receivedDateTime")
+      .top(10)
+      .get();
+
+    console.log("✅ Fetched thread count:", result?.value?.length);
+    res.json({ messages: result.value || [] });
+  } catch (err) {
+    const errorLog = {
+      timestamp: new Date().toISOString(),
+      route: "GET /conversations/outlook/thread",
+      message: err.message,
+      stack: err.stack,
+      body: err.body, // graph api error details
+      accessTokenPreview: req.query.accessToken ? req.query.accessToken.substring(0, 50) : "N/A"
+    };
+    fs.appendFileSync("backend_error.log", JSON.stringify(errorLog, null, 2) + "\n---\n");
+    console.error("❌ [GET /conversations/outlook/thread]", errorLog);
+
+    res.status(500).json({
+      error: "Failed to fetch Outlook thread",
+      details: err.body || err.message,
+    });
+  }
+});
+
+
+
 
 // List: pinned first, then recent — ONLY current user's
 router.get("/", async (req, res) => {
@@ -28,10 +102,10 @@ router.post("/", async (req, res) => {
 
     const safeMessages = Array.isArray(messages)
       ? messages.slice(0, 200).map((m) => ({
-          role: m?.role,
-          content: (m?.content || "").toString().trim().slice(0, 20000),
-          tokens: Number.isFinite(m?.tokens) ? Math.max(0, Math.floor(m.tokens)) : 0,
-        }))
+        role: m?.role,
+        content: (m?.content || "").toString().trim().slice(0, 20000),
+        tokens: Number.isFinite(m?.tokens) ? Math.max(0, Math.floor(m.tokens)) : 0,
+      }))
       : [];
     const totalTokens = safeMessages.reduce((s, m) => s + (m.tokens || 0), 0);
 
@@ -82,10 +156,10 @@ router.patch("/:id", async (req, res) => {
     if (messages !== undefined) {
       const safe = Array.isArray(messages)
         ? messages.slice(0, 200).map((m) => ({
-            role: m?.role,
-            content: (m?.content || "").toString().trim().slice(0, 20000),
-            tokens: Number.isFinite(m?.tokens) ? Math.max(0, Math.floor(m.tokens)) : 0,
-          }))
+          role: m?.role,
+          content: (m?.content || "").toString().trim().slice(0, 20000),
+          tokens: Number.isFinite(m?.tokens) ? Math.max(0, Math.floor(m.tokens)) : 0,
+        }))
         : [];
       update.messages = safe;
       update.totalTokens = safe.reduce((s, m) => s + (m.tokens || 0), 0);

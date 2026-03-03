@@ -1,0 +1,28 @@
+{
+  "slug": "resources/community",
+  "title": "Community",
+  "lead": "LetterLab improves through feedback. If you have ideas, bugs, or suggestions, this page shows the fastest ways to contribute.",
+  "seo": { "title": "Community | LetterLab", "description": "Contribute and get in touch." },
+  "sections": [
+    {
+      "id": "main-links",
+      "type": "links",
+      "items": [
+        { "label": "GitHub repository", "description": "Source code and contribution workflow.", "href": "https://github.com/letterlabpro/letterlab", "available": true },
+        { "label": "Issue tracker", "description": "Report bugs and track fixes.", "href": "https://github.com/letterlabpro/letterlab/issues", "available": true },
+        { "label": "Feature requests", "description": "Suggest new features or improvements.", "href": "https://github.com/letterlabpro/letterlab/discussions", "available": true },
+        { "label": "Design feedback", "description": "Share UI/UX ideas and pain points.", "href": "mailto:design@letterlab.pro", "available": true }
+      ]
+    },
+    {
+      "id": "contribution-guidelines",
+      "type": "accordion",
+      "title": "Contribution guidelines",
+      "items": [
+        { "title": "What makes a good bug report", "body": ["Include steps to reproduce, what you expected, and what actually happened. Your environment (browser, OS) and whether the issue is consistent or intermittent help us fix it faster."] },
+        { "title": "What makes a good feature request", "body": ["Describe the problem you’re trying to solve and why existing options don’t work. A short example or use case helps. We prioritize clarity and impact."] },
+        { "title": "Respectful communication", "body": ["We expect constructive, respectful communication in issues and discussions. We reserve the right to moderate content that violates this."] }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+.InlineNotice {
+  padding: var(--fp-16, 16px) var(--fp-24, 24px);
+  background: rgba(30, 58, 138, 0.08);
+  border-left: 4px solid var(--fp-accent-light);
+  border-radius: var(--fp-radius, 8px);
+  margin-bottom: var(--fp-24, 24px);
+}
+
+.InlineNotice__text {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.5;
+  color: var(--fp-text);
+  max-width: var(--fp-line-length, 65ch);
+}

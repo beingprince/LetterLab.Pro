@@ -1,0 +1,33 @@
+{
+  "slug": "company/about",
+  "title": "About",
+  "lead": "LetterLab is a focused writing tool built to reduce friction in professional communication. The goal is simple: help users draft better messages faster, with clear control over tone and structure.",
+  "seo": { "title": "About | LetterLab", "description": "Our mission and approach." },
+  "sections": [
+    { "id": "problem", "type": "plain", "title": "The problem", "body": ["Professional email is essential but time-consuming. Tone is easy to get wrong; structure is often unclear. Many tools add complexity instead of reducing it."] },
+    { "id": "approach", "type": "plain", "title": "The approach", "body": ["We focus on clarity, control, and predictability. Our principles: clarity over cleverness, controls over surprises, and predictable structure so you stay in charge."], "bullets": ["clarity over cleverness", "controls over surprises", "predictable structure"] },
+    {
+      "id": "story-timeline",
+      "type": "timeline",
+      "title": "Story timeline",
+      "items": [
+        { "date": "2025", "title": "Idea and research", "body": "Identifying pain points in professional email and drafting workflows." },
+        { "date": "Early 2026", "title": "First version", "body": "Initial drafting, tone control, and email integration (Gmail, Outlook)." },
+        { "date": "2026", "title": "Footer and transparency", "body": "Documentation, help center, status page, and legal pages added." },
+        { "date": "Ongoing", "title": "Iteration", "body": "We continue to improve based on feedback and real usage." }
+      ]
+    },
+    {
+      "id": "principles",
+      "type": "plain",
+      "title": "Principles",
+      "items": [
+        { "title": "Clarity first", "body": "Every feature should make the message easier to read and act on, not harder." },
+        { "title": "User in control", "body": "You decide what to send. We suggest; we don’t auto-send or hide choices." },
+        { "title": "Predictable behavior", "body": "The product should behave in ways you can anticipate. No surprise rewrites or tone shifts." },
+        { "title": "Minimal friction", "body": "Fewer steps, clear options, and visible constraints beat a crowded interface." },
+        { "title": "Honest communication", "body": "We communicate limits, changes, and trade-offs clearly. No dark patterns." }
+      ]
+    }
+  ]
+}

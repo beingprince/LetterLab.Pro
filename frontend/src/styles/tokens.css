@@ -1,0 +1,123 @@
+/**
+ * LetterLab Pro - Design Tokens
+ * Industry-grade token system per design brief
+ * Supports glassmorphism, reduced transparency, and accessibility
+ */
+
+:root {
+  /* Base Colors (HSL for easy theming) */
+  --bg: 220 33% 98%;
+  --surface: 0 0% 100%;
+  --text: 222 20% 12%;
+  --muted: 222 10% 45%;
+  --border: 220 16% 88%;
+  
+  /* Brand Colors */
+  --brand: 221 83% 53%;
+  --brand-600: 221 83% 48%;
+  --brand-700: 221 83% 40%;
+  
+  /* Semantic Colors */
+  --danger: 0 84% 60%;
+  --success: 142 71% 45%;
+  --warning: 38 92% 50%;
+  --info: 199 89% 48%;
+  
+  /* Glass Material Tokens */
+  --glass-bg: hsla(0, 0%, 100%, 0.62);
+  --glass-bg-strong: hsla(0, 0%, 100%, 0.78);
+  --glass-border: hsla(220, 16%, 88%, 0.55);
+  --glass-highlight: hsla(0, 0%, 100%, 0.35);
+  --glass-shadow: 0 8px 24px rgba(15, 23, 42, 0.10);
+  --glass-blur: 16px;
+  
+  /* Elevation Tokens */
+  --elev-0: none;
+  --elev-1: 0 1px 2px rgba(15, 23, 42, 0.06);
+  --elev-2: 0 8px 24px rgba(15, 23, 42, 0.10);
+  --elev-focus: 0 0 0 3px hsla(221, 83%, 53%, 0.25);
+  
+  /* Spacing Tokens (8pt grid system) */
+  --space-0: 0;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 40px;
+  --space-8: 48px;
+  --space-9: 64px;
+  
+  /* Typography Tokens */
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  
+  /* Z-index Scale */
+  --z-base: 0;
+  --z-dropdown: 1000;
+  --z-sticky: 1020;
+  --z-fixed: 1030;
+  --z-modal-backdrop: 1040;
+  --z-modal: 1050;
+  --z-popover: 1060;
+  --z-tooltip: 1070;
+}
+
+/* Dark Theme (optional future enhancement) */
+[data-theme="dark"] {
+  --bg: 222 84% 5%;
+  --surface: 222 47% 11%;
+  --text: 210 40% 98%;
+  --muted: 215 20% 65%;
+  --border: 215 28% 17%;
+  
+  --glass-bg: hsla(222, 47%, 11%, 0.62);
+  --glass-bg-strong: hsla(222, 47%, 11%, 0.78);
+  --glass-border: hsla(215, 28%, 17%, 0.55);
+  --glass-highlight: hsla(0, 0%, 100%, 0.05);
+}
+
+/* Reduced Transparency Mode (Accessibility) */
+[data-reduce-transparency="true"] {
+  --glass-bg: hsla(0, 0%, 100%, 0.92);
+  --glass-bg-strong: hsla(0, 0%, 100%, 0.96);
+  --glass-blur: 0px;
+}
+
+[data-reduce-transparency="true"][data-theme="dark"] {
+  --glass-bg: hsla(222, 47%, 11%, 0.92);
+  --glass-bg-strong: hsla(222, 47%, 11%, 0.96);
+}
+
+/* Utility Classes for Glass Materials */
+.glass-surface {
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur)) saturate(180%);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
+}
+
+.glass-surface-strong {
+  background: var(--glass-bg-strong);
+  backdrop-filter: blur(var(--glass-blur)) saturate(180%);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--elev-2);
+}
+
+/* Focus Ring Utility */
+.focus-ring {
+  outline: none;
+  box-shadow: var(--elev-focus);
+}
+
+/* Reduced Motion Support */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

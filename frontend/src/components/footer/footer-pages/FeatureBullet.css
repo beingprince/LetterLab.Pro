@@ -1,0 +1,29 @@
+.FeatureBullet {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--fp-8, 8px);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.FeatureBullet__icon {
+  flex-shrink: 0;
+  width: 16px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--fp-accent-light);
+}
+
+.FeatureBullet__icon svg {
+  width: 16px;
+  height: 16px;
+}
+
+.FeatureBullet__text {
+  font-size: 16px;
+  line-height: 1.6;
+  color: var(--fp-text);
+}

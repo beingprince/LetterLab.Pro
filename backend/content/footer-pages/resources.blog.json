@@ -1,0 +1,19 @@
+{
+  "slug": "resources/blog",
+  "title": "Blog",
+  "lead": "Notes on building LetterLab, writing systems, and interface decisions. Posts are written to be useful, not promotional.",
+  "seo": { "title": "Blog | LetterLab", "description": "Updates and notes from the LetterLab team." },
+  "sections": [
+    {
+      "id": "entries",
+      "type": "blog-entries",
+      "items": [
+        { "id": "writing-systems", "title": "Why we focus on writing systems", "date": "2026-02-20", "summary": "LetterLab is built around predictable structure: purpose first, context next, action at the end. Here’s how that shapes the product.", "tags": ["Product", "Writing", "UX"] },
+        { "id": "tone-control", "title": "Tone control without overfitting", "date": "2026-02-10", "summary": "We added formal, neutral, and friendly presets to keep output consistent without locking you into a single voice.", "tags": ["Features", "Tone"] },
+        { "id": "email-clients", "title": "Plain text and email clients", "date": "2026-01-28", "summary": "Why we default to plain text and simple formatting, and how to avoid surprises when pasting into Gmail or Outlook.", "tags": ["Technical", "Email"] },
+        { "id": "constraints", "title": "Constraints that help", "date": "2026-01-15", "summary": "Visible limits and clear options reduce decision fatigue. We’re designing for clarity, not feature count.", "tags": ["Design", "Product"] },
+        { "id": "launch", "title": "LetterLab launch", "date": "2026-01-05", "summary": "We’re shipping an early version focused on drafting, tone, and integration. Feedback welcome.", "tags": ["Announcement"] }
+      ]
+    }
+  ]
+}

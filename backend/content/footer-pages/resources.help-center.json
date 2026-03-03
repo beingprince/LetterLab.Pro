@@ -1,0 +1,45 @@
+{
+  "slug": "resources/help-center",
+  "title": "Help center",
+  "lead": "If something feels unclear or inconsistent, start here. This page focuses on practical fixes and quick explanations.",
+  "seo": { "title": "Help Center | LetterLab", "description": "FAQs and quick help for LetterLab." },
+  "sections": [
+    {
+      "id": "search",
+      "type": "search",
+      "placeholder": "Search help articles…"
+    },
+    {
+      "id": "categories",
+      "type": "categories",
+      "items": [
+        { "id": "getting-started", "title": "Getting started" },
+        { "id": "writing-quality", "title": "Writing quality" },
+        { "id": "tone-and-style", "title": "Tone and style" },
+        { "id": "account-and-access", "title": "Account and access" },
+        { "id": "privacy", "title": "Privacy" }
+      ]
+    },
+    {
+      "id": "faq",
+      "type": "accordion",
+      "items": [
+        { "category": "getting-started", "title": "How do I create my first draft?", "body": ["Open the composer, add your notes or context, choose a tone if you like, and click Generate. Review the draft and edit as needed before sending or copying."] },
+        { "category": "getting-started", "title": "Can I use LetterLab without an account?", "body": ["You need to sign in to use the drafting tools. Account creation is free; some features may require a plan. See Pricing for details."] },
+        { "category": "getting-started", "title": "Which email providers are supported?", "body": ["LetterLab can integrate with Gmail and Outlook. You connect your account once; drafts can be sent or copied from the app."] },
+        { "category": "writing-quality", "title": "How do I get a shorter draft?", "body": ["Use the shorten or tighten option after generating, or add a note like \"Keep it under 100 words.\" You can also edit the draft directly."] },
+        { "category": "writing-quality", "title": "Why does the draft miss some of my points?", "body": ["Include the most important points clearly in your notes. If something is missing, add it in a new line and regenerate or edit the draft manually."] },
+        { "category": "writing-quality", "title": "Can I improve grammar only?", "body": ["Yes. Use the proofreading or grammar check step if available, or paste the text and ask for \"Grammar check only\" in the notes."] },
+        { "category": "tone-and-style", "title": "What do formal, neutral, and friendly mean?", "body": ["Formal uses more standard phrasing and avoids casual language. Neutral is balanced and professional. Friendly allows warmer, more conversational phrasing. You can mix by editing after generating."] },
+        { "category": "tone-and-style", "title": "How do I keep my greeting consistent?", "body": ["Use the same greeting style in your notes (e.g., \"Start with Dear Professor X\") or pick a template that matches your usual style."] },
+        { "category": "tone-and-style", "title": "Can I save my own templates?", "body": ["Template saving may be available on certain plans. Check the Templates section in the app or Documentation for the latest behavior."] },
+        { "category": "account-and-access", "title": "I can't sign in. What should I do?", "body": ["Confirm you are using the correct email and provider (Google or Microsoft). Clear cookies for this site and try again. If the problem continues, use the Contact form."] },
+        { "category": "account-and-access", "title": "How do I disconnect my email account?", "body": ["Go to Account or Profile, then Integrations or Connected accounts. Use the option to disconnect your email provider. You can reconnect later."] },
+        { "category": "account-and-access", "title": "Where do I see my usage?", "body": ["Usage and limits are shown in the Account or Profile area. The composer may also show a reminder when you are close to a limit."] },
+        { "category": "privacy", "title": "Is my content used to train AI?", "body": ["We do not use your content to train third-party models. Content is processed to serve your request. See the Privacy Policy for full details."] },
+        { "category": "privacy", "title": "How long is my data kept?", "body": ["Data retention is described in the Privacy Policy. In general, we retain data only as long as needed to provide the service and meet legal obligations."] },
+        { "category": "privacy", "title": "Can I delete my account and data?", "body": ["Yes. Account deletion is available in Account or Profile settings. After deletion, your data is removed according to our retention policy."] }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+import React from 'react';
+export { default as IconLightbulb } from '@mui/icons-material/Lightbulb';
+export { default as IconBuild } from '@mui/icons-material/Build';
+export { default as IconRocket } from '@mui/icons-material/Rocket';
+export { default as IconSchool } from '@mui/icons-material/School';
+export { default as IconSpeed } from '@mui/icons-material/Speed';
+export { default as IconSecurity } from '@mui/icons-material/Security';
+export { default as IconMail } from '@mui/icons-material/Mail';
+export { default as IconPerson } from '@mui/icons-material/Person';
+export { default as IconBusiness } from '@mui/icons-material/Business';
+export { default as IconMessage } from '@mui/icons-material/Message';

@@ -1,0 +1,109 @@
+/* Features hero – composed layout, 8px grid, footer-pages tokens only */
+.HeroFeatures {
+  padding-top: 40px;
+  padding-bottom: 24px;
+}
+
+@media (min-width: 768px) {
+  .HeroFeatures {
+    padding-top: 64px;
+    padding-bottom: 56px;
+  }
+}
+
+.HeroFeatures__grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 40px;
+  align-items: center;
+}
+
+@media (min-width: 768px) {
+  .HeroFeatures__grid {
+    grid-template-columns: 5fr 7fr;
+    gap: 48px;
+  }
+}
+
+.HeroFeatures__kicker {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--fp-text-secondary);
+  margin: 0 0 12px;
+}
+
+.HeroFeatures__title {
+  font-size: 34px;
+  font-weight: 650;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  color: var(--fp-text);
+  margin: 0 0 16px;
+}
+
+@media (min-width: 768px) {
+  .HeroFeatures__title {
+    font-size: 48px;
+  }
+}
+
+.HeroFeatures__lead {
+  font-size: 16px;
+  line-height: 1.65;
+  color: var(--fp-text-secondary);
+  margin: 0 0 20px;
+  max-width: 60ch;
+}
+
+.HeroFeatures__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.HeroFeatures__chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 8px 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--fp-text-secondary);
+  background: rgba(255, 255, 255, 0.8);
+  border: 1px solid var(--fp-border);
+}
+
+@media (prefers-color-scheme: dark) {
+  .footer-pages .HeroFeatures__chip,
+  html[data-theme="dark"] .footer-pages .HeroFeatures__chip {
+    background: rgba(30, 41, 59, 0.6);
+    border-color: var(--fp-border);
+  }
+}
+
+.HeroFeatures__stage {
+  position: relative;
+  border-radius: 28px;
+  padding: 28px;
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid var(--fp-border);
+  box-shadow: 0 4px 24px rgba(15, 23, 42, 0.08), 0 12px 40px rgba(15, 23, 42, 0.04);
+}
+
+@media (prefers-color-scheme: dark) {
+  .footer-pages .HeroFeatures__stage,
+  html[data-theme="dark"] .footer-pages .HeroFeatures__stage {
+    background: rgba(30, 41, 59, 0.8);
+    border-color: var(--fp-border);
+  }
+}
+
+.HeroFeatures__stage-card {
+  border-radius: 20px;
+  padding: 24px;
+  background: var(--fp-bg);
+  box-shadow: 0 2px 12px rgba(15, 23, 42, 0.06);
+}

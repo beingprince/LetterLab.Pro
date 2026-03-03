@@ -1,0 +1,77 @@
+/**
+ * Footer pages – design tokens aligned with About page
+ * 8px base grid: 8, 16, 24, 32, 40, 48, 56, 64, 80
+ */
+
+.footer-pages {
+  --fp-8: 8px;
+  --fp-16: 16px;
+  --fp-24: 24px;
+  --fp-32: 32px;
+  --fp-40: 40px;
+  --fp-48: 48px;
+  --fp-56: 56px;
+  --fp-64: 64px;
+  --fp-80: 80px;
+
+  --fp-bg: #FCFCFD;
+  --fp-bg-alt: #F8FAFC;
+  --fp-text: #0f172a;
+  --fp-text-secondary: #475569;
+  --fp-accent: #1e3a8a;
+  --fp-accent-light: #2563eb;
+  --fp-border: rgba(15, 23, 42, 0.08);
+  --fp-status-ok: #059669;
+  --fp-status-warn: #d97706;
+  --fp-status-error: #dc2626;
+
+  --fp-container-max: 1120px;
+  --fp-radius: 8px;
+  --fp-font-body: 16px;
+  --fp-line-height: 1.6;
+  --fp-line-length: 65ch;
+
+  /* Spacing (8px grid) */
+  --fp-space-xs: 16px;
+  --fp-space-sm: 24px;
+  --fp-space-md: 32px;
+  --fp-space-lg: 40px;
+  --fp-section-y-xs: 48px;
+  --fp-section-y-md: 80px;
+}
+
+/* Override global heading/section styles inside footer pages only */
+.footer-pages h1,
+.footer-pages h2,
+.footer-pages h3 {
+  background: none !important;
+  -webkit-background-clip: initial !important;
+  -webkit-text-fill-color: inherit !important;
+  color: var(--fp-text);
+}
+
+.footer-pages section {
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+@media (prefers-color-scheme: dark) {
+  .footer-pages[data-theme="dark"],
+  html[data-theme="dark"] .footer-pages {
+    --fp-bg: #0F1117;
+    --fp-bg-alt: #1e293b;
+    --fp-text: #f8fafc;
+    --fp-text-secondary: #94a3b8;
+    --fp-border: rgba(255, 255, 255, 0.08);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .footer-pages *,
+  .footer-pages *::before,
+  .footer-pages *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

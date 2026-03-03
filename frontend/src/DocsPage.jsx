@@ -1,79 +1,19 @@
-// frontend/src/DocsPage.jsx
-import React, { useMemo, useState } from 'react';
+import React, { useState, useMemo } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   Box, Container, Typography, Stack, Chip, Button, Divider,
   Accordion, AccordionSummary, AccordionDetails, Dialog, DialogTitle,
-  DialogContent, DialogActions, IconButton, Tooltip, Snackbar
+  DialogContent, DialogActions, IconButton, Tooltip, Snackbar,
+  TextField, InputAdornment, Paper, Grid
 } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
-import { keyframes } from '@mui/system';
+import SearchIcon from '@mui/icons-material/Search';
+import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
 
 // -----------------------------------------------------
-// Small helpers
-// -----------------------------------------------------
-const goto = (path) => {
-  if (window.location.pathname !== path) {
-    window.history.pushState({}, '', path);
-    window.dispatchEvent(new PopStateEvent('popstate'));
-  }
-};
-
-async function copy(text) {
-  try { await navigator.clipboard.writeText(text); return true; } catch { return false; }
-}
-
-// -----------------------------------------------------
-// Tiny animated SVG “lottie-like” pointers (no deps)
-// -----------------------------------------------------
-const pulse = keyframes`
-  0% { transform: scale(1); opacity:.9; }
-  50% { transform: scale(1.08); opacity:1; }
-  100% { transform: scale(1); opacity:.9; }
-`;
-const floatY = keyframes`
-  0% { transform: translateY(0px); }
-  50% { transform: translateY(-4px); }
-  100% { transform: translateY(0px); }
-`;
-
-function SparkleIcon() {
-  return (
-    <Box aria-hidden sx={{ display: 'inline-flex', mr: 1, animation: `${pulse} 1.6s ease-in-out infinite` }}>
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none"
-           stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M12 3l-2.5 5.5L4 11l5.5 2.5L12 19l2.5-5.5L20 11l-5.5-2.5z"/>
-      </svg>
-    </Box>
-  );
-}
-function HandPointer() {
-  return (
-    <Box aria-hidden sx={{ display: 'inline-flex', mr: 1, animation: `${floatY} 1.8s ease-in-out infinite` }}>
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none"
-           stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M8 13V7a2 2 0 1 1 4 0v4"/>
-        <path d="M12 11V6a2 2 0 1 1 4 0v5"/>
-        <path d="M16 10.5V8a2 2 0 1 1 4 0v6a6 6 0 0 1-6 6h-2a6 6 0 0 1-6-6v-1.5"/>
-      </svg>
-    </Box>
-  );
-}
-function MailArrow() {
-  return (
-    <Box aria-hidden sx={{ display: 'inline-flex', mr: 1, animation: `${floatY} 2s ease-in-out infinite` }}>
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none"
-           stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M22 2 11 13" />
-        <path d="M22 2 15 22 11 13 2 9 22 2" />
-      </svg>
-    </Box>
-  );
-}
-
-// -----------------------------------------------------
-// Master Prompt modal content
+// Master Prompt content (moved from original)
 // -----------------------------------------------------
 const PROMPTS = [
   {
@@ -84,11 +24,8 @@ Dear Professor [Last Name],
 
 I hope you’re doing well. I’m writing to request a brief extension for the [assignment/exam/project] due on [date]. Due to [brief, honest reason], I need a bit more time to submit my best work. Would it be possible to submit by [new date]?
 
-I appreciate your consideration and understand if the original deadline must stand. Thank you for your time.
-
 Sincerely,
-[Your Name]
-[Course/Section]`
+[Your Name]`
   },
   {
     title: 'Absence notification',
@@ -96,281 +33,181 @@ Sincerely,
 
 Dear Professor [Last Name],
 
-I wanted to let you know I’ll be unable to attend [class/lab] on [date] due to [reason]. I’ve reviewed the syllabus and will catch up on any missed material. Please let me know if there’s additional work I should complete.
-
-Thank you for your understanding.
+I wanted to let you know I’ll be unable to attend [class/lab] on [date] due to [reason]. I’ve reviewed the syllabus and will catch up on any missed material.
 
 Best regards,
-[Your Name]
-[Course/Section]`
-  },
-  {
-    title: 'Request for recommendation',
-    text: `Subject: Request for Recommendation Letter
-
-Dear Professor [Last Name],
-
-I hope you’re well. I’m applying to [program/internship/scholarship] and would be honored if you could write a recommendation letter for me. I took your [course] in [term] and earned [grade], and I particularly valued [specific topic/project].
-
-The deadline is [date]. I can share my resume, transcript, and any materials you need. Please let me know if you’re comfortable writing one.
-
-Thank you for your time and support.
-
-Sincerely,
-[Your Name]`
-  },
-  {
-    title: 'Clarification on assignment',
-    text: `Subject: Clarification on [Assignment/Topic]
-
-Dear Professor [Last Name],
-
-I’m working on the [assignment/topic] and wanted to clarify a couple of points:
-1) [Your question 1]
-2) [Your question 2]
-
-If there’s guidance in the slides or reading I missed, I’d appreciate a pointer. Thank you for your help!
-
-Best,
 [Your Name]`
   },
 ];
 
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: { staggerChildren: 0.1 }
+  }
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.5 } }
+};
+
 export default function DocsPage() {
+  const [search, setSearch] = useState('');
   const [openMaster, setOpenMaster] = useState(false);
   const [snack, setSnack] = useState({ open: false, msg: '' });
 
   const handleCopy = async (text) => {
-    const ok = await copy(text);
-    setSnack({ open: true, msg: ok ? 'Copied to clipboard' : 'Copy failed' });
+    try {
+      await navigator.clipboard.writeText(text);
+      setSnack({ open: true, msg: 'Copied to clipboard' });
+    } catch {
+      setSnack({ open: true, msg: 'Copy failed' });
+    }
   };
 
   return (
-    <Box component="main" sx={{ py: { xs: 5, md: 7 } }}>
+    <Box sx={{ pb: 10 }}>
+      {/* Premium Hero Section */}
+      <Box sx={{
+        pt: { xs: 8, md: 12 },
+        pb: { xs: 6, md: 8 },
+        background: (theme) => theme.palette.mode === 'dark'
+          ? 'linear-gradient(180deg, rgba(37,99,235,0.05) 0%, transparent 100%)'
+          : 'linear-gradient(180deg, rgba(37,99,235,0.02) 0%, transparent 100%)'
+      }}>
+        <Container maxWidth="md">
+          <Stack spacing={3} alignItems="center" sx={{ textAlign: 'center' }}>
+            <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }}>
+              <Chip
+                label="Resource Center"
+                color="primary"
+                variant="outlined"
+                sx={{ px: 2, py: 2, fontWeight: 700, borderRadius: '999px' }}
+              />
+            </motion.div>
+            <Typography variant="h1" sx={{ fontSize: { xs: '36px', md: '48px' }, fontWeight: 800 }}>
+              Documentation
+            </Typography>
+            <Typography variant="body1" sx={{ color: 'text.secondary', maxWidth: 600, fontSize: '18px' }}>
+              Everything you need to master LetterLab Pro. From core drafting engine basics to master prompt techniques.
+            </Typography>
+
+            <Box sx={{ width: '100%', maxWidth: 500, mt: 2 }}>
+              <TextField
+                fullWidth
+                placeholder="Search resources..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <SearchIcon color="action" />
+                    </InputAdornment>
+                  ),
+                  sx: {
+                    borderRadius: '16px',
+                    bgcolor: 'background.paper',
+                    boxShadow: '0 10px 30px rgba(0,0,0,0.05)',
+                    '& fieldset': { borderOpacity: 0.1 }
+                  }
+                }}
+              />
+            </Box>
+          </Stack>
+        </Container>
+      </Box>
+
+      {/* Content Sections */}
       <Container maxWidth="md">
-        {/* Header */}
-        <Stack spacing={1} alignItems="center" sx={{ textAlign: 'center', mb: 3 }}>
-          <Chip label="Docs & FAQs" variant="outlined" />
-          <Typography variant="h4" sx={{ fontWeight: 800 }}>How to use LetterLab Pro</Typography>
-          <Typography variant="body1" color="text.secondary">
-            Quick, practical answers — with animated cues and ready-to-use prompts.
-          </Typography>
-        </Stack>
+        <motion.div variants={containerVariants} initial="hidden" animate="visible">
 
-        <Divider sx={{ my: 3 }} />
-
-        {/* FAQs */}
-        <Stack spacing={1.25}>
-          {/* Create account / Google signup */}
-          <Accordion>
-            <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-              <Typography sx={{ fontWeight: 700, display: 'flex', alignItems: 'center' }}>
-                <SparkleIcon /> How do I create an account (including Google signup)?
-              </Typography>
-            </AccordionSummary>
-            <AccordionDetails>
-              <Stack spacing={1.25}>
-                <Typography variant="body1">
-                  1) Click the <b>avatar</b> on the top-right (or navigate to <code>/account</code>).<br/>
-                  2) In the <b>Create Your Account</b> form, fill your details and set a password.<br/>
-                  3) Complete the <b>OTP verification</b> step to finish signup.<br/>
-                  4) Prefer Google? Click <b>“Sign in with Google”</b> on the login panel to use your Google account.
-                </Typography>
-                <Stack direction="row" spacing={1}>
-                  <Button onClick={() => goto('/account')} variant="outlined" startIcon={<OpenInNewIcon />}>
-                    Go to Account / Sign in
-                  </Button>
-                </Stack>
-              </Stack>
-            </AccordionDetails>
-          </Accordion>
-
-          {/* Writing a good prompt + Master Prompt */}
-          <Accordion defaultExpanded>
-            <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-              <Typography sx={{ fontWeight: 700, display: 'flex', alignItems: 'center' }}>
-                <HandPointer /> How do I write a great prompt for the email?
-              </Typography>
-            </AccordionSummary>
-            <AccordionDetails>
-              <Stack spacing={1.25}>
-                <Typography variant="body1">
-                  Think of your prompt as <i>instructions + context</i>. Include:
-                </Typography>
-                <Typography variant="body2" color="text.secondary">
-                  • Who you are and who you’re writing to (student → professor).<br/>
-                  • What you need (extension, question, meeting, recommendation, etc.).<br/>
-                  • Deadlines or dates, course name/section, and any constraints on tone (polite, concise, formal).
-                </Typography>
-
-                <Stack direction="row" spacing={1} sx={{ mt: 1 }}>
-                  <Button variant="contained" onClick={() => setOpenMaster(true)}>
-                    Master Prompt Library
-                  </Button>
-                  <Button variant="outlined" onClick={() => goto('/compose')} startIcon={<OpenInNewIcon />}>
-                    Go to Compose
-                  </Button>
-                </Stack>
-              </Stack>
-            </AccordionDetails>
-          </Accordion>
-
-          {/* Tokens / Analytics */}
-          <Accordion>
-            <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-              <Typography sx={{ fontWeight: 700, display: 'flex', alignItems: 'center' }}>
-                <SparkleIcon /> How do I know if I’m low on tokens? What are “tokens”?
-              </Typography>
-            </AccordionSummary>
-            <AccordionDetails>
-              <Stack spacing={1.25}>
-                <Typography variant="body1">
-                  In LetterLab, a <b>token</b> is a small chunk of text the AI reads/writes. More text = more tokens.
-                  If usage grows, you might notice slower responses or limits.
-                </Typography>
-                <Typography variant="body2" color="text.secondary">
-                  Check the <b>Analytics</b> page for your usage:
-                </Typography>
-                <Typography variant="body2" color="text.secondary">
-                  • <b>Total tokens</b> — your cumulative tokens over the selected range.<br/>
-                  • <b>Avg daily tokens</b> — typical daily usage.<br/>
-                  • <b>Emails drafted</b> — how many emails you generated.
-                </Typography>
-                <Typography variant="body2" color="text.secondary">
-                  Use the date buttons (7/30/90D) to switch ranges. If your <i>Total tokens</i> keeps spiking and you hit app limits, reduce prompt length or split tasks.
-                </Typography>
-                <Stack direction="row" spacing={1}>
-                  <Button onClick={() => goto('/analytics')} variant="outlined" startIcon={<OpenInNewIcon />}>
-                    Open Analytics
-                  </Button>
-                </Stack>
-              </Stack>
-            </AccordionDetails>
-          </Accordion>
-
-          {/* Change my information */}
-          <Accordion>
-            <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-              <Typography sx={{ fontWeight: 700, display: 'flex', alignItems: 'center' }}>
-                <HandPointer /> Can I change my information?
-              </Typography>
-            </AccordionSummary>
-            <AccordionDetails>
-              <Stack spacing={1.25}>
-                <Typography variant="body1">
-                  Yes. Click your <b>avatar</b> (top-right) → you’ll land on <b>Account &amp; Settings</b>.
-                  Click <b>Edit Profile</b> to change your name or email, then <b>Save</b>.
-                </Typography>
-                <Stack direction="row" spacing={1}>
-                  <Button onClick={() => goto('/account')} variant="outlined" startIcon={<OpenInNewIcon />}>
-                    Open Account & Settings
-                  </Button>
-                </Stack>
-              </Stack>
-            </AccordionDetails>
-          </Accordion>
-
-          {/* Send via Gmail / Outlook */}
-          <Accordion>
-            <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-              <Typography sx={{ fontWeight: 700, display: 'flex', alignItems: 'center' }}>
-                <MailArrow /> How do I send the email with Gmail or Outlook?
-              </Typography>
-            </AccordionSummary>
-            <AccordionDetails>
-              <Stack spacing={1.25}>
-                <Typography variant="body1">
-                  After you generate a draft in <b>Compose</b>, click the <b>triple-dot</b> on the AI’s message.
-                  You’ll see:
-                </Typography>
-                <Typography variant="body2" color="text.secondary">
-                  • <b>Send to Gmail</b><br/>
-                  • <b>Send to Outlook</b><br/>
-                  • <b>Copy to clipboard</b>
-                </Typography>
-                <Typography variant="body2" color="text.secondary">
-                  Choose your preferred option. (Gmail/Outlook open with the draft pre-filled; Copy lets you paste anywhere.)
-                </Typography>
-                <Stack direction="row" spacing={1}>
-                  <Button onClick={() => goto('/compose')} variant="outlined" startIcon={<OpenInNewIcon />}>
-                    Go to Compose
-                  </Button>
-                </Stack>
-              </Stack>
-            </AccordionDetails>
-          </Accordion>
-
-          {/* Coming soon */}
-          <Accordion>
-            <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-              <Typography sx={{ fontWeight: 700, display: 'flex', alignItems: 'center' }}>
-                <SparkleIcon /> Other things — coming soon
-              </Typography>
-            </AccordionSummary>
-            <AccordionDetails>
-              <Typography variant="body1">
-                More templates, richer analytics breakdown, and direct send with custom signatures are on the way.
-              </Typography>
-            </AccordionDetails>
-          </Accordion>
-        </Stack>
-
-        {/* Master Prompt Dialog */}
-        <Dialog open={openMaster} onClose={() => setOpenMaster(false)} fullWidth maxWidth="md">
-          <DialogTitle>Master Prompt Library</DialogTitle>
-          <DialogContent dividers>
-            <Stack spacing={2}>
-              {PROMPTS.map((p, idx) => (
-                <Box key={idx}
-                  sx={(t) => ({
-                    p: 2,
-                    border: '1px solid',
-                    borderColor: t.palette.divider,
-                    borderRadius: 2,
-                    background: t.palette.mode === 'dark' ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.02)'
-                  })}
+          {/* Quick Actions Grid */}
+          <Grid container spacing={3} sx={{ mb: 6 }}>
+            {[
+              { title: 'Prompt Library', desc: 'Pre-made high-reply email templates', icon: <AutoAwesomeIcon />, action: () => setOpenMaster(true) },
+              { title: 'Quick Start', desc: 'Get your first draft in 30 seconds', icon: <OpenInNewIcon />, path: '/chat' }
+            ].map((item, i) => (
+              <Grid item xs={12} sm={6} key={i}>
+                <Paper
+                  component={motion.div}
+                  variants={itemVariants}
+                  whileHover={{ y: -5, boxShadow: '0 20px 40px rgba(0,0,0,0.1)' }}
+                  sx={{ p: 3, borderRadius: 4, cursor: 'pointer', border: '1px solid', borderColor: 'divider' }}
+                  onClick={item.action || (() => window.location.href = item.path)}
                 >
-                  <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ mb: 1 }}>
-                    <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>{p.title}</Typography>
-                    <Stack direction="row" spacing={1}>
-                      <Tooltip title="Copy to clipboard">
-                        <IconButton onClick={() => handleCopy(p.text)} size="small">
-                          <ContentCopyIcon fontSize="small" />
-                        </IconButton>
-                      </Tooltip>
-                      <Tooltip title="Open Compose (paste there)">
-                        <IconButton onClick={() => goto('/compose')} size="small">
-                          <OpenInNewIcon fontSize="small" />
-                        </IconButton>
-                      </Tooltip>
-                    </Stack>
-                  </Stack>
-                  <Box sx={{
-                    whiteSpace: 'pre-wrap',
-                    fontSize: '.95rem',
-                    color: 'text.secondary'
-                  }}>
-                    {p.text}
-                  </Box>
-                </Box>
-              ))}
-            </Stack>
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={() => setOpenMaster(false)}>Close</Button>
-            <Button variant="contained" onClick={() => goto('/compose')}>
-              Go to Compose
-            </Button>
-          </DialogActions>
-        </Dialog>
+                  <Box sx={{ color: 'primary.main', mb: 2 }}>{item.icon}</Box>
+                  <Typography variant="h6" sx={{ fontWeight: 700, mb: 1 }}>{item.title}</Typography>
+                  <Typography variant="body2" color="text.secondary">{item.desc}</Typography>
+                </Paper>
+              </Grid>
+            ))}
+          </Grid>
 
-        <Snackbar
-          open={snack.open}
-          autoHideDuration={1800}
-          onClose={() => setSnack(s => ({ ...s, open: false }))}
-          message={snack.msg}
-        />
+          <Divider sx={{ mb: 6 }} />
+
+          {/* Detailed FAQs / Guides */}
+          <Stack spacing={2} variants={itemVariants} component={motion.div}>
+            <Typography variant="h5" sx={{ fontWeight: 800, mb: 1 }}>Frequently Asked Questions</Typography>
+
+            <Accordion sx={{ borderRadius: '16px !important', overflow: 'hidden', border: '1px solid', borderColor: 'divider', '&:before': { display: 'none' } }}>
+              <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                <Typography sx={{ fontWeight: 700 }}>How does the AI handle my private information?</Typography>
+              </AccordionSummary>
+              <AccordionDetails sx={{ bgcolor: 'action.hover' }}>
+                <Typography variant="body2" color="text.secondary">
+                  LetterLab prioritizes data minimization. We do not store your email credentials and only process information explicitly provided for drafting purposes.
+                </Typography>
+              </AccordionDetails>
+            </Accordion>
+
+            <Accordion sx={{ borderRadius: '16px !important', overflow: 'hidden', border: '1px solid', borderColor: 'divider', '&:before': { display: 'none' } }}>
+              <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                <Typography sx={{ fontWeight: 700 }}>Can I use it with Outlook and Gmail?</Typography>
+              </AccordionSummary>
+              <AccordionDetails sx={{ bgcolor: 'action.hover' }}>
+                <Typography variant="body2" color="text.secondary">
+                  Yes, LetterLab Pro integrates directly with both Microsoft Graph API and Google Workspace for seamless drafting.
+                </Typography>
+              </AccordionDetails>
+            </Accordion>
+          </Stack>
+        </motion.div>
       </Container>
+
+      {/* Master Prompt Library Modal */}
+      <Dialog open={openMaster} onClose={() => setOpenMaster(false)} fullWidth maxWidth="sm" PaperProps={{ sx: { borderRadius: 4 } }}>
+        <DialogTitle sx={{ fontWeight: 800 }}>Master Prompt Library</DialogTitle>
+        <DialogContent dividers>
+          <Stack spacing={3}>
+            {PROMPTS.map((p, i) => (
+              <Box key={i} sx={{ p: 2, bgcolor: 'action.hover', borderRadius: 2 }}>
+                <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 1 }}>
+                  <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>{p.title}</Typography>
+                  <IconButton onClick={() => handleCopy(p.text)} size="small"><ContentCopyIcon fontSize="inherit" /></IconButton>
+                </Stack>
+                <Typography variant="body2" component="pre" sx={{ whiteSpace: 'pre-wrap', color: 'text.secondary', fontSize: '13px' }}>
+                  {p.text}
+                </Typography>
+              </Box>
+            ))}
+          </Stack>
+        </DialogContent>
+        <DialogActions sx={{ p: 2 }}>
+          <Button onClick={() => setOpenMaster(false)} sx={{ textTransform: 'none' }}>Close</Button>
+          <Button variant="contained" onClick={() => window.location.href = '/chat'} sx={{ borderRadius: '999px', textTransform: 'none' }}>
+            Try in Chat
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      <Snackbar
+        open={snack.open}
+        autoHideDuration={2000}
+        onClose={() => setSnack({ ...snack, open: false })}
+        message={snack.msg}
+      />
     </Box>
   );
 }

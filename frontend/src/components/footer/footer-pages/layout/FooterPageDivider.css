@@ -1,0 +1,5 @@
+.FooterPageDivider {
+  border: 0;
+  border-top: 1px solid var(--fp-border);
+  margin: var(--fp-32, 32px) 0;
+}

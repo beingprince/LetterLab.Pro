@@ -1,0 +1,20 @@
+{
+  "slug": "company/contact",
+  "title": "Contact",
+  "lead": "Send a message for feedback, questions, or collaboration. If you report a bug, include steps to reproduce it.",
+  "seo": { "title": "Contact | LetterLab", "description": "Get in touch." },
+  "sections": [
+    {
+      "id": "contact-form",
+      "type": "form",
+      "formType": "contact",
+      "fields": [
+        { "name": "name", "label": "Name", "type": "text", "required": true },
+        { "name": "email", "label": "Email", "type": "email", "required": true },
+        { "name": "topic", "label": "Topic", "type": "select", "required": true, "options": ["Feedback", "Bug", "Collaboration", "Other"] },
+        { "name": "message", "label": "Message", "type": "textarea", "required": true, "minLength": 20 }
+      ],
+      "privacyNote": "Your message is used only to respond. Do not include sensitive personal information."
+    }
+  ]
+}

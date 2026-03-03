@@ -1,0 +1,219 @@
+/* Floating UI card – theme surface, subtle shadow, no heavy borders */
+.FeaturePreviewCard__wrap {
+  max-width: 540px;
+  margin: 0 auto;
+}
+
+.FeaturePreviewCard {
+  border-radius: 20px;
+  padding: var(--fp-24, 24px);
+  background: var(--fp-bg);
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06), 0 4px 12px rgba(15, 23, 42, 0.04);
+  overflow: hidden;
+  transition: transform 250ms ease, box-shadow 250ms ease;
+}
+
+@media (min-width: 480px) {
+  .FeaturePreviewCard {
+    padding: 28px;
+  }
+}
+
+.FeaturePreviewCard__wrap:hover .FeaturePreviewCard {
+  transform: translateY(-4px);
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08), 0 12px 24px rgba(15, 23, 42, 0.06);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .FeaturePreviewCard__wrap:hover .FeaturePreviewCard {
+    transform: none;
+  }
+}
+
+.FeaturePreviewCard__title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--fp-text);
+  margin-bottom: var(--fp-16, 16px);
+}
+
+.FeaturePreviewCard__block {
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--fp-text-secondary);
+  margin-bottom: var(--fp-16, 16px);
+  max-width: 70ch;
+}
+
+.FeaturePreviewCard__chip {
+  display: inline-block;
+  font-size: 12px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: var(--fp-border);
+  color: var(--fp-text-secondary);
+  margin-bottom: var(--fp-16, 16px);
+}
+
+.FeaturePreviewCard__btn {
+  height: 36px;
+  padding: 0 16px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  background: var(--fp-accent-light);
+  color: #fff;
+  border: none;
+  cursor: default;
+  opacity: 0.9;
+}
+
+.FeaturePreviewCard__label {
+  font-size: 12px;
+  color: var(--fp-text-secondary);
+  margin-bottom: var(--fp-8, 8px);
+}
+
+.FeaturePreviewCard__slider-track {
+  height: 6px;
+  border-radius: 3px;
+  background: var(--fp-border);
+  margin-bottom: var(--fp-16, 16px);
+  position: relative;
+}
+
+.FeaturePreviewCard__slider-thumb {
+  position: absolute;
+  left: 33%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--fp-accent-light);
+}
+
+.FeaturePreviewCard__presets {
+  display: flex;
+  gap: var(--fp-12, 12px);
+  margin-bottom: var(--fp-16, 16px);
+  font-size: 12px;
+  color: var(--fp-text-secondary);
+}
+
+.FeaturePreviewCard__preset--active {
+  color: var(--fp-accent-light);
+  font-weight: 500;
+}
+
+.FeaturePreviewCard__before,
+.FeaturePreviewCard__after {
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--fp-text-secondary);
+  margin-top: var(--fp-8, 8px);
+}
+
+.FeaturePreviewCard__after {
+  color: var(--fp-text);
+}
+
+.FeaturePreviewCard__field {
+  display: block;
+  margin-bottom: var(--fp-12, 12px);
+}
+
+.FeaturePreviewCard__field-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--fp-text-secondary);
+  display: block;
+  margin-bottom: 4px;
+}
+
+.FeaturePreviewCard__field-value {
+  font-size: 13px;
+  color: var(--fp-text);
+}
+
+.FeaturePreviewCard__divider {
+  height: 1px;
+  background: var(--fp-border);
+  margin: var(--fp-12, 12px) 0;
+}
+
+.FeaturePreviewCard__body {
+  margin-bottom: var(--fp-16, 16px);
+}
+
+.FeaturePreviewCard__body-line {
+  height: 8px;
+  background: var(--fp-border);
+  border-radius: 4px;
+  margin-bottom: var(--fp-8, 8px);
+  max-width: 100%;
+}
+
+.FeaturePreviewCard__body-line--short {
+  max-width: 60%;
+}
+
+.FeaturePreviewCard__toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 13px;
+  color: var(--fp-text-secondary);
+}
+
+.FeaturePreviewCard__toggle-dot {
+  width: 32px;
+  height: 18px;
+  border-radius: 9px;
+  background: var(--fp-accent-light);
+  opacity: 0.6;
+}
+
+.FeaturePreviewCard__sentence {
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--fp-text);
+  margin-bottom: var(--fp-12, 12px);
+}
+
+.FeaturePreviewCard__highlight {
+  text-decoration: underline;
+  text-decoration-color: var(--fp-status-warn);
+  text-underline-offset: 2px;
+}
+
+.FeaturePreviewCard__tooltip {
+  padding: var(--fp-12, 12px);
+  background: var(--fp-bg-alt);
+  border-radius: var(--fp-radius, 8px);
+  border-left: 3px solid var(--fp-accent-light);
+}
+
+.FeaturePreviewCard__tooltip-text {
+  font-size: 13px;
+  color: var(--fp-text);
+  display: block;
+  margin-bottom: var(--fp-8, 8px);
+}
+
+.FeaturePreviewCard__tooltip-actions {
+  display: flex;
+  gap: var(--fp-8, 8px);
+}
+
+.FeaturePreviewCard__btn--small {
+  height: 28px;
+  padding: 0 12px;
+  font-size: 12px;
+}
+
+.FeaturePreviewCard__btn--ghost {
+  background: transparent;
+  color: var(--fp-text-secondary);
+}

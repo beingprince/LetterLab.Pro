@@ -1,0 +1,40 @@
+.FooterPageTOC__title {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--fp-text-secondary);
+  margin: 0 0 12px;
+}
+
+.FooterPageTOC__list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.FooterPageTOC__list li {
+  margin-bottom: 6px;
+}
+
+.FooterPageTOC__link {
+  display: block;
+  font-size: 14px;
+  color: var(--fp-text-secondary);
+  text-decoration: none;
+  padding: 4px 0;
+}
+
+.FooterPageTOC__link:hover {
+  color: var(--fp-accent-light);
+}
+
+.FooterPageTOC__link:focus-visible {
+  outline: 2px solid var(--fp-accent-light);
+  outline-offset: 2px;
+}
+
+.FooterPageTOC__link--active {
+  font-weight: 600;
+  color: var(--fp-accent-light);
+}

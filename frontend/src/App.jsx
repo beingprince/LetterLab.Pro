@@ -1,51 +1,85 @@
 // frontend/src/App.jsx
-import React, { useMemo, useRef, useState, useEffect } from 'react';
+// LetterLab main shell
+// This file controls:
+// - theme (light/dark, gradient bg, glass surfaces)
+// - header AppBar (fixed, translucent, flat, version menu, avatar, etc.)
+// - Drawer (mobile nav / history / now Professors link)
+// - path-based client routing (no react-router)
+// - auth gating (forces /account if not logged in)
+// - page container layout offsets (headerHeight padding, minHeight, etc.)
+
+import React, {
+  useMemo,
+  useRef,
+  useState,
+  useEffect
+} from 'react';
+
 import { ThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import GlobalStyles from '@mui/material/GlobalStyles';
-import {
-  AppBar, Toolbar, Typography, Button, Box, IconButton, Menu, MenuItem,
-  Drawer, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Divider, Chip, Avatar, Tooltip
-} from '@mui/material';
-import MenuIcon from '@mui/icons-material/Menu';
-import MoreVertIcon from '@mui/icons-material/MoreVert';
-import Brightness4OutlinedIcon from '@mui/icons-material/Brightness4Outlined';
-import Brightness7OutlinedIcon from '@mui/icons-material/Brightness7Outlined';
-import HistoryIcon from '@mui/icons-material/History';
-import AddCommentOutlinedIcon from '@mui/icons-material/AddCommentOutlined';
-import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
+import { jwtDecode } from 'jwt-decode';
+import { Box } from '@mui/material';
 
 import { darkTheme, lightTheme } from './theme';
-import { SmartBackground } from './SmartBackground';
+import Header from './components/Header';
+import MobileDrawer from './components/mobileDrawer/MobileDrawer';
+import MinimalHeader from './components/MinimalHeader'; // ✅ Auth Header
 
-import ComposePage from './ComposePage';
-import HomepageV2 from './HomepageV2';
-import AboutPage from './AboutPage';
+import HomePage from './pages/HomePage.jsx';
 import DocsPage from './DocsPage';
 import PrivacyPage from './PrivacyPage';
-import AnalyticsPage from './AnalyticsPage';
+import AnalyticsDashboard from './components/analytics/AnalyticsDashboard';
 import AuthPage from './AuthPage';
-import AccountPage from './AccountPage'; // Account view when logged in
+import AboutPage from "./pages/AboutPage";
+import OAuthSuccess from "./pages/OAuthSuccess.jsx";
+import AddProfessor from './pages/AddProfessor.jsx';
+import UserProfilePage from './pages/UserProfile/UserProfileLayout'; // ✅ MODULAR IMPORT
+
+import ComposePage from './pages/ComposePage/index.jsx';
+import ErrorPage from './pages/ErrorPage.jsx';
+import SessionTimeoutDialog from './components/session/SessionTimeoutDialog';
+import { useSessionTimeout } from './hooks/useSessionTimeout';
+import { setLoginTimestamp, getLoginTimestamp, getLastActivityTimestamp, clearSession } from './components/session/sessionUtils';
+// Removed CleanComposer import
+import SummaryPage from './pages/SummaryPage/SummaryPage.jsx';
+import TermsPage from './pages/TermsPage.jsx';
+import ContactPage from './pages/ContactPage.jsx';
+import FooterPage from './pages/footer/FooterPage.jsx';
+import FeaturesPage from './pages/footer/product/features/index.jsx';
+import StatusPage from './pages/footer/StatusPage.jsx';
+// import MobileBottomNav from './components/nav/MobileBottomNav.jsx'; // ❌ Removed mobile nav
+
+// ────────────────────────────────────────────────────────────────────────────
+// persistent keys / helpers
+// ────────────────────────────────────────────────────────────────────────────
 
 const THEME_KEY = 'llp_theme_mode';
-
-// --- Simple frontend auth gate using localStorage ---
 const LS_KEY = 'letterlab_user';
+
+// read current "authed user" snapshot from localStorage
 function getAuthUser() {
-  try { return JSON.parse(localStorage.getItem(LS_KEY) || 'null'); } catch { return null; }
+  try {
+    return JSON.parse(localStorage.getItem(LS_KEY) || 'null');
+  } catch {
+    return null;
+  }
 }
 
+// initial theme mode: saved -> prefers-color-scheme -> dark
 function getInitialMode() {
   if (typeof window !== 'undefined') {
     const saved = window.localStorage.getItem(THEME_KEY);
     if (saved === 'light' || saved === 'dark') return saved;
-    const prefersLight = window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches;
+    const prefersLight =
+      window.matchMedia &&
+      window.matchMedia('(prefers-color-scheme: light)').matches;
     return prefersLight ? 'light' : 'dark';
   }
   return 'dark';
 }
 
-// Build initials from first + last token of name
+// avatar initials
 function initialsFromName(name) {
   if (!name || typeof name !== 'string') return 'U';
   const parts = name.trim().split(/\s+/);
@@ -55,74 +89,253 @@ function initialsFromName(name) {
   return ini || 'U';
 }
 
+// ────────────────────────────────────────────────────────────────────────────
+// main app component
+// ────────────────────────────────────────────────────────────────────────────
+
 function App() {
+  // theme mode
   const [mode, setMode] = useState(getInitialMode);
 
+  // watch localStorage changes to THEME_KEY from other tabs
   useEffect(() => {
     const onStorage = (e) => {
-      if (e.key === THEME_KEY && (e.newValue === 'light' || e.newValue === 'dark')) {
+      if (
+        e.key === THEME_KEY &&
+        (e.newValue === 'light' || e.newValue === 'dark')
+      ) {
         setMode(e.newValue);
       }
     };
     window.addEventListener('storage', onStorage);
     return () => window.removeEventListener('storage', onStorage);
   }, []);
+
+  // persist theme mode whenever it changes
   useEffect(() => {
-    try { window.localStorage.setItem(THEME_KEY, mode); } catch {}
+    try {
+      window.localStorage.setItem(THEME_KEY, mode);
+    } catch { /* ignore */ }
   }, [mode]);
 
-  const theme = useMemo(() => (mode === 'light' ? lightTheme : darkTheme), [mode]);
+  // build MUI theme object
+  const theme = useMemo(
+    () => (mode === 'light' ? lightTheme : darkTheme),
+    [mode]
+  );
 
-  const colorMode = useMemo(() => ({
-    toggleColorMode: () => {
-      setMode((prev) => {
-        const next = prev === 'light' ? 'dark' : 'light';
-        try { window.localStorage.setItem(THEME_KEY, next); } catch {}
-        return next;
-      });
-    },
-  }), []);
+  // toggle function passed to color mode button
+  const colorMode = useMemo(
+    () => ({
+      toggleColorMode: () => {
+        setMode((prev) => {
+          const next = prev === 'light' ? 'dark' : 'light';
+          try {
+            window.localStorage.setItem(THEME_KEY, next);
+          } catch { /* ignore */ }
+          return next;
+        });
+      },
+    }),
+    []
+  );
 
-  const [rightMenuAnchorEl, setRightMenuAnchorEl] = useState(null);
-  const [versionMenuAnchorEl, setVersionMenuAnchorEl] = useState(null);
+  // menus / drawer anchors
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
-  const appBarRef = useRef(null);
-  const [headerHeight, setHeaderHeight] = useState(0);
+  // Session timeout: warn at 55min, auto-logout at 60min
+  const sessionTimeout = useSessionTimeout({
+    onLogout: (url) => { window.location.href = url; },
+  });
+
+  // 401-triggered session expired dialog (no blank screen)
+  const [sessionExpiredOpen, setSessionExpiredOpen] = useState(false);
   useEffect(() => {
-    const el = appBarRef.current; if (!el) return;
-    const update = () => setHeaderHeight(Math.round(el.getBoundingClientRect().height || 0));
-    let ro = null;
-    if (typeof ResizeObserver !== 'undefined') { ro = new ResizeObserver(update); ro.observe(el); }
-    window.addEventListener('resize', update);
-    update();
-    return () => { if (ro) ro.disconnect(); window.removeEventListener('resize', update); };
+    const onExpired = () => {
+      setSessionExpiredOpen(true);
+    };
+    window.addEventListener("llp_session_expired", onExpired);
+    return () => window.removeEventListener("llp_session_expired", onExpired);
   }, []);
 
-  // client-side path router
-  const [path, setPath] = useState(typeof window !== 'undefined' ? window.location.pathname : '/');
+  const handleSessionExpiredContinue = () => {
+    setSessionExpiredOpen(false);
+    window.location.href = "/account";
+  };
+
+  const handleSessionExpiredLogOff = () => {
+    setSessionExpiredOpen(false);
+    clearSession();
+    window.location.href = "/account";
+  };
+
+  const loginAt = getLoginTimestamp();
+  const lastActivityAt = getLastActivityTimestamp();
+  const now = Date.now();
+  const loggedInDurationMs = loginAt ? Math.max(0, now - loginAt) : 0;
+  const inactiveDurationMs = lastActivityAt ? Math.max(0, now - lastActivityAt) : 0;
+
+  const [isBootstrapping, setIsBootstrapping] = useState(false);
+
+  // header height measurement (for page offset) — single source of truth
+  const HEADER_HEIGHT_DEFAULT = 72;
+  const appBarRef = useRef(null);
+  const [headerHeight, setHeaderHeight] = useState(HEADER_HEIGHT_DEFAULT);
+
+  useEffect(() => {
+    const el = appBarRef.current;
+    if (!el) return;
+
+    const update = () =>
+      setHeaderHeight(Math.round(el.getBoundingClientRect().height || 0) || HEADER_HEIGHT_DEFAULT);
+
+    let ro = null;
+    if (typeof ResizeObserver !== 'undefined') {
+      ro = new ResizeObserver(update);
+      ro.observe(el);
+    }
+
+    window.addEventListener('resize', update);
+    update(); // initial
+
+    return () => {
+      if (ro) ro.disconnect();
+      window.removeEventListener('resize', update);
+    };
+  }, []);
+
+  // simple client-side routing using window.history
+  const [path, setPath] = useState(
+    typeof window !== 'undefined' ? window.location.pathname : '/'
+  );
+
+  // listen to browser back/forward
   useEffect(() => {
     const onPop = () => setPath(window.location.pathname);
     window.addEventListener('popstate', onPop);
     return () => window.removeEventListener('popstate', onPop);
   }, []);
+
+  // navigate helper
   const navigate = (to) => {
     if (window.location.pathname === to) return;
     window.history.pushState({}, '', to);
     setPath(to);
   };
 
-  // --- Auth tracking + guard ---
+  // auth: keep local state synced to localStorage/user changes
   const [authedUser, setAuthedUser] = useState(getAuthUser());
-
-  // Keep auth in sync in this tab
   useEffect(() => {
-    const onStorage = (e) => { if (e.key === LS_KEY) setAuthedUser(getAuthUser()); };
+    const savedUser = getAuthUser();
+    if (savedUser && !authedUser) setAuthedUser(savedUser);
+  }, []);
+
+  // store Outlook access token separately
+  const [outlookAccessToken, setOutlookAccessToken] = useState(null);
+
+  useEffect(() => {
+    const prov = localStorage.getItem("letterlab_auth_provider");
+
+    if (prov === "outlook") {
+      // setOutlookAccessToken(stored); // 🔒 REMOVED
+      // setAuthedUser({ name: null, provider: "outlook", token: stored }); // Handled by /auth/status or exchange
+    }
+  }, []);
+
+  // ✅ Outlook short-code exchange handler
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const provider = params.get("provider");
+    const sessionCode = params.get("session_code");
+
+    if (provider === "outlook" && sessionCode) {
+      setIsBootstrapping(true); // block redirects during login
+
+      const apiBase = import.meta.env.VITE_API_URL || "http://localhost:5000";
+      fetch(`${apiBase}/api/oauth/outlook/exchange?code=${sessionCode}`)
+        .then((res) => res.json())
+        .then(({ jwtToken, userProfile }) => {
+          if (jwtToken) {
+            // store immediately
+            // localStorage.setItem("letterlab_outlook_token", accessToken); // 🔒 REMOVED
+            localStorage.setItem("letterlab_auth_provider", "outlook");
+            setLoginTimestamp();
+
+            const name = userProfile?.displayName ||
+              (userProfile?.firstName ? `${userProfile.firstName} ${userProfile.lastName}` : null);
+
+            const user = {
+              name: name,
+              email: userProfile?.email || null,
+              provider: "outlook"
+            };
+            localStorage.setItem("letterlab_user", JSON.stringify(user));
+            localStorage.setItem("authToken", jwtToken);
+
+            // cleanup URL and send to homepage
+            window.history.replaceState({}, document.title, "/");
+            window.location.href = "/";
+          } else {
+            console.error("❌ No jwtToken returned.");
+          }
+        })
+        .catch((err) => console.error("❌ Exchange failed:", err))
+        .finally(() => setIsBootstrapping(false));
+    }
+  }, []);
+
+  // ✅ Google OAuth token handler
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const token = params.get("token");
+
+    if (token) {
+      try {
+        const decoded = jwtDecode(token);
+
+        // Store auth data
+        localStorage.setItem("authToken", token);
+        localStorage.setItem("letterlab_auth_provider", "google");
+        setLoginTimestamp();
+
+        // Construct user object matching the app's structure
+        const user = {
+          name: decoded.name,
+          email: decoded.email,
+          id: decoded.id,
+          provider: "google"
+        };
+        localStorage.setItem("letterlab_user", JSON.stringify(user));
+
+        // Update state immediately
+        setAuthedUser(user);
+
+        // Notify other components/listeners
+        window.dispatchEvent(new Event('llp_auth_changed'));
+
+        // Cleanup URL and redirect
+        window.history.replaceState({}, document.title, "/");
+
+        // ✅ Match Outlook's behavior: Force full reload to ensure clean state
+        window.location.href = "/";
+
+      } catch (err) {
+        console.error("❌ Failed to decode Google token:", err);
+      }
+    }
+  }, []);
+
+  useEffect(() => {
+    const onStorage = (e) => {
+      if (e.key === LS_KEY) setAuthedUser(getAuthUser());
+    };
     const onFocus = () => setAuthedUser(getAuthUser());
     const onCustom = () => setAuthedUser(getAuthUser());
+
     window.addEventListener('storage', onStorage);
     window.addEventListener('focus', onFocus);
     window.addEventListener('llp_auth_changed', onCustom);
+
     return () => {
       window.removeEventListener('storage', onStorage);
       window.removeEventListener('focus', onFocus);
@@ -130,225 +343,263 @@ function App() {
     };
   }, []);
 
-  // Redirect to /account when not logged in
+  // ✅ Redirect guard: Strict Public/Protected Separation
   useEffect(() => {
-    const isLoggedIn = !!authedUser;
-    if (!isLoggedIn && window.location.pathname !== '/account') {
-      navigate('/account');
-    }
-  }, [authedUser, path]);
+    if (isBootstrapping) return;
 
+    const jwtAuth = localStorage.getItem("authToken");
+    const prov = localStorage.getItem("letterlab_auth_provider");
+    const pathNow = window.location.pathname;
+
+    const isLoggedIn = !!jwtAuth || prov === "outlook" || prov === "google";
+    const isPublicRoute = pathNow === "/account" || pathNow.startsWith("/oauth-success");
+
+    // 1. Unauthenticated User trying to access Protected Route
+    //    (Everything is protected except /account and /oauth-success)
+    //    Users can accidentally land on / so we redirect them to /account if not logged in.
+    if (!isLoggedIn && !isPublicRoute) {
+      // Allow specific public landing pages if any, otherwise lock it down.
+      // For now, root '/' is treated as protected/dashboard in this new model?
+      // User said: "Public: /, /pricing ... /auth/connect"
+      // User said: "Protected: /app/*"
+      // But currrent app structure is root-based.
+      // Let's follow the user's specific request:
+      // "If unauthenticated user hits /app/* → redirect to /auth/connect"
+      // "If authenticated user hits /auth/connect → redirect to /app"
+
+      // Checking existing routing... The app currently uses '/' as HomePage (Public) AND Dashboard?
+      // Actually reading App.jsx: "if (path === '/') return <HomePage />;"
+      // And HomePage seems to be the landing page.
+
+      // Let's refine the guard based on "Public: /, /pricing, /auth/connect" + all footer pages
+      const footerPaths = [
+        '/product/features', '/product/pricing', '/product/use-cases', '/product/updates',
+        '/resources/documentation', '/resources/help-center', '/resources/blog', '/resources/community',
+        '/company/about', '/company/contact',
+        '/legal/privacy-policy', '/legal/terms-of-service', '/legal/cookies-settings',
+        '/status',
+      ];
+      const isFooterPath = footerPaths.some((p) => pathNow === p);
+      const isPublic = pathNow === '/' || pathNow === '/pricing' || pathNow === '/account' || pathNow === '/about' || isFooterPath;
+      // Note: mapping /account to /auth/connect concept for now.
+
+      if (!isPublic && !pathNow.startsWith('/oauth-success')) {
+        navigate('/account');
+      }
+    }
+
+    // 2. Authenticated User trying to access Auth pages
+    if (isLoggedIn && pathNow === "/account") {
+      navigate("/");
+    }
+  }, [isBootstrapping, path]);
+
+  // feature flag for homepage
   const HOMEPAGE_ENABLED = !!import.meta.env.VITE_HOMEPAGE_V2;
 
+  // ────────────────────────────────────────────────────────────────────────────
+  // ROUTING TABLE
+  // ────────────────────────────────────────────────────────────────────────────
   const renderPage = () => {
-    // /account is a special route: show Auth when logged out, Account when logged in
-    if (path === '/account') {
-      return authedUser ? <AccountPage /> : <AuthPage />;
+    if (path.startsWith('/oauth-success')) {
+      const OAuthSuccess = React.lazy(() => import('./pages/OAuthSuccess.jsx'));
+      return (
+        <React.Suspense fallback={<div>Redirecting...</div>}>
+          <OAuthSuccess />
+        </React.Suspense>
+      );
     }
 
-    // Gate all other routes if not logged in
+    // Account route special case
+    if (path === '/account') {
+      // This line was missing in your original file, which might be an error
+      // return authedUser ? <AccountPage /> : <AuthPage />;
+      // Sticking to your file's logic:
+      return <AuthPage />;
+    }
+
+    // ✅ NEW: Profile route
+    if (path === '/profile') {
+      return <UserProfilePage />;
+    }
+
+    // ✅ Homepage is public - allow unauthenticated access
+    if (path === '/') return <HomePage />;
+
+    // Footer pages (public)
+    if (path === '/status') return <StatusPage />;
+    if (path === '/product/features') return <FeaturesPage />;
+
+    // Redirects for removed routes
+    if (path === '/product/pricing') { navigate('/product/features'); return null; }
+    if (path === '/resources/help-center' || path === '/resources/blog' || path === '/resources/community' || path === '/resources/documentation') {
+      navigate('/docs');
+      return null;
+    }
+
+    if (path === '/product/use-cases') return <FooterPage slug="product/use-cases" />;
+    if (path === '/product/updates') return <FooterPage slug="product/updates" />;
+    if (path === '/company/about') return <FooterPage slug="company/about" />;
+    if (path === '/company/contact') return <FooterPage slug="company/contact" />;
+    if (path === '/legal/privacy-policy' || path === '/privacy') return <PrivacyPage />;
+    if (path === '/legal/terms-of-service' || path === '/terms') return <TermsPage />;
+    if (path === '/legal/cookies-settings') return <FooterPage slug="legal/cookies-settings" />;
+
+    // If not logged in, show the AuthPage by default
     if (!authedUser) {
       return <AuthPage />;
     }
 
-    // Logged-in routes
-    if (path === '/compose')   return <ComposePage headerHeight={headerHeight} />;
-    if (path === '/docs')      return <DocsPage />;
-    if (path === '/about')     return <AboutPage />;
-    if (path === '/privacy')   return <PrivacyPage />;
-    if (path === '/analytics') return <AnalyticsPage />;
-    if (HOMEPAGE_ENABLED && path === '/') return <HomepageV2 />;
-    return <ComposePage headerHeight={headerHeight} />;
+    // Primary chat/drafting interface (renamed from /compose)
+    if (path === '/chat') {
+      return (
+        <ComposePage
+          headerHeight={headerHeight}
+          jwtToken={localStorage.getItem("authToken")}
+          outlookAccessToken={outlookAccessToken}
+          authProvider={localStorage.getItem("letterlab_auth_provider")}
+          navigate={navigate}
+        />
+      );
+    }
+
+    /* Removed clean-demo route */
+
+    if (path === '/docs') return <DocsPage />;
+    if (path === '/about') return <AboutPage />;
+    if (path === '/contact') return <ContactPage />;
+    if (path === '/analytics') return <AnalyticsDashboard />;
+    if (path === '/add-professor') return <AddProfessor />;
+
+    // ✅ Extract threadId for Summary Page
+    if (path.startsWith('/summary')) {
+      const parts = path.split('/');
+      // supports /summary (demo) or /summary/:threadId
+      const threadId = parts[2] || null;
+      return <SummaryPage threadId={threadId} />;
+    }
+
+    // ✅ Explicit Error Routes (for testing/demo)
+    if (path === '/404') return <ErrorPage code={404} />;
+    if (path === '/502') return <ErrorPage code={502} />;
+    if (path === '/500') return <ErrorPage code={500} />;
+
+    // ✅ Catch-all: 404 Not Found
+    return <ErrorPage code={404} />;
   };
 
-  // Compute avatar content + label
+  // avatar string + aria label
   const avatarInitials = initialsFromName(authedUser?.name);
-  const avatarAria = authedUser ? `${authedUser.name} — open account` : 'Sign in';
+  const avatarAria = authedUser
+    ? `${authedUser.name} – open account`
+    : 'Sign in';
+
+  // ────────────────────────────────────────────────────────────────────────────
+  // RENDER START
+  // ────────────────────────────────────────────────────────────────────────────
 
   return (
     <ThemeProvider theme={theme}>
+      {/* baseline + global gradient background */}
       <CssBaseline />
-      <GlobalStyles styles={{
-        '*, *::before, *::after': { boxSizing: 'border-box' },
-        'html, body, #root': { height: '100%' },
-        html: { overflowX: 'hidden', overscrollBehaviorY: 'none' },
-        body: {
-          margin: 0,
-          overflowX: 'hidden',
-          // gradient helps glass surfaces read without using background-attachment: fixed
-          backgroundImage: theme.palette.mode === 'dark'
-            ? 'linear-gradient(170deg, #161B22 0%, #0D1117 100%)'
-            : 'linear-gradient(170deg, #F7FAFF 0%, #FFFFFF 60%)',
-          backgroundAttachment: 'scroll'
-        },
-        a: { textDecoration: 'none', color: 'inherit' }
-      }} />
+      <GlobalStyles
+        styles={{
+          ':root': {
+            '--app-header-height': `${headerHeight || HEADER_HEIGHT_DEFAULT}px`,
+          },
+          '*, *::before, *::after': { boxSizing: 'border-box' },
+          'html, body, #root': { height: '100%' },
+          html: {
+            overflowX: 'hidden',
+            overscrollBehaviorY: 'none',
+          },
+          body: {
+            margin: 0,
+            overflowX: 'hidden',
+            // background gradient behind all glass surfaces
+            backgroundImage:
+              theme.palette.mode === 'dark'
+                ? 'linear-gradient(170deg, #161B22 0%, #0D1117 100%)'
+                : 'linear-gradient(170deg, #F7FAFF 0%, #FFFFFF 60%)',
+            backgroundAttachment: 'scroll',
+          },
+          a: {
+            textDecoration: 'none',
+            color: 'inherit',
+          },
+        }}
+      />
 
-      {/* Global fixed background (grid/icons handled by SmartBackground) */}
-      <SmartBackground />
-
-      <Drawer
-        anchor="left"
+      {/* ────────────────────────────────────────────────────────────────────
+          MOBILE DRAWER (left, mobile only)
+          ──────────────────────────────────────────────────────────────────── */}
+      <MobileDrawer
         open={isDrawerOpen}
         onClose={() => setIsDrawerOpen(false)}
-        PaperProps={{
-          sx: {
-            background: theme.glass.panel,
-            backdropFilter: 'blur(12px)',
-            WebkitBackdropFilter: 'blur(12px)',
-            width: 300,
-            borderRight: `1px solid ${theme.glass.border}`,
-            boxShadow: theme.shadows[1],
-          }
-        }}
-      >
-        {/* ADD THIS NEW LIST FOR NAVIGATION */}
-      <List>
-        <ListItem disablePadding>
-          <ListItemButton onClick={() => { setIsDrawerOpen(false); navigate('/'); }}>
-            <ListItemText primary="Home" />
-          </ListItemButton>
-        </ListItem>
-        <ListItem disablePadding>
-          <ListItemButton onClick={() => { setIsDrawerOpen(false); navigate('/compose'); }}>
-            <ListItemText primary="Compose" />
-          </ListItemButton>
-        </ListItem>
-        <ListItem disablePadding>
-          <ListItemButton onClick={() => { setIsDrawerOpen(false); navigate('/docs'); }}>
-            <ListItemText primary="Docs" />
-          </ListItemButton>
-        </ListItem>
-        <ListItem disablePadding>
-          <ListItemButton onClick={() => { setIsDrawerOpen(false); navigate('/analytics'); }}>
-            <ListItemText primary="Analytics" />
-          </ListItemButton>
-        </ListItem>
-      </List>
-      <Divider /> 
-      {/* END OF NEW CODE */}
+        path={path}
+        navigate={navigate}
+        authedUser={authedUser}
+      />
 
-      {/* This is your existing History Box (line 203 in your file) */}
-      <Box sx={{ p: 2.5, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <Typography variant="h6" sx={{ fontWeight: 800 }}>History</Typography>
-        <IconButton aria-label="new conversation"><AddCommentOutlinedIcon /></IconButton>
-      </Box>
-      <Divider />
-      {/* ... the rest of your history list ... */}
-      
-        <Box sx={{ p: 2.5, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <Typography variant="h6" sx={{ fontWeight: 800 }}>History</Typography>
-          <IconButton aria-label="new conversation"><AddCommentOutlinedIcon /></IconButton>
-        </Box>
-        <Divider />
-        <List>
-          <ListItem disablePadding>
-            <ListItemButton onClick={() => { setIsDrawerOpen(false); navigate('/compose'); }}>
-              <ListItemIcon><HistoryIcon sx={{ color: 'text.secondary', minWidth: 40 }} /></ListItemIcon>
-              <ListItemText primary="Request for Extension..." />
-            </ListItemButton>
-          </ListItem>
-        </List>
-      </Drawer>
+      <SessionTimeoutDialog
+        open={sessionTimeout.dialogOpen}
+        countdownSeconds={sessionTimeout.countdownSeconds}
+        onContinue={sessionTimeout.onContinue}
+        onLogOff={sessionTimeout.onLogOff}
+        continueLoading={sessionTimeout.continueLoading}
+      />
 
-      <AppBar
-        ref={appBarRef}
-        position="fixed"
-        color="default"
-        elevation={0}
-        sx={{
-          // flat top; translucent surface; no radius artifact
-          bgcolor: (t) => t.palette.mode === 'dark' ? 'rgba(13,17,23,0.55)' : 'rgba(255,255,255,0.65)',
-          backdropFilter: 'saturate(1.2) blur(10px)',
-          WebkitBackdropFilter: 'blur(10px)',
-          borderTopLeftRadius: 0,
-          borderTopRightRadius: 0,
-          px: { xs: 1, sm: 2 },
-        }}
-      >
-        <Toolbar sx={{ minHeight: { xs: 64, sm: 72 }, position: 'relative' }}>
-          <IconButton edge="start" color="inherit" onClick={() => setIsDrawerOpen(true)} sx={{ mr: 2 }} aria-label="open history">
-            <MenuIcon />
-          </IconButton>
+      {/* ────────────────────────────────────────────────────────────────────
+          APP BAR (TOP FIXED HEADER)
+          ──────────────────────────────────────────────────────────────────── */}
+      {path === '/account' || path.startsWith('/oauth-success') ? (
+        <MinimalHeader
+          theme={theme}
+          mode={mode}
+          toggleColorMode={colorMode.toggleColorMode}
+        />
+      ) : (
+        <Header
+          appBarRef={appBarRef}
+          theme={theme}
+          path={path}
+          mode={mode}
+          toggleColorMode={colorMode.toggleColorMode}
+          setIsDrawerOpen={setIsDrawerOpen}
+          navigate={navigate}
+          authedUser={authedUser}
+        />
+      )}
 
-          <Box>
-            <Typography variant="h6" sx={{ fontWeight: 800, letterSpacing: -0.2, fontSize: { xs: '1.25rem', sm: '1.5rem' } }}>
-              LetterLab
-            </Typography>
-            <Button
-              variant="outlined"
-              onClick={(e) => setVersionMenuAnchorEl(e.currentTarget)}
-              size="small"
-              endIcon={<KeyboardArrowDownIcon />}
-              sx={{
-                textTransform: 'none',
-                borderRadius: '999px',
-                p: '1px 8px',
-                mt: 0.5,
-                borderColor: 'divider',
-                color: 'text.secondary',
-                fontSize: '0.75rem'
-              }}
-            >
-              v2.0 Beta
-            </Button>
-            <Menu anchorEl={versionMenuAnchorEl} open={Boolean(versionMenuAnchorEl)} onClose={() => setVersionMenuAnchorEl(null)}>
-              <MenuItem>v1.0 Beta</MenuItem>
-            </Menu>
-          </Box>
 
-          {/* Center menu (Account removed) */}
-          <Box sx={{ position: 'absolute', left: '50%', transform: 'translateX(-50%)', display: { xs: 'none', sm: 'flex' }, gap: 1 }}>
-            <Button onClick={() => navigate('/')}         size="small" sx={{ textTransform: 'none' }}>Home</Button>
-            <Button onClick={() => navigate('/compose')}  size="small" sx={{ textTransform: 'none' }}>Compose</Button>
-            <Button onClick={() => navigate('/docs')}     size="small" sx={{ textTransform: 'none' }}>Docs</Button>
-            <Button onClick={() => navigate('/analytics')}size="small" sx={{ textTransform: 'none' }}>Analytics</Button>
-            {/* Account button removed per request */}
-          </Box>
-
-          <Box sx={{ flexGrow: 1 }} />
-
-          <IconButton sx={{ ml: 1 }} onClick={colorMode.toggleColorMode} color="inherit" aria-label="toggle theme">
-            {theme.palette.mode === 'dark' ? <Brightness7OutlinedIcon /> : <Brightness4OutlinedIcon />}
-          </IconButton>
-          <IconButton onClick={(e) => setRightMenuAnchorEl(e.currentTarget)} aria-label="more"><MoreVertIcon /></IconButton>
-          <Chip label="PRO" size="small" variant="outlined" sx={{ mx: 1.5 }} />
-          <Tooltip title={authedUser ? authedUser.name : 'Sign in'}>
-            <Avatar
-              sx={{ width: 32, height: 32, cursor: 'pointer' }}
-              onClick={() => navigate('/account')}
-              aria-label={avatarAria}
-            >
-              {avatarInitials}
-            </Avatar>
-          </Tooltip>
-
-          <Menu anchorEl={rightMenuAnchorEl} open={Boolean(rightMenuAnchorEl)} onClose={() => setRightMenuAnchorEl(null)}>
-            <MenuItem onClick={() => navigate('/about')}>About</MenuItem>
-            <MenuItem onClick={() => navigate('/privacy')}>Privacy</MenuItem>
-          </Menu>
-        </Toolbar>
-        {/* clean divider line exactly under header (fixes “floating” look) */}
-        <Divider />
-      </AppBar>
-
-      {/* Page content */}
+      {/* ────────────────────────────────────────────────────────────────────
+          PAGE SURFACE
+          ──────────────────────────────────────────────────────────────────── */}
       <Box
         sx={{
-          pt: `${headerHeight}px`,
-          // ensure each page fills the viewport height so no phantom scroll or split
+          pt: path === '/'
+            ? 0
+            : {
+              xs: 'calc(var(--app-header-height, 72px) + 16px)',
+              md: 'calc(var(--app-header-height, 72px) + 24px)',
+            },
+          pb: 0,
           minHeight: '100dvh',
-          isolation: 'isolate',     // keep above the fixed background layer
+          isolation: 'isolate',
           position: 'relative',
-          zIndex: 1,
+          zIndex: path === '/' ? 0 : 1,
+          p: 0,
         }}
       >
-        {/* gentle page gutter so panels breathe */}
-        <Box sx={{ px: { xs: 1.5, sm: 3 }, py: { xs: 2, sm: 3 } }}>
-          {renderPage()}
-        </Box>
+        {path === '/' ? (
+          <HomePage />
+        ) : (
+          <Box sx={{ px: { xs: 1.5, sm: 3 }, py: { xs: 2, sm: 3 } }}>
+            {renderPage()}
+          </Box>
+        )}
       </Box>
-    </ThemeProvider>
+    </ThemeProvider >
   );
 }
 

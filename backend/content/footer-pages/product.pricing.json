@@ -1,0 +1,46 @@
+{
+  "slug": "product/pricing",
+  "title": "Pricing",
+  "lead": "LetterLab is currently focused on building a reliable writing experience. Pricing is presented here as a transparent plan outline and may evolve as features mature.",
+  "seo": { "title": "Pricing | LetterLab", "description": "Transparent plan outline for LetterLab writing tools." },
+  "sections": [
+    {
+      "id": "notice",
+      "type": "notice",
+      "body": ["This page describes intended plans. If payments are not enabled in this build, the UI must never imply that a purchase is possible."]
+    },
+    {
+      "id": "plan-outline",
+      "type": "table",
+      "title": "Plan outline",
+      "columns": ["Starter", "Plus", "Pro"],
+      "rows": [
+        { "label": "Drafting tools", "cells": ["Basic drafting", "Full drafting + suggestions", "All tools + priority"] },
+        { "label": "Tone controls", "cells": ["Preset tones", "Custom tones", "Custom + presets"] },
+        { "label": "Templates", "cells": ["—", "Common scenarios", "Unlimited"] },
+        { "label": "Updates access", "cells": ["Release notes", "Early access", "Early + changelog"] },
+        { "label": "Support channel", "cells": ["Help center", "Email support", "Priority support"] }
+      ],
+      "highlightColumn": 1
+    },
+    {
+      "id": "pricing-faq",
+      "type": "accordion",
+      "title": "Pricing FAQ",
+      "items": [
+        {
+          "title": "Is payment available right now?",
+          "body": ["If payments are not enabled, there is nothing to buy. This page exists for transparency and future readiness."]
+        },
+        {
+          "title": "What does \"Pro\" mean?",
+          "body": ["Pro is meant for heavy usage and advanced controls. It should never unlock dark patterns or hide core writing quality behind a paywall."]
+        },
+        {
+          "title": "Will pricing change?",
+          "body": ["Yes. As LetterLab evolves, pricing may change. Any changes should be communicated in Updates with clear dates."]
+        }
+      ]
+    }
+  ]
+}

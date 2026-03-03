@@ -1,0 +1,17 @@
+{
+  "slug": "legal/terms-of-service",
+  "title": "Terms of Service",
+  "lead": "By using LetterLab, you agree to these terms. Last updated: March 1, 2026.",
+  "seo": { "title": "Terms of Service | LetterLab", "description": "Terms governing use of LetterLab." },
+  "lastUpdated": "March 1, 2026",
+  "sections": [
+    { "id": "acceptance", "title": "Acceptance of terms", "body": ["By accessing or using LetterLab, you agree to be bound by these Terms of Service. If you do not agree, do not use the service."] },
+    { "id": "use-of-service", "title": "Use of the service", "body": ["You may use LetterLab only for lawful purposes and in accordance with these terms. You must provide accurate account information and keep your credentials secure. You may not misuse the service, attempt to gain unauthorized access, or use it in a way that harms others or the service."] },
+    { "id": "user-responsibilities", "title": "User responsibilities", "body": ["You are responsible for the content you submit and for reviewing any generated drafts before sending. You must not submit content that infringes others’ rights, is illegal, or violates our policies. We may suspend or terminate access for violation of these terms."] },
+    { "id": "third-party", "title": "Third-party services", "body": ["LetterLab may integrate with third-party services (e.g., email providers). Your use of those services is subject to their terms and policies. We are not responsible for third-party conduct or availability."] },
+    { "id": "availability", "title": "Availability and changes", "body": ["We strive for reliability but do not guarantee uninterrupted service. We may change features, pricing, or these terms with notice where required. Continued use after changes constitutes acceptance."] },
+    { "id": "disclaimers", "title": "Disclaimers", "body": ["The service is provided \"as is.\" We disclaim warranties to the fullest extent permitted by law. Drafts are suggestions; you are responsible for their accuracy and appropriateness."] },
+    { "id": "limitation", "title": "Limitation of liability", "body": ["To the maximum extent permitted by law, we are not liable for indirect, incidental, special, or consequential damages, or for loss of data or profits arising from your use of LetterLab. Our total liability is limited to the amount you paid us in the twelve months before the claim."] },
+    { "id": "contact", "title": "Contact", "body": ["For questions about these terms, contact us via the Contact page or at legal@letterlab.pro."] }
+  ]
+}

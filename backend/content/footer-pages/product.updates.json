@@ -1,0 +1,23 @@
+{
+  "slug": "product/updates",
+  "title": "Updates",
+  "lead": "This page tracks notable changes to LetterLab. Updates focus on things users can feel: clarity, reliability, and control.",
+  "seo": { "title": "Updates | LetterLab", "description": "Changelog and product updates." },
+  "sections": [
+    {
+      "id": "filters",
+      "type": "filters",
+      "options": ["All", "Features", "Fixes", "UI", "Security"]
+    },
+    {
+      "id": "timeline",
+      "type": "timeline",
+      "items": [
+        { "version": "v0.4", "date": "March 1, 2026", "summary": "Footer pages and status endpoint added.", "details": ["New footer-linked pages for product, resources, company, and legal.", "Status page and /api/status for system health.", "Contact form and /api/contact with validation."] },
+        { "version": "v0.3", "date": "February 15, 2026", "summary": "Tone control and subject line suggestions improved.", "details": ["Tone presets (formal, neutral, friendly) now apply more consistently.", "Subject line suggestions respect message goal.", "Minor UI tweaks to the composer toolbar."] },
+        { "version": "v0.2", "date": "February 1, 2026", "summary": "Drafting workflow and readability fixes.", "details": ["Paragraph-level rewrite preserves key points better.", "Grammar and punctuation checks added to review step.", "Reduced unnecessary length in generated drafts."] },
+        { "version": "v0.1", "date": "January 15, 2026", "summary": "Initial drafting and email integration.", "details": ["First draft generation from notes and context.", "Gmail and Outlook integration for sending.", "Basic template patterns for common scenarios."] }
+      ]
+    }
+  ]
+}

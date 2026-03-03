@@ -1,0 +1,41 @@
+{
+  "slug": "company/careers",
+  "title": "Careers",
+  "lead": "LetterLab is currently a small, focused project. Roles listed below describe future needs and the kind of work that may exist as the product grows.",
+  "seo": { "title": "Careers | LetterLab", "description": "Future roles and how to join." },
+  "sections": [
+    {
+      "id": "values",
+      "type": "plain",
+      "title": "Values",
+      "items": [
+        { "title": "Clarity", "body": "We value clear communication in product and in how we work." },
+        { "title": "Ownership", "body": "Small teams mean everyone owns outcomes. We ship and iterate." },
+        { "title": "Inclusion", "body": "We aim for a respectful, inclusive environment where different perspectives help us build better tools." },
+        { "title": "Sustainability", "body": "We care about sustainable pace and long-term quality over short-term hype." }
+      ]
+    },
+    {
+      "id": "future-roles",
+      "type": "accordion",
+      "title": "Future roles",
+      "items": [
+        { "title": "Frontend engineer", "description": "Build and maintain the LetterLab web app: composer, dashboard, and integrations.", "workOn": ["Composer UI and drafting flows", "Email client integration (Gmail, Outlook)", "Performance and accessibility"], "success": ["Strong React and modern JS", "Care for UX and accessibility", "Comfort with APIs and state management"], "status": "Not open" },
+        { "title": "Backend engineer", "description": "Own APIs, data pipelines, and reliability for the LetterLab service.", "workOn": ["API design and implementation", "AI integration and usage tracking", "Security and data handling"], "success": ["Node.js or similar", "API design and documentation", "Attention to security and privacy"], "status": "Not open" },
+        { "title": "Product designer", "description": "Shape the product experience from concept to shipped UI.", "workOn": ["User flows and wireframes", "Visual design and design system", "Research and usability"], "success": ["Portfolio showing end-to-end work", "Collaboration with engineering", "Focus on clarity and simplicity"], "status": "Not open" },
+        { "title": "Technical writer", "description": "Document product behavior, APIs, and help content.", "workOn": ["User-facing documentation", "Help center and FAQs", "Release notes and internal docs"], "success": ["Clear, concise writing", "Ability to learn technical concepts", "Structured content and information architecture"], "status": "Not open" }
+      ]
+    },
+    {
+      "id": "talent-waitlist",
+      "type": "form",
+      "formType": "talent-waitlist",
+      "title": "Talent waitlist",
+      "fields": [
+        { "name": "name", "label": "Name", "type": "text", "required": true },
+        { "name": "email", "label": "Email", "type": "email", "required": true },
+        { "name": "area", "label": "Area of interest", "type": "select", "required": true, "options": ["Engineering", "Design", "Product", "Other"] }
+      ]
+    }
+  ]
+}

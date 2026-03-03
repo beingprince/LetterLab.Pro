@@ -1,0 +1,15 @@
+.TagRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 8px 0;
+}
+
+.TagRow__tag {
+  font-size: 12px;
+  font-weight: 500;
+  padding: 4px 10px;
+  background: var(--fp-bg-alt);
+  color: var(--fp-text-secondary);
+  border-radius: 9999px;
+}

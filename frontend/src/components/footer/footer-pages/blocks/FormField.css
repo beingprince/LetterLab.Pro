@@ -1,0 +1,58 @@
+.FormField {
+  margin-bottom: 20px;
+}
+
+.FormField__label {
+  display: block;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--fp-text);
+  margin-bottom: 6px;
+}
+
+.FormField__required {
+  color: var(--fp-status-error);
+}
+
+.FormField__input {
+  width: 100%;
+  max-width: 480px;
+  padding: 12px 16px;
+  font-size: 16px;
+  line-height: 1.4;
+  color: var(--fp-text);
+  background: var(--fp-bg);
+  border: 1px solid var(--fp-border);
+  border-radius: var(--fp-radius, 8px);
+}
+
+.FormField__input:focus {
+  outline: none;
+  border-color: var(--fp-accent-light);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+}
+
+.FormField__input:focus-visible {
+  outline: 2px solid var(--fp-accent-light);
+  outline-offset: 2px;
+}
+
+.FormField__input[aria-invalid="true"] {
+  border-color: var(--fp-status-error);
+}
+
+.FormField__textarea {
+  min-height: 120px;
+  resize: vertical;
+}
+
+.FormField__select {
+  cursor: pointer;
+  appearance: auto;
+}
+
+.FormField__error {
+  margin: 6px 0 0;
+  font-size: 13px;
+  color: var(--fp-status-error);
+}

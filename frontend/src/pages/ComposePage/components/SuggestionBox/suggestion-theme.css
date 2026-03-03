@@ -1,0 +1,223 @@
+/*
+ * Suggestion Box Theme
+ * ════════════════════
+ * Minimal navigation cards.
+ * Subtle blue-to-yellow gradient border at low opacity.
+ * NO color change on hover/click — only subtle size bump.
+ * Mobile: card slightly taller, "swipe ↓" tag lives inside the bottom border.
+ */
+
+/* ─── Card Base ─── */
+.suggestion-card {
+    position: relative;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+    text-align: left;
+    padding: 10px 14px;
+    width: 100%;
+    border-radius: 12px;
+    background: none;
+    background-color: transparent;
+    border: none;
+    box-shadow: none;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+    overflow: visible;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+}
+
+/* Gradient border — all viewports */
+.suggestion-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 12px;
+    padding: 0.6px;
+    background: linear-gradient(135deg, #3b82f6 0%, #93c5fd 35%, #fde68a 70%, #fbbf24 100%);
+    opacity: 0.35;
+    -webkit-mask:
+        linear-gradient(#fff 0 0) content-box,
+        linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+}
+
+/* Hover: subtle zoom-in ONLY — override global button:hover blue gradient */
+.suggestion-card:hover {
+    transform: scale(1.03);
+    background: none !important;
+    background-color: transparent !important;
+    box-shadow: none !important;
+    color: inherit !important;
+}
+.suggestion-card:active {
+    transform: scale(1.0);
+    background: none !important;
+    background-color: transparent !important;
+    box-shadow: none !important;
+}
+
+/* Dark mode border */
+.dark .suggestion-card::before {
+    background: linear-gradient(135deg, #60a5fa 0%, #93c5fd 35%, #fde68a 70%, #f59e0b 100%);
+    opacity: 0.25;
+}
+
+/* Mobile: extended top/bottom padding for taller card */
+@media (max-width: 767px) {
+    .suggestion-card {
+        padding: 14px 16px 22px 16px; /* Extra bottom for swipe tag space */
+    }
+}
+
+/* ─── Icon ─── */
+.suggestion-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+.suggestion-icon svg,
+.suggestion-icon .MuiSvgIcon-root {
+    color: #374151 !important;
+    font-size: 18px !important;
+}
+.dark .suggestion-icon svg,
+.dark .suggestion-icon .MuiSvgIcon-root {
+    color: #d1d5db !important;
+}
+
+/* ─── Text ─── */
+.suggestion-text {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+.suggestion-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: #1f2937;
+    line-height: 1.35;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.dark .suggestion-title { color: #f3f4f6; }
+
+.suggestion-subtitle {
+    font-size: 11px;
+    color: #6b7280;
+    line-height: 1.35;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.dark .suggestion-subtitle { color: #9ca3af; }
+
+@media (max-width: 767px) {
+    .suggestion-title { font-size: 14px; }
+    .suggestion-subtitle { font-size: 12px; }
+}
+
+/* ─── Badge ─── */
+.suggestion-badge {
+    position: absolute;
+    top: -1px;
+    right: 10px;
+    padding: 1px 6px;
+    border-radius: 0 0 6px 6px;
+    font-size: 8px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #1e40af;
+    background: #dbeafe;
+}
+.dark .suggestion-badge {
+    color: #93c5fd;
+    background: rgba(59, 130, 246, 0.1);
+}
+
+/* ─── Section Label — center aligned ─── */
+.suggestion-label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    margin-bottom: 10px;
+    text-align: center;
+    background: linear-gradient(to right, #1e3a8a, #2563eb);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+.dark .suggestion-label {
+    background: linear-gradient(to right, #e5e7eb, #f9fafb);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* ─── Suggestion Area — full swipe target ─── */
+.suggestion-area {
+    width: 100%;
+    max-width: 48rem; /* max-w-3xl */
+    margin: 0 auto;
+    padding: 0 1rem;
+}
+@media (max-width: 767px) {
+    .suggestion-area {
+        padding: 8px 1rem 20px;
+        min-height: 80px; /* Ensures big enough touch target */
+    }
+}
+
+/* ─── Desktop Grid ─── */
+.suggestion-grid {
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+}
+
+/* ─── Swipe Tag — sits ON the bottom border of the card (mobile only) ─── */
+.swipe-tag {
+    display: none;
+}
+@media (max-width: 767px) {
+    .swipe-tag {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 3px;
+        position: absolute;
+        bottom: 0;
+        left: 50%;
+        transform: translate(-50%, 50%);
+        padding: 1px 10px;
+        border-radius: 8px;
+        font-size: 8px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: #9ca3af;
+        /* Background matches page to "cut" through the border */
+        background: #f9fafb;
+        z-index: 2;
+    }
+    .dark .swipe-tag {
+        color: #6b7280;
+        background: #111827;
+    }
+    .swipe-tag-arrow {
+        font-size: 10px;
+        animation: swipe-bounce 1.6s ease-in-out infinite;
+    }
+}
+@keyframes swipe-bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(2px); }
+}

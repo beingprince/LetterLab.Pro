@@ -1,25 +1,37 @@
-// backend/routes/usage.js
-import express from "express";
-import Usage from "../models/Usage.js";
+import express from 'express';
+import { auth } from '../middleware/auth.js';
+import User from '../models/User.js';
+import { calculateResetTime } from '../middleware/tokenMiddleware.js';
 
 const router = express.Router();
 
-// GET /api/usage/daily?from=YYYY-MM-DD&to=YYYY-MM-DD
-router.get("/daily", async (req, res, next) => {
+/**
+ * GET /api/usage/me
+ * Unified usage contract for Analytics and Account screens
+ */
+router.get('/me', auth, async (req, res) => {
   try {
-    const userId = req.userId; // now from auth middleware
-    const from = req.query.from ? new Date(req.query.from) : new Date(Date.now() - 14 * 864e5);
-    const to = req.query.to ? new Date(req.query.to) : new Date();
+    const user = await User.findById(req.user.id);
+    if (!user) return res.status(404).json({ error: 'User not found' });
 
-    const rows = await Usage.find({
-      userId,
-      date: { $gte: from, $lte: to }
-    }).sort({ date: 1 });
+    // Ensure user has initial values if somehow missing
+    const chatUsed = (user.chatTokensLimit || 50000) - (user.chatTokensRemaining || 0);
+    const emailsUsed = (user.emailsLimitDaily || 10) - (user.emailsRemainingToday || 0);
 
-    res.json(rows);
-  } catch (err) {
-    console.error("[GET /api/usage/daily]", err);
-    next(err);
+    res.json({
+      chatTokensUsed: chatUsed,
+      chatTokensRemaining: user.chatTokensRemaining || 0,
+      chatTokensLimit: user.chatTokensLimit || 50000,
+      emailsUsedToday: emailsUsed,
+      emailsRemainingToday: user.emailsRemainingToday || 0,
+      emailsLimitDaily: user.emailsLimitDaily || 10,
+      nextResetAt: user.nextResetAt,
+      resetIn: user.nextResetAt ? calculateResetTime(user.nextResetAt) : 'Unknown',
+      timezone: 'Central Time (America/Chicago)'
+    });
+  } catch (error) {
+    console.error('Failed to fetch usage:', error);
+    res.status(500).json({ error: 'Failed to fetch usage data' });
   }
 });
 

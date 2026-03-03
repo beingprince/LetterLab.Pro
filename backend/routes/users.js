@@ -1,84 +1,130 @@
-import { auth } from "../middleware/auth.js";
-import express from "express";
-import User from "../models/User.js";
-import jwt from "jsonwebtoken";
-import bcrypt from "bcryptjs";
+import express from 'express';
+import jwt from 'jsonwebtoken';
+import User from '../models/User.js';
 
 const router = express.Router();
 
-router.get("/ping", (_req, res) => res.json({ ok: true, where: "users router" }));
+const JWT_SECRET = process.env.JWT_SECRET;
+if (!JWT_SECRET) throw new Error('JWT_SECRET is required. Add it to .env');
 
-// Generate JWT
-const genToken = (id) =>
-  jwt.sign({ id }, process.env.JWT_SECRET || "supersecretkey", {
-    expiresIn: "7d",
-  });
+// Helper: sign JWT
+function signToken(user) {
+  return jwt.sign(
+    { id: user._id, email: user.email, name: user.name },
+    JWT_SECRET,
+    { expiresIn: '7d' }
+  );
+}
 
-// ✅ Register new user
-router.post("/register", async (req, res) => {
+// POST /api/users/register
+router.post('/register', async (req, res) => {
   try {
     const { name, email, password } = req.body;
-    if (!name || !email || !password)
-      return res.status(400).json({ error: "All fields are required." });
+    if (!name || !email || !password) {
+      return res.status(400).json({ error: 'Please provide name, email, and password' });
+    }
 
-    const exists = await User.findOne({ email });
-    if (exists) return res.status(400).json({ error: "Email already in use." });
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return res.status(400).json({ error: 'User already exists' });
+    }
 
-    const user = await User.create({ name, email, password });
-    res.status(201).json({
-      _id: user._id,
-      name: user.name,
-      email: user.email,
-      token: genToken(user._id),
+    const user = await User.create({
+      name,
+      email,
+      password,
+      provider: 'local'
     });
-  } catch (err) {
-    console.error("[POST /users/register]", err);
-    res.status(500).json({ error: "Registration failed." });
+
+    const token = signToken(user);
+    res.status(201).json({ success: true, token, user: { id: user._id, name: user.name, email: user.email } });
+  } catch (error) {
+    console.error('Registration Error:', error);
+    res.status(500).json({ error: 'Server error during registration' });
   }
 });
 
-// ✅ Login user
-router.post("/login", async (req, res) => {
+// POST /api/users/login
+router.post('/login', async (req, res) => {
   try {
     const { email, password } = req.body;
-    const user = await User.findOne({ email });
-    if (!user) return res.status(400).json({ error: "Invalid credentials." });
+    if (!email || !password) {
+      return res.status(400).json({ error: 'Please provide email and password' });
+    }
 
-    const match = await user.matchPassword(password);
-    if (!match) return res.status(400).json({ error: "Invalid credentials." });
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(401).json({ error: 'Invalid credentials' });
+    }
+
+    const isMatch = await user.matchPassword(password);
+    if (!isMatch) {
+      return res.status(401).json({ error: 'Invalid credentials' });
+    }
+
+    const token = signToken(user);
+    res.json({ success: true, token, user: { id: user._id, name: user.name, email: user.email } });
+  } catch (error) {
+    console.error('Login Error:', error);
+    res.status(500).json({ error: 'Server error during login' });
+  }
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Protected Routes
+// ─────────────────────────────────────────────────────────────────────────────
+import { auth } from '../middleware/auth.js';
+
+// GET /api/users/profile
+router.get('/profile', auth, async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id).select('-password');
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+    res.json({ success: true, user });
+  } catch (error) {
+    console.error('Get Profile Error:', error);
+    res.status(500).json({ error: 'Server error fetching profile' });
+  }
+});
+
+// PUT /api/users/profile
+router.put('/profile', auth, async (req, res) => {
+  try {
+    const { name, jobTitle, bio, location, phone } = req.body;
+
+    const user = await User.findById(req.user.id);
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    // Update allowed fields
+    if (name) user.name = name;
+    if (req.body.displayName !== undefined) user.displayName = req.body.displayName;
+    if (jobTitle !== undefined) user.jobTitle = jobTitle;
+    if (bio !== undefined) user.bio = bio;
+    if (location !== undefined) user.location = location;
+    if (phone !== undefined) user.phone = phone;
+
+    await user.save();
 
     res.json({
-      _id: user._id,
-      name: user.name,
-      email: user.email,
-      token: genToken(user._id),
+      success: true, user: {
+        id: user._id,
+        name: user.name,
+        displayName: user.displayName,
+        email: user.email,
+        jobTitle: user.jobTitle,
+        bio: user.bio,
+        location: user.location,
+        phone: user.phone
+      }
     });
-  } catch (err) {
-    console.error("[POST /users/login]", err);
-    res.status(500).json({ error: "Login failed." });
+  } catch (error) {
+    console.error('Update Profile Error:', error);
+    res.status(500).json({ error: 'Server error updating profile' });
   }
 });
-
-// ✅ Get all users (for admin/debug)
-router.get("/", async (_req, res) => {
-  try {
-    const users = await User.find().select("-password");
-    res.json(users);
-  } catch (err) {
-    res.status(500).json({ error: "Failed to fetch users." });
-  }
-});
-
-// ✅ Get user profile
-router.get("/me", auth, async (req, res) => {
-  try {
-    const user = await User.findById(req.userId).select("-password");
-    if (!user) return res.status(404).json({ error: "User not found" });
-    res.json(user);
-  } catch (e) {
-    res.status(500).json({ error: "Failed to fetch user profile" });
-  }
-});
-
 
 export default router;

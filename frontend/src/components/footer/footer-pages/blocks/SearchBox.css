@@ -1,0 +1,38 @@
+.SearchBox {
+  margin-bottom: 24px;
+}
+
+.SearchBox__label {
+  display: block;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--fp-text-secondary);
+  margin-bottom: 8px;
+}
+
+.SearchBox__input {
+  width: 100%;
+  max-width: 400px;
+  padding: 12px 16px;
+  font-size: 16px;
+  line-height: 1.4;
+  color: var(--fp-text);
+  background: var(--fp-bg);
+  border: 1px solid var(--fp-border);
+  border-radius: var(--fp-radius, 8px);
+}
+
+.SearchBox__input::placeholder {
+  color: var(--fp-text-secondary);
+}
+
+.SearchBox__input:focus {
+  outline: none;
+  border-color: var(--fp-accent-light);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+}
+
+.SearchBox__input:focus-visible {
+  outline: 2px solid var(--fp-accent-light);
+  outline-offset: 2px;
+}

@@ -11,12 +11,30 @@ import { GoogleGenAI } from "@google/genai";
 import connectDB, { mongoState } from "./db.js";
 import { auth } from "./middleware/auth.js";
 import conversationRoutes from "./routes/conversations.js";
+
+import * as emailService from './services/EmailServiceV2.js'; // V2 Fix for Graph API
 import usageRouter from "./routes/usage.js";
 import usersRouter from "./routes/users.js";
+import analyticsRoutes from "./routes/analytics.js";
+import { initializeCronJobs } from "./utils/cronJobs.js";
+import googleAuthRoutes from "./routes/googleAuth.js";
+import outlookOAuthRoutes from "./routes/outlookOAuth.js";
+import mongoose from "mongoose";
+import professorRoutes from "./routes/professors.js";
+import Professor from "./models/Professor.js";
+import aiRoutes from "./routes/ai.js";
+import apiRoutes from "./routes/api.js";
+import gmailRoutes from "./routes/gmailRoutes.js";
+import outlookRoutes from "./routes/outlookRoutes.js";
+import auth2faRouter from "./routes/auth2fa.js";
+import accountRouter from "./routes/account.js";
+import footerPagesRouter from "./routes/footerPages.js";
+import statusRouter from "./routes/status.js";
+import contactRouter from "./routes/contact.js";
 
 // ───────────────────────────────────────────────────────────────────────────────
 // Feature flags & config (from .env)
-const ENABLE_CHAT  = process.env.ENABLE_CHAT === "1";      // 0 (off) or 1 (on)
+const ENABLE_CHAT = process.env.ENABLE_CHAT === "1";      // 0 (off) or 1 (on)
 const ENABLE_EMAIL = process.env.ENABLE_EMAIL !== "0";     // default ON
 
 // ⭐ UPDATED: include both custom domains and Vercel preview; no trailing slashes
@@ -44,24 +62,24 @@ app.use(cors({
     try {
       const host = new URL(origin).hostname;
       if (host.endsWith(".vercel.app")) return cb(null, true);
-    } catch {}
+    } catch { }
 
     return cb(new Error("Not allowed by CORS"));
   },
-  methods: ["GET", "POST", "OPTIONS"],
+  methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"],
   credentials: false,
   maxAge: 86400,
 }));
 app.options("*", cors());
 
-// Tighter body size limits to control cost
-app.use(express.json({ limit: "16kb" }));
-app.use(express.text({ type: ["text/plain", "text/*"], limit: "16kb" }));
-app.use(express.urlencoded({ extended: true, limit: "16kb" }));
+// Tighter body size limits to control cost (increased to 10mb for email threads)
+app.use(express.json({ limit: "10mb" }));
+app.use(express.text({ type: ["text/plain", "text/*"], limit: "10mb" }));
+app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 
 // ───────────────────────────────────────────────────────────────────────────────
-// 3) Rate Limiters
+// 3) Rate Limiters + Request Logging
 const apiLimiter = rateLimit({
   windowMs: 60 * 1000,
   max: 60,
@@ -79,7 +97,8 @@ const modelLimiter = rateLimit({
 // 4) Gemini setup + helpers
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const MODEL = "gemini-2.0-flash";
+const GEMINI_MODEL = process.env.GEMINI_MODEL_PRIMARY || "models/gemini-2.5-flash";
+const GEMINI_FALLBACK_MODEL = process.env.GEMINI_MODEL_FALLBACK || "models/gemini-2.5-flash";
 
 function ai() {
   const key = process.env.GEMINI_API_KEY;
@@ -100,6 +119,23 @@ function sanitizeText(s, max = 4000) {
   return s.trim().slice(0, max);
 }
 
+async function generateContentWithFallback(contents) {
+  const models = [GEMINI_MODEL, GEMINI_FALLBACK_MODEL];
+  let lastErr = null;
+  for (const modelName of models) {
+    try {
+      console.log("[AI] Gemini model:", modelName);
+      const client = ai();
+      const r = await client.models.generateContent({ model: modelName, contents });
+      return { ok: true, text: r?.text ?? safeStitch(r), model: modelName };
+    } catch (err) {
+      lastErr = err;
+      console.warn(`⚠️ [AI] Gemini (${modelName}) failed:`, err.message);
+    }
+  }
+  throw lastErr;
+}
+
 // ───────────────────────────────────────────────────────────────────────────────
 // 5) Health
 app.get("/", (_req, res) => res.type("text/plain").send("LetterLab backend is running."));
@@ -116,10 +152,8 @@ app.get("/api/health", async (_req, res) => {
   if (!hasKey) return res.json(payload);
 
   try {
-    const client = ai();
-    const r = await client.models.generateContent({ model: MODEL, contents: "ping" });
-    const text = r?.text ?? safeStitch(r) ?? "";
-    payload.modelPing = text.slice(0, 80) || "(no text)";
+    const { text } = await generateContentWithFallback("ping");
+    payload.modelPing = (text ?? "").slice(0, 80) || "(no text)";
     res.json(payload);
   } catch (err) {
     payload.modelPing = "ERROR";
@@ -130,13 +164,96 @@ app.get("/api/health", async (_req, res) => {
 });
 
 // ───────────────────────────────────────────────────────────────────────────────
-// 6) Public auth
+// 6) Public auth + footer pages content + status + contact
 app.use("/api/users", usersRouter);
+app.use("/api/footer-pages", footerPagesRouter);
+app.use("/api/status", statusRouter);
+app.use("/api/contact", contactRouter);
 
 // ───────────────────────────────────────────────────────────────────────────────
 // 7) Protected routes
-app.use("/api/conversations", auth, conversationRoutes);
+app.use("/api/conversations", conversationRoutes);
+console.log("Mounting /api/analytics...");
+app.use("/api/analytics", analyticsRoutes);
 app.use("/api/usage", auth, usageRouter);
+app.use("/auth/google", googleAuthRoutes);
+app.use("/api/oauth", outlookOAuthRoutes);
+app.use("/api/professors", auth, professorRoutes);
+// Explicit DELETE route to guarantee /api/professors/:id is matched (avoids router mount ambiguity)
+app.delete("/api/professors/:id", auth, async (req, res) => {
+  try {
+    if (!req.user?.id) {
+      return res.status(401).json({ error: "Unauthorized." });
+    }
+    const id = req.params.id;
+    if (!id || typeof id !== "string" || id.length !== 24) {
+      return res.status(400).json({ error: "Invalid id." });
+    }
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ error: "Invalid id." });
+    }
+    const deleted = await Professor.findOneAndDelete({
+      _id: id,
+      userId: req.user.id,
+    });
+    if (!deleted) {
+      return res.status(404).json({ error: "Professor not found." });
+    }
+    return res.status(200).json({ success: true, deletedId: id });
+  } catch (err) {
+    return res.status(500).json({ error: err?.message || "Server error deleting professor." });
+  }
+});
+app.use("/api/ai", auth, aiRoutes);
+app.use("/api/account", auth, accountRouter); // Must be before /api to avoid 404
+// 🚨 DEBUG: Direct Route Definition to Fix 404 (Moved BEFORE apiRoutes to take precedence)
+app.post('/api/analyze-thread', auth, async (req, res) => {
+  console.log("⚡ HIT DIRECT /api/analyze-thread (V2 Logic)");
+  try {
+    const { conversationId, outlookAccessToken } = req.body;
+    if (!conversationId || !outlookAccessToken) {
+      return res.status(400).json({ error: "Missing conversationId or access token." });
+    }
+    const analysis = await emailService.analyzeThreadContext(outlookAccessToken, conversationId, req.user.id);
+    res.json(analysis);
+  } catch (error) {
+    console.error("Thread Analysis Failed (Direct V2):", error);
+    res.status(500).json({ error: "Failed to analyze thread context." });
+  }
+});
+
+app.use("/api", apiRoutes);
+
+console.log("✅ Mounted /api routes (Analysis, One-time pull)");
+app.use("/api/gmail", gmailRoutes);
+app.use("/api/outlook", outlookRoutes);
+
+app.use("/api/2fa", auth2faRouter);
+
+// E-Week: localhost-only quota reset for demo
+app.post("/api/admin/reset-quotas", auth, async (req, res) => {
+  const isLocalhost = req.hostname === "localhost" || req.hostname === "127.0.0.1" || process.env.NODE_ENV === "development";
+  if (!isLocalhost) {
+    return res.status(403).json({ error: "Admin reset is localhost only" });
+  }
+  try {
+    const User = (await import("./models/User.js")).default;
+    const user = await User.findById(req.user.id);
+    if (!user) return res.status(404).json({ error: "User not found" });
+    const chatTotal = user.chatTokensLimit ?? 50000;
+    const emailTotal = user.emailsLimitDaily ?? 10;
+    await User.findByIdAndUpdate(req.user.id, {
+      chatTokensRemaining: chatTotal,
+      nextResetAt: new Date(Date.now() + 24 * 60 * 60 * 1000), // Reset to 24h from now
+      emailsRemainingToday: emailTotal
+    });
+    console.log(`[Admin] Reset quotas for user ${req.user.id}`);
+    res.json({ ok: true, chatTokensRemaining: chatTotal, emailsRemainingToday: emailTotal });
+  } catch (err) {
+    console.error("[/api/admin/reset-quotas]", err);
+    res.status(500).json({ error: err?.message || "Reset failed" });
+  }
+});
 
 // ───────────────────────────────────────────────────────────────────────────────
 // 8) Email generator
@@ -144,7 +261,7 @@ if (ENABLE_EMAIL) {
   app.post("/api/generate-email", modelLimiter, async (req, res) => {
     try {
       const notes = sanitizeText(req.body?.notes, 4000);
-      const tone  = sanitizeText(req.body?.tone || "Professional", 40);
+      const tone = sanitizeText(req.body?.tone || "Professional", 40);
 
       if (/^\s*(hi|hello|hey)\b/i.test(notes) && notes.length < 80) {
         return res.status(400).json({
@@ -160,9 +277,7 @@ User notes:
 """${notes}"""
 `.trim();
 
-      const client = ai();
-      const r = await client.models.generateContent({ model: MODEL, contents: prompt });
-      const text = r?.text ?? safeStitch(r);
+      const { text } = await generateContentWithFallback(prompt);
       if (!text?.trim()) return res.status(502).json({ error: "Empty response" });
       res.json({ text });
     } catch (err) {
@@ -193,12 +308,10 @@ if (ENABLE_CHAT) {
         });
       }
 
-      const client = ai();
-      const r = await client.models.generateContent({
-        model: MODEL,
-        contents: `You are a friendly, conversational assistant. Respond naturally (do NOT write a formal email):\n\n"${message}"`,
-      });
-      const reply = r?.text ?? safeStitch(r) ?? "(no reply)";
+      const { text } = await generateContentWithFallback(
+        `You are a friendly, conversational assistant. Respond naturally (do NOT write a formal email):\n\n"${message}"`
+      );
+      const reply = (text ?? "").trim() || "(no reply)";
       return res.json({ text: reply });
     } catch (err) {
       console.error("[/api/chat]", err);
@@ -231,6 +344,10 @@ const port = process.env.PORT || 5000;
 
     if (!uri) throw new Error("Missing MongoDB URI");
     await connectDB();
+    initializeCronJobs();
+    console.log(`[Config] GEMINI_MODEL_PRIMARY=${process.env.GEMINI_MODEL_PRIMARY || "(default: models/gemini-2.5-flash)"}`);
+    console.log(`[Config] GEMINI_MODEL_FALLBACK=${process.env.GEMINI_MODEL_FALLBACK || "(default: models/gemini-2.5-flash)"}`);
+    console.log(`[Config] GEMINI_MODEL_CHAT=${process.env.GEMINI_MODEL_CHAT || "(default: primary)"}`);
     app.listen(port, () =>
       console.log(`✅ Backend running on http://localhost:${port}`)
     );

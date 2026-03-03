@@ -1,0 +1,44 @@
+{
+  "slug": "product/use-cases",
+  "title": "Use cases",
+  "lead": "LetterLab is built for real communication: short messages, important requests, and professional outreach. Pick a scenario below to see how the workflow fits.",
+  "seo": { "title": "Use Cases | LetterLab", "description": "How LetterLab fits students, job seekers, and teams." },
+  "sections": [
+    {
+      "id": "personas",
+      "type": "personas",
+      "items": [
+        {
+          "id": "students",
+          "title": "Students",
+          "overview": "Write clearer messages to professors, advisors, and classmates—without overthinking tone.",
+          "bullets": ["extension requests", "clarification questions", "group project coordination"],
+          "samples": [
+            { "situation": "Requesting an extension on a paper", "keyPoints": ["Course and assignment", "Brief reason", "Proposed new date"], "sampleEmail": "Subject: Extension request – [Course] paper\n\nDear Professor [Name],\n\nI am writing to request a short extension on the [assignment name] paper, currently due [date]. [One sentence reason, e.g., unexpected illness.] I can submit by [proposed date]. Please let me know if that works.\n\nThank you,\n[Your name]" },
+            { "situation": "Asking for clarification on an assignment", "keyPoints": ["Specific question", "What you’ve already checked"], "sampleEmail": "Subject: Clarification – [Assignment]\n\nHi Professor [Name],\n\nI have a quick question about [assignment]: [state question]. I’ve checked [syllabus/announcements] but couldn’t find the detail. Could you clarify when convenient?\n\nThanks,\n[Your name]" }
+          ]
+        },
+        {
+          "id": "job-seekers",
+          "title": "Job seekers",
+          "overview": "Reach out professionally to recruiters and mentors with confident, respectful tone.",
+          "bullets": ["networking outreach", "follow-ups after interviews", "thank-you emails"],
+          "samples": [
+            { "situation": "Following up after an interview", "keyPoints": ["Thank them", "Reiterate interest", "One specific point from the conversation"], "sampleEmail": "Subject: Thank you – [Role] interview\n\nDear [Name],\n\nThank you for taking the time to speak with me today about the [role] position. I enjoyed learning about [specific topic from conversation] and am very interested in joining the team.\n\nPlease let me know if you need anything else from my side.\n\nBest regards,\n[Your name]" },
+            { "situation": "Networking outreach to a stranger", "keyPoints": ["Brief intro", "Why you’re reaching out", "One clear ask"], "sampleEmail": "Subject: Quick question about [Topic/Role]\n\nHi [Name],\n\nI’m [one line about you]. I’m reaching out because [reason]. Would you have 15 minutes for a short call in the next couple of weeks? I’d appreciate any advice you can share.\n\nThank you,\n[Your name]" }
+          ]
+        },
+        {
+          "id": "teams",
+          "title": "Teams",
+          "overview": "Keep internal communication short, structured, and action-oriented.",
+          "bullets": ["meeting follow-ups", "status updates", "decision summaries"],
+          "samples": [
+            { "situation": "Meeting follow-up with action items", "keyPoints": ["What was decided", "Who does what", "Next meeting if any"], "sampleEmail": "Subject: Follow-up – [Meeting name] [Date]\n\nHi all,\n\nQuick follow-up from today’s meeting:\n\n• Decision: [brief summary]\n• Action items: [Name] – [task] by [date]; [Name] – [task] by [date]\n• Next sync: [date/time]\n\nReply with any corrections or additions.\n\nThanks,\n[Your name]" },
+            { "situation": "Short status update", "keyPoints": ["Progress", "Blockers if any", "Next step"], "sampleEmail": "Subject: Status – [Project] [Date]\n\nHi [Name/team],\n\nUpdate for this week: [1–2 sentences on progress]. [One line on blocker if any.] Next: [one clear next step].\n\n[Your name]" }
+          ]
+        }
+      ]
+    }
+  ]
+}

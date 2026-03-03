@@ -1,5 +1,31 @@
+# ─────────────────────────────────────────────
+# Dependencies
+# ─────────────────────────────────────────────
+node_modules/
+**/node_modules/
+
+# ─────────────────────────────────────────────
+# Build Outputs (DO NOT COMMIT)
+# ─────────────────────────────────────────────
+dist/
+dist-ssr/
+frontend/dist/
+build/
+coverage/
+*.map
+
+# ─────────────────────────────────────────────
+# Environment Variables (CRITICAL)
+# ─────────────────────────────────────────────
+.env
+.env.*
+**/.env
+**/.env.*
+
+# ─────────────────────────────────────────────
 # Logs
-logs
+# ─────────────────────────────────────────────
+logs/
 *.log
 npm-debug.log*
 yarn-debug.log*
@@ -7,22 +33,51 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-node_modules
-#dist
-#dist-ssr
-*.local
-
-# Editor directories and files
-.vscode/*
-!.vscode/extensions.json
-.idea
+# ─────────────────────────────────────────────
+# OS / System Files
+# ─────────────────────────────────────────────
 .DS_Store
+Thumbs.db
+
+# ─────────────────────────────────────────────
+# IDE / Editor
+# ─────────────────────────────────────────────
+.vscode/
+!.vscode/extensions.json
+.idea/
 *.suo
 *.ntvs*
 *.njsproj
 *.sln
 *.sw?
 
-# Environment variables
-**/.env
-**/.env.*
+# ─────────────────────────────────────────────
+# Private Docs & Internal Analysis
+# ─────────────────────────────────────────────
+docs/
+COMPREHENSIVE_SYSTEM_ANALYSIS.txt
+CSS_ISSUE_SUMMARY.txt
+CSS_NOT_APPLYING_EXPLANATION.txt
+FRONTEND_ARCHITECTURE.txt
+full_codebase_context.txt
+system_audit_report.txt
+system_status.txt
+pack_project.js
+
+# ─────────────────────────────────────────────
+# Backend Debug / Temporary Scripts
+# ─────────────────────────────────────────────
+backend/analyze_*.js
+backend/check_*.js
+backend/migrateUsers.js
+backend/seedProfessor.js
+backend/test_*.mjs
+backend/write_test.txt
+backend/debug_ids.json
+backend/jobs.json
+backend/*.log
+
+# ─────────────────────────────────────────────
+# Misc
+# ─────────────────────────────────────────────
+*.local

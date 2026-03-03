@@ -1,0 +1,108 @@
+
+import React from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { useTestimonialsCarousel } from "./useTestimonialsCarousel";
+import { TESTIMONIALS } from "./testimonials.data";
+import TestimonialQuote from "./TestimonialQuote";
+import TestimonialNav from "./TestimonialNav";
+import TestimonialDots from "./TestimonialDots";
+
+export default function TestimonialsSection() {
+    const {
+        activeIndex,
+        count,
+        next,
+        prev,
+        goTo,
+        handlers
+    } = useTestimonialsCarousel(TESTIMONIALS);
+
+    const activeItem = TESTIMONIALS[activeIndex];
+
+    return (
+        <section
+            className="w-full py-16 lg:py-24 bg-white dark:bg-neutral-950 border-t border-neutral-100 dark:border-neutral-800"
+            {...handlers}
+            aria-label="Community Testimonials"
+        >
+            <div className="max-w-6xl mx-auto px-6">
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16 items-start">
+
+                    {/* LEFT COLUMN (35%) - Static Content + Nav */}
+                    <div className="lg:col-span-4 flex flex-col items-start space-y-6 lg:sticky lg:top-32 order-1">
+                        <div className="space-y-4">
+                            <h2 className="text-[10px] font-bold tracking-[0.2em] text-neutral-400 uppercase">
+                                Testimonials
+                            </h2>
+                            <h3 className="text-4xl lg:text-5xl font-bold tracking-tight text-neutral-900 dark:text-white leading-[0.95]">
+                                From our <br />
+                                <span className="text-brand-primary">community.</span>
+                            </h3>
+                            <p className="text-base text-neutral-500 dark:text-neutral-400 leading-relaxed max-w-xs">
+                                Join thousands of professionals who communicate with clarity and confidence.
+                            </p>
+                        </div>
+
+                        {/* Controls (Desktop Only - Left Aligned) */}
+                        <div className="hidden lg:block pt-4">
+                            <TestimonialNav
+                                onPrev={prev}
+                                onNext={next}
+                                disabled={count <= 1}
+                            />
+                        </div>
+                    </div>
+
+                    {/* RIGHT COLUMN (65%) - Animated Quote */}
+                    <div className="lg:col-span-8 lg:col-start-5 min-h-[280px] flex flex-col order-2">
+                        <AnimatePresence mode="wait">
+                            <motion.div
+                                key={activeIndex}
+                                initial={{ opacity: 0, y: 10 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0, y: -10 }}
+                                transition={{ duration: 0.25, ease: "easeOut" }}
+                                className="w-full"
+                            >
+                                <TestimonialQuote testimonial={activeItem} />
+                            </motion.div>
+                        </AnimatePresence>
+
+                        {/* Desktop Pagination Bar (Dots Left, CTA Right) */}
+                        <div className="hidden lg:flex items-center justify-between mt-8 pt-8 border-t border-neutral-100 dark:border-neutral-800/50 w-full">
+                            <TestimonialDots
+                                count={count}
+                                activeIndex={activeIndex}
+                                onGoTo={goTo}
+                            />
+
+                            <button
+                                onClick={() => window.location.href = '/review'}
+                                className="h-11 px-6 rounded-full bg-[#245BFF] text-white font-medium shadow-md shadow-blue-500/15 hover:bg-[#1E4BE6] transition-all duration-200"
+                            >
+                                Write a review
+                            </button>
+                        </div>
+
+                        {/* Mobile Stack (Vertical: Dots -> CTA) */}
+                        <div className="lg:hidden mt-8 flex flex-col items-center gap-6 w-full">
+                            <TestimonialDots
+                                count={count}
+                                activeIndex={activeIndex}
+                                onGoTo={goTo}
+                            />
+
+                            <button
+                                onClick={() => window.location.href = '/review'}
+                                className="h-11 px-6 w-full max-w-[200px] rounded-full bg-[#245BFF] text-white font-medium shadow-md shadow-blue-500/15 hover:bg-[#1E4BE6] transition-all duration-200"
+                            >
+                                Write a review
+                            </button>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+    );
+}
