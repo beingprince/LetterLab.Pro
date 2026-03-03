@@ -7,16 +7,39 @@ import User from "../models/User.js";
 
 const router = express.Router();
 
-const client = new OAuth2Client(
-  process.env.GOOGLE_CLIENT_ID,
-  process.env.GOOGLE_CLIENT_SECRET,
-  process.env.GOOGLE_REDIRECT_URI
-);
+// ── Provider availability check ──────────────────────────────────────────────
+const GOOGLE_CONFIGURED =
+  !!process.env.GOOGLE_CLIENT_ID &&
+  !!process.env.GOOGLE_CLIENT_SECRET &&
+  !!process.env.GOOGLE_REDIRECT_URI;
+
+if (!GOOGLE_CONFIGURED) {
+  console.warn(
+    "[googleAuth] ⚠️  Google OAuth is DISABLED — missing GOOGLE_CLIENT_ID, " +
+    "GOOGLE_CLIENT_SECRET, or GOOGLE_REDIRECT_URI. Set these in your environment."
+  );
+}
+
+const client = GOOGLE_CONFIGURED
+  ? new OAuth2Client(
+    process.env.GOOGLE_CLIENT_ID,
+    process.env.GOOGLE_CLIENT_SECRET,
+    process.env.GOOGLE_REDIRECT_URI
+  )
+  : null;
+
+/** Guard: returns 503 when Google OAuth is not configured. */
+function requireGoogleConfig(req, res, next) {
+  if (!GOOGLE_CONFIGURED) {
+    return res.status(503).json({ error: "Google OAuth is not configured on this server." });
+  }
+  return next();
+}
 
 // ──────────────────────────────────────────────
 // STEP 1: Redirect user to Google OAuth consent page
 // ──────────────────────────────────────────────
-router.get("/", (req, res) => {
+router.get("/", requireGoogleConfig, (req, res) => {
   console.log("[googleAuth] /auth/google hit");
 
   const authUrl = client.generateAuthUrl({
@@ -38,7 +61,7 @@ router.get("/", (req, res) => {
 // ──────────────────────────────────────────────
 // STEP 2: Handle callback from Google
 // ──────────────────────────────────────────────
-router.get("/callback", async (req, res) => {
+router.get("/callback", requireGoogleConfig, async (req, res) => {
   const { code, state } = req.query;
   if (!code) return res.status(400).send("No auth code provided");
 
@@ -107,13 +130,14 @@ router.get("/callback", async (req, res) => {
       ),
     });
 
-    // ✅ Redirect frontend with token param
-    const redirectURL =
-      process.env.NODE_ENV === "production"
-        ? `${process.env.FRONTEND_URL}/account?token=${token}`
-        : `http://localhost:5173/account?token=${token}`;
-
-    console.log("Redirecting to:", redirectURL);
+    // ✅ Redirect frontend with token param — always use FRONTEND_URL
+    const frontendBase = process.env.FRONTEND_URL;
+    if (!frontendBase) {
+      console.error("[googleAuth] ❌ FRONTEND_URL is not set. Cannot redirect after OAuth.");
+      return res.status(500).send("Server misconfiguration: FRONTEND_URL is not defined.");
+    }
+    const redirectURL = `${frontendBase}/account?token=${token}`;
+    console.log("[googleAuth] Redirecting to:", redirectURL);
     return res.redirect(redirectURL);
   } catch (err) {
     console.error("Google OAuth Error:", err);

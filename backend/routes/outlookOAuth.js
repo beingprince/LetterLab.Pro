@@ -21,22 +21,41 @@ const OUTLOOK_AUTH_SCOPE = [
   'openid',
   'email',
   'profile',
-  'offline_access', // Added for refresh token
+  'offline_access',
   'https://graph.microsoft.com/User.Read',
   'https://graph.microsoft.com/Mail.Read',
   'https://graph.microsoft.com/Mail.ReadWrite',
   'https://graph.microsoft.com/Mail.Send'
 ];
 
-const msalConfig = {
+// ── Provider availability check ──────────────────────────────────────────────
+const OUTLOOK_CONFIGURED =
+  !!OUTLOOK_CLIENT_ID && !!OUTLOOK_CLIENT_SECRET && !!OUTLOOK_REDIRECT_URI;
+
+if (!OUTLOOK_CONFIGURED) {
+  console.warn(
+    "[outlookOAuth] ⚠️  Outlook OAuth is DISABLED — missing OUTLOOK_CLIENT_ID, " +
+    "OUTLOOK_CLIENT_SECRET, or OUTLOOK_REDIRECT_URI. Set these in your environment."
+  );
+}
+
+const msalConfig = OUTLOOK_CONFIGURED ? {
   auth: {
     clientId: OUTLOOK_CLIENT_ID,
     authority: `https://login.microsoftonline.com/${OUTLOOK_TENANT_ID}`,
     clientSecret: OUTLOOK_CLIENT_SECRET,
   },
-};
+} : null;
 
-const cca = new ConfidentialClientApplication(msalConfig);
+const cca = OUTLOOK_CONFIGURED ? new ConfidentialClientApplication(msalConfig) : null;
+
+/** Guard: returns 503 when Outlook OAuth is not configured. */
+function requireOutlookConfig(req, res, next) {
+  if (!OUTLOOK_CONFIGURED) {
+    return res.status(503).json({ error: "Outlook OAuth is not configured on this server." });
+  }
+  return next();
+}
 
 /**
  * Helper function to fetch user profile from Microsoft Graph
@@ -64,7 +83,7 @@ async function fetchMicrosoftProfile(accessToken) {
 /**
  * STEP 1: Initiate OAuth Login
  */
-router.get('/outlook/login', (req, res) => {
+router.get('/outlook/login', requireOutlookConfig, (req, res) => {
   const state = req.query.state || '';
 
   const authCodeUrlParameters = {
@@ -87,7 +106,7 @@ router.get('/outlook/login', (req, res) => {
 /**
  * STEP 2: Handle OAuth Callback
  */
-router.get('/outlook/callback', async (req, res) => {
+router.get('/outlook/callback', requireOutlookConfig, async (req, res) => {
   const { code } = req.query;
 
   if (!code) return res.status(400).send('Authorization code missing');
@@ -174,9 +193,13 @@ router.get('/outlook/callback', async (req, res) => {
       userProfile: userProfile
     };
 
-    const frontendUrl = process.env.FRONTEND_URL || "http://localhost:5173";
+    const frontendUrl = process.env.FRONTEND_URL;
+    if (!frontendUrl) {
+      console.error("[outlookOAuth] ❌ FRONTEND_URL is not set. Cannot redirect after OAuth.");
+      return res.status(500).send("Server misconfiguration: FRONTEND_URL is not defined.");
+    }
     const redirect = `${frontendUrl}/?provider=outlook&session_code=${sessionCode}`;
-    console.log("🔄 Redirecting user to frontend:", redirect);
+    console.log("[outlookOAuth] 🔄 Redirecting user to frontend:", redirect);
     return res.redirect(redirect);
 
   } catch (error) {

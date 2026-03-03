@@ -37,13 +37,17 @@ import contactRouter from "./routes/contact.js";
 const ENABLE_CHAT = process.env.ENABLE_CHAT === "1";      // 0 (off) or 1 (on)
 const ENABLE_EMAIL = process.env.ENABLE_EMAIL !== "0";     // default ON
 
-// ⭐ UPDATED: include both custom domains and Vercel preview; no trailing slashes
-const ALLOWED_ORIGINS = [
+// ⭐ CORS: merge hardcoded prod domains with CORS_ORIGINS env var (comma-separated)
+const HARDCODED_ORIGINS = [
   "http://localhost:5173",
   "https://letterlab.pro",
   "https://www.letterlab.pro",
-  "https://letter-lab-84tso78qn-beingprinces-projects.vercel.app", // your prod Vercel URL
+  "https://letter-lab-84tso78qn-beingprinces-projects.vercel.app",
 ];
+const ENV_ORIGINS = process.env.CORS_ORIGINS
+  ? process.env.CORS_ORIGINS.split(",").map((o) => o.trim()).filter(Boolean)
+  : [];
+const ALLOWED_ORIGINS = Array.from(new Set([...HARDCODED_ORIGINS, ...ENV_ORIGINS]));
 
 // 1) Initialize app FIRST
 const app = express();
@@ -120,9 +124,11 @@ function sanitizeText(s, max = 4000) {
 }
 
 async function generateContentWithFallback(contents) {
-  const models = [GEMINI_MODEL, GEMINI_FALLBACK_MODEL];
+  const geminiModels = [GEMINI_MODEL, GEMINI_FALLBACK_MODEL];
   let lastErr = null;
-  for (const modelName of models) {
+
+  // Tier 1 + 2: Try each Gemini model
+  for (const modelName of geminiModels) {
     try {
       console.log("[AI] Gemini model:", modelName);
       const client = ai();
@@ -133,6 +139,28 @@ async function generateContentWithFallback(contents) {
       console.warn(`⚠️ [AI] Gemini (${modelName}) failed:`, err.message);
     }
   }
+
+  // Tier 3: OpenAI fallback (only if OPENAI_API_KEY is defined)
+  if (process.env.OPENAI_API_KEY) {
+    try {
+      const { default: OpenAI } = await import("openai");
+      const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+      const prompt = typeof contents === "string" ? contents : JSON.stringify(contents);
+      console.log("[AI] Falling back to OpenAI (gpt-4o-mini)");
+      const completion = await openai.chat.completions.create({
+        model: process.env.OPENAI_MODEL || "gpt-4o-mini",
+        messages: [{ role: "user", content: prompt }],
+      });
+      const text = completion.choices?.[0]?.message?.content ?? "";
+      return { ok: true, text, model: "openai" };
+    } catch (err) {
+      console.warn("⚠️ [AI] OpenAI fallback failed:", err.message);
+      lastErr = err;
+    }
+  } else {
+    console.warn("[AI] OpenAI fallback skipped — OPENAI_API_KEY not set.");
+  }
+
   throw lastErr;
 }
 

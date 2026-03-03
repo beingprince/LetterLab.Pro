@@ -121,20 +121,17 @@ router.post('/generate-draft', auth, async (req, res) => {
   }
 });
 
-// 📨 Fetch Outlook conversation thread
+// 📨 Fetch Outlook conversation thread (direct service call — no localhost dependency)
 export async function fetchOutlookThread(email, accessToken) {
   try {
-    const response = await fetch(
-      `http://localhost:5000/api/conversations/outlook/thread?email=${encodeURIComponent(email)}&accessToken=${encodeURIComponent(accessToken)}`
-    );
-    if (!response.ok) throw new Error(`HTTP ${response.status}`);
-    const data = await response.json();
-    return data.messages || [];
+    const threads = await emailService.listThreads(accessToken, email);
+    return threads || [];
   } catch (err) {
     console.error("❌ Failed to fetch Outlook thread:", err);
     throw err;
   }
 }
+
 
 
 export default router;
