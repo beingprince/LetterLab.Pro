@@ -23,10 +23,7 @@ const paperSx = (theme) => ({
   borderRight: `1px solid ${theme.palette.divider}`,
   borderTop: "none",
   borderBottom: "none",
-  background:
-    theme.palette.mode === "dark"
-      ? "rgba(17,24,39,0.92)"
-      : "rgba(255,255,255,0.9)",
+  background: "rgba(255,255,255,0.9)",
   backdropFilter: "blur(16px)",
   WebkitBackdropFilter: "blur(16px)",
   boxShadow: "0 10px 40px rgba(15,23,42,0.15)",
@@ -97,21 +94,23 @@ export default function MobileDrawer({
         />
         <DrawerHistoryPreview />
         <Box sx={{ flex: 1 }} />
-        <Box sx={{ p: 2, borderTop: 1, borderColor: "divider" }}>
-          <ListItemButton
-            onClick={handleLogout}
-            sx={{
-              borderRadius: 2,
-              color: "error.main",
-              "&:hover": { bgcolor: "action.hover" },
-            }}
-          >
-            <ListItemIcon sx={{ minWidth: 40, color: "inherit" }}>
-              <LogoutOutlinedIcon />
-            </ListItemIcon>
-            <ListItemText primary="Logout" primaryTypographyProps={{ fontWeight: 600 }} />
-          </ListItemButton>
-        </Box>
+        {authedUser && (
+          <Box sx={{ p: 2, borderTop: 1, borderColor: "divider" }}>
+            <ListItemButton
+              onClick={handleLogout}
+              sx={{
+                borderRadius: 2,
+                color: "error.main",
+                "&:hover": { bgcolor: "action.hover" },
+              }}
+            >
+              <ListItemIcon sx={{ minWidth: 40, color: "inherit" }}>
+                <LogoutOutlinedIcon />
+              </ListItemIcon>
+              <ListItemText primary="Logout" primaryTypographyProps={{ fontWeight: 600 }} />
+            </ListItemButton>
+          </Box>
+        )}
       </Box>
     </Drawer>
   );

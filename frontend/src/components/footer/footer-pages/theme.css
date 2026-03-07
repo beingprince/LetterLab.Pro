@@ -55,18 +55,10 @@
   padding-bottom: 0;
 }
 
-@media (prefers-color-scheme: dark) {
-  .footer-pages[data-theme="dark"],
-  html[data-theme="dark"] .footer-pages {
-    --fp-bg: #0F1117;
-    --fp-bg-alt: #1e293b;
-    --fp-text: #f8fafc;
-    --fp-text-secondary: #94a3b8;
-    --fp-border: rgba(255, 255, 255, 0.08);
-  }
-}
+
 
 @media (prefers-reduced-motion: reduce) {
+
   .footer-pages *,
   .footer-pages *::before,
   .footer-pages *::after {

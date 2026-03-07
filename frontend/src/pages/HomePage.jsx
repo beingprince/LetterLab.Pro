@@ -6,7 +6,7 @@ if (typeof window !== 'undefined') {
   document.body.scrollTop = 0;
 }
 import IntroSequence from "../components/intro/IntroSequence";
-import NavBar from "../components/NavBar";
+
 // import SectionHero from "../components/SectionHero"; // OLD
 // import SaaSHero from "../components/hero/SaaSHero"; // NEW
 import HeroSection from "../components/hero/HeroSection"; // LATEST
@@ -27,8 +27,22 @@ export default function HomePage() {
     setIntroDone(true);
   };
 
-  // Belt-and-suspenders: also scroll on mount in case of SPA navigation
-  React.useEffect(() => { window.scrollTo(0, 0); }, []);
+  // Scroll to top on mount — double rAF beats iOS Safari's own scroll-restore pass
+  React.useEffect(() => {
+    // Disable scroll anchoring for the reset frame
+    document.documentElement.style.overflowAnchor = 'none';
+    const raf = requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+        document.documentElement.scrollTop = 0;
+        document.body.scrollTop = 0;
+        // Re-enable scroll anchoring
+        document.documentElement.style.overflowAnchor = '';
+      });
+    });
+    return () => cancelAnimationFrame(raf);
+  }, []);
+
 
   return (
     <>
@@ -36,7 +50,7 @@ export default function HomePage() {
         <IntroSequence onComplete={handleIntroComplete} />
       ) : (
         <>
-          <NavBar />
+
           <HeroSection
             onGoToChat={() => window.location.href = '/chat'}
             onWatchDemo={() => console.log("Watch demo")}

@@ -210,7 +210,8 @@ export default function SplitRevealHero({
     const theme = useTheme();
 
     return (
-        <Box sx={{ background: TOKENS.bg, minHeight: { xs: "auto", md: "100vh" }, overflowX: "hidden", pt: { xs: 12, md: 15 }, pb: { xs: 8, md: 12 } }}>
+        <Box sx={{ background: TOKENS.bg, minHeight: { xs: "100dvh", md: "100vh" }, overflowX: "hidden", pt: { xs: 12, md: 15 }, pb: { xs: 8, md: 12 } }}>
+
             <Container maxWidth="lg" sx={{ px: { xs: 2, md: 3 } }}>
                 <Box
                     sx={{
@@ -223,45 +224,6 @@ export default function SplitRevealHero({
                 >
                     {/* LEFT SIDE - PRESERVED EXACTLY */}
                     <Box sx={{ display: "flex", flexDirection: "column" }}>
-                        {/* Badge */}
-                        <Box
-                            sx={{
-                                display: "inline-flex",
-                                alignItems: "center",
-                                gap: 1,
-                                background: TOKENS.blueLight,
-                                color: TOKENS.blue,
-                                fontSize: 12,
-                                fontWeight: 800,
-                                px: 1.6,
-                                py: 0.7,
-                                borderRadius: 999,
-                                border: `1px solid ${TOKENS.blueMid}`,
-                                width: "fit-content",
-                                mb: 3.5,
-                                animation: "llFadeUp .5s ease both",
-                                "@keyframes llFadeUp": {
-                                    from: { opacity: 0, transform: "translateY(18px)" },
-                                    to: { opacity: 1, transform: "translateY(0)" },
-                                },
-                            }}
-                        >
-                            <Box
-                                sx={{
-                                    width: 7,
-                                    height: 7,
-                                    borderRadius: "50%",
-                                    background: TOKENS.blue,
-                                    animation: "llBadgePulse 2.5s ease infinite",
-                                    "@keyframes llBadgePulse": {
-                                        "0%,100%": { opacity: 1, transform: "scale(1)" },
-                                        "50%": { opacity: 0.5, transform: "scale(.75)" },
-                                    },
-                                }}
-                            />
-                            LetterLab Pro · AI Email Workspace
-                        </Box>
-
                         {/* H1 */}
                         <Typography
                             sx={{
@@ -411,7 +373,7 @@ export default function SplitRevealHero({
                                         color: TOKENS.inkMuted,
                                     }}
                                 >
-                                    Enterprise-grade encryption
+                                    OAuth2 secured
                                 </Typography>
                             </Box>
 

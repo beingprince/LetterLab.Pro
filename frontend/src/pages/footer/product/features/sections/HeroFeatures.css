@@ -76,13 +76,6 @@
   border: 1px solid var(--fp-border);
 }
 
-@media (prefers-color-scheme: dark) {
-  .footer-pages .HeroFeatures__chip,
-  html[data-theme="dark"] .footer-pages .HeroFeatures__chip {
-    background: rgba(30, 41, 59, 0.6);
-    border-color: var(--fp-border);
-  }
-}
 
 .HeroFeatures__stage {
   position: relative;
@@ -93,13 +86,6 @@
   box-shadow: 0 4px 24px rgba(15, 23, 42, 0.08), 0 12px 40px rgba(15, 23, 42, 0.04);
 }
 
-@media (prefers-color-scheme: dark) {
-  .footer-pages .HeroFeatures__stage,
-  html[data-theme="dark"] .footer-pages .HeroFeatures__stage {
-    background: rgba(30, 41, 59, 0.8);
-    border-color: var(--fp-border);
-  }
-}
 
 .HeroFeatures__stage-card {
   border-radius: 20px;

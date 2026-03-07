@@ -3,7 +3,6 @@ import { motion } from "framer-motion";
 
 // The supporter list is unchanged
 const SUPPORTERS = [
-  { name: "McNeese State University", src: "/supporters/mcneese.png" },
   { name: "AITC International", src: "/supporters/aitc.png" },
   { name: "Annapurna Galleries", src: "/supporters/annapurna.png" },
   { name: "Tribhuvan University", src: "/supporters/Tribhuvan_University_logo.svg" }
@@ -25,17 +24,17 @@ export default function SectionSupporters() {
 
       {/* Heading and content */}
       <div className="text-center max-w-3xl mx-auto px-6 mb-10">
-        
+
         {/* UPDATED: Uses label class and brand-dim token */}
         <h2 className="label text-brand-dim mb-3">
           Supported by Innovation & Trust
         </h2>
-        
+
         {/* GOOD: This already uses hero-heading */}
         <h3 className="hero-heading text-3xl md:text-4xl font-semibold mb-5">
           Partners Powering the Future of Communication
         </h3>
-        
+
         {/* GOOD: This already uses hero-description */}
         <p className="hero-description text-sm md:text-base leading-relaxed">
           We’re grateful for the universities, organizations, and innovation hubs
@@ -46,7 +45,7 @@ export default function SectionSupporters() {
 
       {/* Single smooth marquee line */}
       <div className="relative overflow-hidden mt-10">
-        
+
         {/* UPDATED: Fades now use the a brand-bg token for a smooth, theme-proof blend */}
         <div className="absolute left-0 top-0 w-32 h-full bg-gradient-to-r from-brand-bg to-transparent z-10 pointer-events-none" />
         <div className="absolute right-0 top-0 w-32 h-full bg-gradient-to-l from-brand-bg to-transparent z-10 pointer-events-none" />

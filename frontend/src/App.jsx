@@ -21,7 +21,7 @@ import GlobalStyles from '@mui/material/GlobalStyles';
 import { jwtDecode } from 'jwt-decode';
 import { Box } from '@mui/material';
 
-import { darkTheme, lightTheme } from './theme';
+import { lightTheme } from './theme';
 import Header from './components/Header';
 import MobileDrawer from './components/mobileDrawer/MobileDrawer';
 import MinimalHeader from './components/MinimalHeader'; // ✅ Auth Header
@@ -54,7 +54,6 @@ import StatusPage from './pages/footer/StatusPage.jsx';
 // persistent keys / helpers
 // ────────────────────────────────────────────────────────────────────────────
 
-const THEME_KEY = 'llp_theme_mode';
 const LS_KEY = 'letterlab_user';
 
 // read current "authed user" snapshot from localStorage
@@ -64,19 +63,6 @@ function getAuthUser() {
   } catch {
     return null;
   }
-}
-
-// initial theme mode: saved -> prefers-color-scheme -> dark
-function getInitialMode() {
-  if (typeof window !== 'undefined') {
-    const saved = window.localStorage.getItem(THEME_KEY);
-    if (saved === 'light' || saved === 'dark') return saved;
-    const prefersLight =
-      window.matchMedia &&
-      window.matchMedia('(prefers-color-scheme: light)').matches;
-    return prefersLight ? 'light' : 'dark';
-  }
-  return 'dark';
 }
 
 // avatar initials
@@ -94,51 +80,8 @@ function initialsFromName(name) {
 // ────────────────────────────────────────────────────────────────────────────
 
 function App() {
-  // theme mode
-  const [mode, setMode] = useState(getInitialMode);
-
-  // watch localStorage changes to THEME_KEY from other tabs
-  useEffect(() => {
-    const onStorage = (e) => {
-      if (
-        e.key === THEME_KEY &&
-        (e.newValue === 'light' || e.newValue === 'dark')
-      ) {
-        setMode(e.newValue);
-      }
-    };
-    window.addEventListener('storage', onStorage);
-    return () => window.removeEventListener('storage', onStorage);
-  }, []);
-
-  // persist theme mode whenever it changes
-  useEffect(() => {
-    try {
-      window.localStorage.setItem(THEME_KEY, mode);
-    } catch { /* ignore */ }
-  }, [mode]);
-
-  // build MUI theme object
-  const theme = useMemo(
-    () => (mode === 'light' ? lightTheme : darkTheme),
-    [mode]
-  );
-
-  // toggle function passed to color mode button
-  const colorMode = useMemo(
-    () => ({
-      toggleColorMode: () => {
-        setMode((prev) => {
-          const next = prev === 'light' ? 'dark' : 'light';
-          try {
-            window.localStorage.setItem(THEME_KEY, next);
-          } catch { /* ignore */ }
-          return next;
-        });
-      },
-    }),
-    []
-  );
+  // Always use light theme
+  const theme = lightTheme;
 
   // menus / drawer anchors
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
@@ -517,10 +460,7 @@ function App() {
             margin: 0,
             overflowX: 'hidden',
             // background gradient behind all glass surfaces
-            backgroundImage:
-              theme.palette.mode === 'dark'
-                ? 'linear-gradient(170deg, #161B22 0%, #0D1117 100%)'
-                : 'linear-gradient(170deg, #F7FAFF 0%, #FFFFFF 60%)',
+            backgroundImage: 'linear-gradient(170deg, #F7FAFF 0%, #FFFFFF 60%)',
             backgroundAttachment: 'scroll',
           },
           a: {
@@ -553,18 +493,12 @@ function App() {
           APP BAR (TOP FIXED HEADER)
           ──────────────────────────────────────────────────────────────────── */}
       {path === '/account' || path.startsWith('/oauth-success') ? (
-        <MinimalHeader
-          theme={theme}
-          mode={mode}
-          toggleColorMode={colorMode.toggleColorMode}
-        />
+        <MinimalHeader theme={theme} />
       ) : (
         <Header
           appBarRef={appBarRef}
           theme={theme}
           path={path}
-          mode={mode}
-          toggleColorMode={colorMode.toggleColorMode}
           setIsDrawerOpen={setIsDrawerOpen}
           navigate={navigate}
           authedUser={authedUser}

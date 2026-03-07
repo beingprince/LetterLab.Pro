@@ -1,6 +1,7 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   content: ["./index.html", "./src/**/*.{js,jsx,ts,tsx}"],
+  darkMode: 'class', // Only activate dark: classes when .dark is on <html> — never added, so dark mode is fully off
   theme: {
     extend: {
       fontFamily: {

@@ -7,16 +7,16 @@ import { workflowSteps } from "./data";
 
 export default function EverythingSection() {
     const [activeStepId, setActiveStepId] = useState(workflowSteps[0].id);
-    const [isMobile, setIsMobile] = useState(false);
+    const [isMobile, setIsMobile] = useState(() => {
+        if (typeof window === 'undefined') return false;
+        return window.matchMedia("(max-width: 768px), (pointer: coarse)").matches;
+    });
 
     useEffect(() => {
-        const checkMobile = () => {
-            // 768px or coarse pointer (touch)
-            setIsMobile(window.matchMedia("(max-width: 768px) or (pointer: coarse)").matches);
-        };
-        checkMobile();
-        window.addEventListener("resize", checkMobile);
-        return () => window.removeEventListener("resize", checkMobile);
+        const mq = window.matchMedia("(max-width: 768px), (pointer: coarse)");
+        const checkMobile = (e) => setIsMobile(e.matches);
+        mq.addEventListener("change", checkMobile);
+        return () => mq.removeEventListener("change", checkMobile);
     }, []);
 
     const activeStep = workflowSteps.find((s) => s.id === activeStepId);

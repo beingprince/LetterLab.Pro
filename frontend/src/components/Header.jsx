@@ -40,8 +40,6 @@ const Header = ({
     appBarRef,
     theme,
     path,
-    mode,
-    // toggleColorMode, // Removed from new design reqs (moved to settings/dropdown if needed, or just removed from navbar)
     setIsDrawerOpen,
     navigate,
     authedUser,
@@ -84,16 +82,15 @@ const Header = ({
             color="default"
             elevation={0}
             sx={{
-                height: 72, // Fixed height per spec
+                height: 72,
                 overflow: "visible",
                 zIndex: 1100,
-                // Background per spec
-                background: theme.palette.mode === 'dark'
-                    ? 'linear-gradient(180deg, rgba(11,17,32,0.92), rgba(17,24,39,0.85))'
-                    : 'rgba(255,255,255,0.8)', // Fallback for light mode, slightly translucent
-                borderBottom: theme.palette.mode === 'light' ? '1px solid rgba(0,0,0,0.06)' : 'none',
+                background: 'rgba(255,255,255,0.8)',
+                borderBottom: 'none',
+                borderTop: 'none',
+                boxShadow: 'none',
                 backdropFilter: 'blur(12px)',
-                px: { xs: 2, md: 4 }, // 32px roughly
+                px: { xs: 2, md: 4 },
             }}
         >
             <Toolbar
@@ -108,7 +105,7 @@ const Header = ({
             >
                 {/* 1️⃣ LEFT SECTION */}
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                    {/* Mobile Hamburger (Visible only on xs) */}
+                    {/* Mobile Hamburger (xs only) */}
                     <IconButton
                         edge="start"
                         color="inherit"
@@ -118,106 +115,138 @@ const Header = ({
                         <MenuIcon />
                     </IconButton>
 
-                    {/* Logo + Wordmark */}
+                    {/* Full logo — desktop only */}
                     <Box
                         onClick={() => navigate('/')}
                         sx={{
-                            display: 'flex',
+                            display: { xs: 'none', md: 'flex' },
                             alignItems: 'center',
                             gap: 1.5,
                             cursor: 'pointer',
                             userSelect: 'none'
                         }}
                     >
-                        <img src="/brand/letterlab-logo.svg" alt="LetterLab.Pro" style={{ height: 45 }} />
+                        <img
+                            src="/brand/letterlab-logo.svg"
+                            alt="LetterLab.Pro"
+                            style={{
+                                height: 45,
+                                width: 'auto',
+                                display: 'block',
+                                background: 'transparent',
+                                filter: 'none',
+                                mixBlendMode: 'normal',
+                                WebkitUserDrag: 'none',
+                                userSelect: 'none',
+                            }}
+                        />
                     </Box>
                 </Box>
 
 
-                {/* 2️⃣ CENTER SECTION - Segmented Glass Track (Desktop only) */}
+                {/* 2️⃣ CENTER SECTION */}
                 <Box sx={{
-                    display: { xs: 'none', md: 'flex' },
+                    display: 'flex',
                     justifyContent: 'center',
+                    alignItems: 'center',
                     flex: 1,
-                    overflowX: 'auto',
-                    scrollbarWidth: 'none',
-                    '&::-webkit-scrollbar': { display: 'none' },
-                    mx: { xs: 0, md: 2 }
                 }}>
+                    {/* Favicon — mobile center */}
                     <Box
+                        onClick={() => navigate('/')}
                         sx={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            // Spec: Dark glass base
-                            background: theme.palette.mode === 'dark'
-                                ? 'rgba(17,24,39,0.55)'
-                                : 'rgba(0,0,0,0.04)', // Light mode equivalent
-                            backdropFilter: 'blur(18px)',
-                            border: theme.palette.mode === 'dark'
-                                ? '1px solid rgba(255,255,255,0.10)'
-                                : '1px solid rgba(0,0,0,0.06)',
-                            borderRadius: '999px',
-                            p: '6px', // 8px spec minus internal gap feel
-                            boxShadow: theme.palette.mode === 'dark'
-                                ? '0 18px 40px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.08)'
-                                : '0 10px 30px rgba(0,0,0,0.03)',
-                            gap: '4px',
-                            whiteSpace: 'nowrap', // Prevent wrapping on mobile
+                            display: { xs: 'flex', md: 'none' },
+                            cursor: 'pointer',
+                            userSelect: 'none',
                         }}
                     >
-                        {navItems.map((item) => {
-                            const isActive = path === item.path;
-                            return (
-                                <Box
-                                    key={item.label}
-                                    onClick={() => navigate(item.path)}
-                                    component="button" // Use button semantic
-                                    sx={{
-                                        border: isActive && theme.palette.mode === 'dark'
-                                            ? '1px solid rgba(255,255,255,0.10)'
-                                            : '1px solid transparent',
-                                        background: isActive
-                                            ? (theme.palette.mode === 'dark' ? 'rgba(37,99,235,0.18)' : '#fff') // Active BG
-                                            : 'transparent',
-                                        borderRadius: '999px',
-                                        padding: '8px 18px', // Spec: 10px 18px (reduced slightly for height fit)
-                                        cursor: 'pointer',
-                                        color: isActive
-                                            ? (theme.palette.mode === 'dark' ? '#fff' : theme.palette.primary.main)
-                                            : (theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.65)' : theme.palette.text.secondary),
-                                        fontWeight: 500,
-                                        fontSize: '14px',
-                                        fontFamily: "'Inter', sans-serif",
-                                        transition: 'all 0.18s ease',
-                                        outline: 'none',
-                                        boxShadow: isActive
-                                            ? (theme.palette.mode === 'dark'
-                                                ? '0 10px 22px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.14), inset 0 -10px 20px rgba(0,0,0,0.25)'
-                                                : '0 2px 8px rgba(0,0,0,0.06)')
-                                            : 'none',
-                                        '&:hover': {
+                        <img
+                            src="/brand/letterlab-favicon.svg"
+                            alt="LetterLab.Pro"
+                            style={{
+                                height: 60,
+                                width: 'auto',
+                                display: 'block',
+                                background: 'transparent',
+                                filter: 'none',
+                                mixBlendMode: 'normal',
+                                WebkitUserDrag: 'none',
+                                userSelect: 'none',
+                            }}
+                        />
+                    </Box>
+
+                    {/* Glass nav — desktop only */}
+                    <Box sx={{
+                        display: { xs: 'none', md: 'flex' },
+                        justifyContent: 'center',
+                        overflowX: 'auto',
+                        scrollbarWidth: 'none',
+                        '&::-webkit-scrollbar': { display: 'none' },
+                        mx: 2
+                    }}>
+                        <Box
+                            sx={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                // Spec: Dark glass base
+                                background: 'rgba(0,0,0,0.04)',
+                                backdropFilter: 'blur(18px)',
+                                border: '1px solid rgba(0,0,0,0.06)',
+                                borderRadius: '999px',
+                                p: '6px', // 8px spec minus internal gap feel
+                                boxShadow: '0 10px 30px rgba(0,0,0,0.03)',
+                                gap: '4px',
+                                whiteSpace: 'nowrap', // Prevent wrapping on mobile
+                            }}
+                        >
+                            {navItems.map((item) => {
+                                const isActive = path === item.path;
+                                return (
+                                    <Box
+                                        key={item.label}
+                                        onClick={() => navigate(item.path)}
+                                        component="button" // Use button semantic
+                                        sx={{
+                                            border: '1px solid transparent',
+                                            background: isActive ? '#fff' : 'transparent',
+                                            borderRadius: '999px',
+                                            padding: '8px 18px', // Spec: 10px 18px (reduced slightly for height fit)
+                                            cursor: 'pointer',
                                             color: isActive
-                                                ? null
-                                                : (theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.90)' : theme.palette.text.primary),
-                                        }
-                                    }}
-                                >
-                                    {item.label}
-                                </Box>
-                            );
-                        })}
+                                                ? theme.palette.primary.main
+                                                : theme.palette.text.secondary,
+                                            fontWeight: 500,
+                                            fontSize: '14px',
+                                            fontFamily: "'Inter', sans-serif",
+                                            transition: 'all 0.18s ease',
+                                            outline: 'none',
+                                            boxShadow: isActive
+                                                ? '0 2px 8px rgba(0,0,0,0.06)'
+                                                : 'none',
+                                            '&:hover': {
+                                                color: isActive ? null : theme.palette.text.primary,
+                                            }
+                                        }}
+                                    >
+                                        {item.label}
+                                    </Box>
+                                );
+                            })}
+                        </Box>
                     </Box>
                 </Box>
 
                 {/* 3️⃣ RIGHT SECTION */}
                 <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 2 }}>
+
                     {/* Plan Indicator (PRO) purely text */}
                     <Typography
                         variant="caption"
                         sx={{
                             display: { xs: 'none', sm: 'block' },
                             fontWeight: 600,
-                            color: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.75)' : 'text.secondary',
+                            color: theme.palette.text.secondary,
                             letterSpacing: '0.05em',
                             fontSize: '11px',
                             textTransform: 'uppercase',
@@ -232,20 +261,26 @@ const Header = ({
                             onClick={() => navigate('/account')}
                             component="button"
                             sx={{
-                                background: theme.palette.primary.main,
-                                color: '#fff',
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                background: 'none',
+                                backgroundColor: 'transparent',
                                 border: 'none',
-                                borderRadius: '999px',
-                                px: 3,
-                                py: 1,
                                 fontSize: '14px',
                                 fontWeight: 600,
                                 cursor: 'pointer',
-                                transition: 'all 0.2s',
+                                letterSpacing: '0.01em',
+                                boxShadow: 'none',
+                                bgcolor: theme.palette.primary.main,
+                                color: '#fff',
+                                padding: '8px 20px',
+                                borderRadius: '999px',
+                                textDecoration: 'none',
+                                transition: 'opacity 0.15s',
                                 '&:hover': {
-                                    background: theme.palette.primary.dark,
-                                    transform: 'translateY(-1px)',
-                                }
+                                    opacity: 0.75,
+                                    bgcolor: theme.palette.primary.dark,
+                                },
                             }}
                         >
                             Sign in
@@ -260,7 +295,7 @@ const Header = ({
                                     cursor: 'pointer',
                                     fontSize: '14px',
                                     fontWeight: 600,
-                                    background: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.08)',
+                                    background: 'rgba(0,0,0,0.08)',
                                     color: theme.palette.text.primary,
                                     transition: 'transform 0.2s',
                                     '&:hover': {
@@ -288,9 +323,9 @@ const Header = ({
                                 mt: 1.5,
                                 minWidth: 200,
                                 borderRadius: 3,
-                                background: theme.palette.mode === 'dark' ? 'rgba(20,25,35,0.95)' : '#fff',
+                                background: '#fff',
                                 backdropFilter: 'blur(20px)',
-                                border: theme.palette.mode === 'dark' ? '1px solid rgba(255,255,255,0.1)' : '1px solid rgba(0,0,0,0.08)',
+                                border: '1px solid rgba(0,0,0,0.08)',
                                 '& .MuiAvatar-root': {
                                     width: 32,
                                     height: 32,
