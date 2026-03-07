@@ -1,6 +1,14 @@
 {
     "rewrites": [
         {
+            "source": "/auth/:path*",
+            "destination": "https://letterlab-pro.onrender.com/auth/:path*"
+        },
+        {
+            "source": "/api/:path*",
+            "destination": "https://letterlab-pro.onrender.com/api/:path*"
+        },
+        {
             "source": "/(.*)",
             "destination": "/"
         }
