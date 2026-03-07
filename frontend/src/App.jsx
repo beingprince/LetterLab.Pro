@@ -41,13 +41,13 @@ import ErrorPage from './pages/ErrorPage.jsx';
 import SessionTimeoutDialog from './components/session/SessionTimeoutDialog';
 import { useSessionTimeout } from './hooks/useSessionTimeout';
 import { setLoginTimestamp, getLoginTimestamp, getLastActivityTimestamp, clearSession } from './components/session/sessionUtils';
-// Removed CleanComposer import
 import SummaryPage from './pages/SummaryPage/SummaryPage.jsx';
 import TermsPage from './pages/TermsPage.jsx';
 import ContactPage from './pages/ContactPage.jsx';
 import FooterPage from './pages/footer/FooterPage.jsx';
 import FeaturesPage from './pages/footer/product/features/index.jsx';
 import StatusPage from './pages/footer/StatusPage.jsx';
+import FirstLoginNoticeModal from './components/FirstLoginNoticeModal.jsx';
 // import MobileBottomNav from './components/nav/MobileBottomNav.jsx'; // ❌ Removed mobile nav
 
 // ────────────────────────────────────────────────────────────────────────────
@@ -82,6 +82,15 @@ function initialsFromName(name) {
 function App() {
   // Always use light theme
   const theme = lightTheme;
+
+  // ── First-login notice modal ─────────────────────────────────────────────
+  const NOTICE_KEY = 'letterlab_first_login_notice_seen';
+  const [showLoginNotice, setShowLoginNotice] = useState(false);
+
+  const handleDismissNotice = () => {
+    setShowLoginNotice(false);
+    try { localStorage.setItem(NOTICE_KEY, 'true'); } catch { /* ignore */ }
+  };
 
   // menus / drawer anchors
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
@@ -172,6 +181,16 @@ function App() {
     const savedUser = getAuthUser();
     if (savedUser && !authedUser) setAuthedUser(savedUser);
   }, []);
+
+  // Show first-login notice once per device after successful login
+  useEffect(() => {
+    if (!authedUser) return;
+    try {
+      if (localStorage.getItem(NOTICE_KEY) === 'true') return;
+    } catch { /* ignore */ }
+    const timer = setTimeout(() => setShowLoginNotice(true), 500);
+    return () => clearTimeout(timer);
+  }, [authedUser]);
 
   // store Outlook access token separately
   const [outlookAccessToken, setOutlookAccessToken] = useState(null);
@@ -487,6 +506,12 @@ function App() {
         onContinue={sessionTimeout.onContinue}
         onLogOff={sessionTimeout.onLogOff}
         continueLoading={sessionTimeout.continueLoading}
+      />
+
+      {/* First-login notice — shows once per device after successful login */}
+      <FirstLoginNoticeModal
+        open={showLoginNotice}
+        onClose={handleDismissNotice}
       />
 
       {/* ────────────────────────────────────────────────────────────────────
