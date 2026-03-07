@@ -53,9 +53,6 @@ function completeLogin(userLike) {
   window.dispatchEvent(new PopStateEvent('popstate'));
 }
 
-// ✅ HELPER: Get Backend URL
-// Use environment variables for your API URL
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
 
 export default function AuthPage() {
@@ -70,15 +67,15 @@ export default function AuthPage() {
     }
   }, []);
 
-  // ✅ START OAUTH HANDLERS
+  // Use relative paths so the browser stays on letterlab.pro
+  // Vercel rewrites proxy /auth/* and /api/* to the Render backend invisibly
   const handleGoogleLogin = () => {
-    window.location.href = `${API_BASE_URL}/auth/google`;
+    window.location.href = '/auth/google';
   };
 
   const handleOutlookLogin = () => {
-    window.location.href = `${API_BASE_URL}/api/oauth/outlook/login`;
+    window.location.href = '/api/oauth/outlook/login';
   };
-  // ✅ END OAUTH HANDLERS
 
   return (
     <Box sx={{
