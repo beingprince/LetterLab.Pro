@@ -38,23 +38,27 @@ function requireGoogleConfig(req, res, next) {
   return next();
 }
 
+// ── Server-side CSRF state store (avoids cookie issues through Vercel proxy) ──
+// Map of state -> expiry timestamp. Entries expire after 5 minutes.
+const pendingStates = new Map();
+
+function pruneExpiredStates() {
+  const now = Date.now();
+  for (const [key, exp] of pendingStates) {
+    if (now > exp) pendingStates.delete(key);
+  }
+}
+
 // ──────────────────────────────────────────────
 // STEP 1: Redirect user to Google OAuth consent page
 // ──────────────────────────────────────────────
 router.get("/", requireGoogleConfig, (req, res) => {
-  console.log("[googleAuth] /auth/google hit");
-  console.log("Google OAuth redirect URI:", process.env.GOOGLE_REDIRECT_URI);
+  console.log("[googleAuth] /auth/google hit — redirect URI:", process.env.GOOGLE_REDIRECT_URI);
 
-  // Generate CSRF state token
+  // Generate + store CSRF state server-side (no cookie needed)
+  pruneExpiredStates();
   const state = crypto.randomBytes(16).toString("hex");
-
-  // Store state in a short-lived cookie for validation on callback
-  res.cookie("oauth_state", state, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
-    maxAge: 5 * 60 * 1000, // 5 minutes
-  });
+  pendingStates.set(state, Date.now() + 5 * 60 * 1000); // 5 min TTL
 
   const authUrl = client.generateAuthUrl({
     access_type: "offline",
@@ -80,14 +84,13 @@ router.get("/callback", requireGoogleConfig, async (req, res) => {
   const { code, state } = req.query;
   if (!code) return res.status(400).send("No auth code provided");
 
-  // Validate CSRF state
-  const stateCookie = req.cookies?.oauth_state;
-  if (!stateCookie || stateCookie !== state) {
-    return res.status(400).send("Invalid or missing OAuth state. Please try signing in again.");
+  // Validate CSRF state against server-side store
+  const expiry = pendingStates.get(state);
+  if (!expiry || Date.now() > expiry) {
+    console.warn("[googleAuth] ❌ Invalid or expired OAuth state:", state);
+    return res.redirect(`${process.env.FRONTEND_URL}/account?error=state_invalid`);
   }
-
-  // Clear the state cookie now that it's been validated
-  res.clearCookie("oauth_state");
+  pendingStates.delete(state); // one-time use
 
   try {
     // Exchange code for tokens
@@ -113,7 +116,6 @@ router.get("/callback", requireGoogleConfig, async (req, res) => {
         googleAccessToken: tokens.access_token,
         gmailRefreshToken: tokens.refresh_token,
         googleTokenExpiry: new Date(tokens.expiry_date),
-        // Set initial quotas for launch
         chatTokensLimit: 50000,
         chatTokensRemaining: 50000,
         emailsLimitDaily: 10,
@@ -121,7 +123,6 @@ router.get("/callback", requireGoogleConfig, async (req, res) => {
         nextResetAt: new Date(Date.now() + 24 * 60 * 60 * 1000)
       });
     } else {
-      // Update tokens for existing user
       user.googleAccessToken = tokens.access_token;
       if (tokens.refresh_token) {
         user.gmailRefreshToken = tokens.refresh_token;
@@ -130,14 +131,14 @@ router.get("/callback", requireGoogleConfig, async (req, res) => {
       await user.save();
     }
 
-    // ✅ Generate your signed JWT
+    // ✅ Generate signed JWT
     const token = jwt.sign(
       { id: user._id, email: user.email, name: user.name },
       process.env.JWT_SECRET,
       { expiresIn: "7d" }
     );
 
-    // ✅ Set cookies (optional if you want session)
+    // ✅ Set session cookies
     issueSessionCookies(res, {
       accessToken: token,
       refreshToken: jwt.sign(
@@ -147,14 +148,14 @@ router.get("/callback", requireGoogleConfig, async (req, res) => {
       ),
     });
 
-    // ✅ Redirect frontend with token param — always use FRONTEND_URL
+    // ✅ Redirect frontend with token param
     const frontendBase = process.env.FRONTEND_URL;
     if (!frontendBase) {
-      console.error("[googleAuth] ❌ FRONTEND_URL is not set. Cannot redirect after OAuth.");
+      console.error("[googleAuth] ❌ FRONTEND_URL is not set.");
       return res.status(500).send("Server misconfiguration: FRONTEND_URL is not defined.");
     }
     const redirectURL = `${frontendBase}/account?token=${token}`;
-    console.log("[googleAuth] Redirecting to:", redirectURL);
+    console.log("[googleAuth] ✅ Login success, redirecting to:", redirectURL);
     return res.redirect(redirectURL);
   } catch (err) {
     console.error("Google OAuth Error:", err);
