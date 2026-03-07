@@ -6,6 +6,7 @@ import helmet from "helmet";
 import rateLimit from "express-rate-limit";
 import path from "path";
 import { fileURLToPath } from "url";
+import cookieParser from "cookie-parser";
 import { GoogleGenAI } from "@google/genai";
 
 import connectDB, { mongoState } from "./db.js";
@@ -76,6 +77,8 @@ app.use(cors({
   maxAge: 86400,
 }));
 app.options("*", cors());
+app.use(cookieParser()); // Required for req.cookies in OAuth state validation
+
 
 // Tighter body size limits to control cost (increased to 10mb for email threads)
 app.use(express.json({ limit: "10mb" }));

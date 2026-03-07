@@ -43,6 +43,18 @@ function requireGoogleConfig(req, res, next) {
 // ──────────────────────────────────────────────
 router.get("/", requireGoogleConfig, (req, res) => {
   console.log("[googleAuth] /auth/google hit");
+  console.log("Google OAuth redirect URI:", process.env.GOOGLE_REDIRECT_URI);
+
+  // Generate CSRF state token
+  const state = crypto.randomBytes(16).toString("hex");
+
+  // Store state in a short-lived cookie for validation on callback
+  res.cookie("oauth_state", state, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    maxAge: 5 * 60 * 1000, // 5 minutes
+  });
 
   const authUrl = client.generateAuthUrl({
     access_type: "offline",
@@ -55,6 +67,7 @@ router.get("/", requireGoogleConfig, (req, res) => {
       "https://www.googleapis.com/auth/gmail.send",
     ],
     redirect_uri: process.env.GOOGLE_REDIRECT_URI,
+    state,
   });
 
   res.redirect(authUrl);
@@ -67,12 +80,14 @@ router.get("/callback", requireGoogleConfig, async (req, res) => {
   const { code, state } = req.query;
   if (!code) return res.status(400).send("No auth code provided");
 
-  try {
-    const stateCookie = req.cookies?.oauth_state;
-    if (stateCookie && stateCookie !== state) {
-      return res.status(400).send("Invalid OAuth state");
-    }
-  } catch { }
+  // Validate CSRF state
+  const stateCookie = req.cookies?.oauth_state;
+  if (!stateCookie || stateCookie !== state) {
+    return res.status(400).send("Invalid or missing OAuth state. Please try signing in again.");
+  }
+
+  // Clear the state cookie now that it's been validated
+  res.clearCookie("oauth_state");
 
   try {
     // Exchange code for tokens
