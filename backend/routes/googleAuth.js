@@ -18,6 +18,8 @@ if (!GOOGLE_CONFIGURED) {
     "[googleAuth] ⚠️  Google OAuth is DISABLED — missing GOOGLE_CLIENT_ID, " +
     "GOOGLE_CLIENT_SECRET, or GOOGLE_REDIRECT_URI. Set these in your environment."
   );
+} else {
+  console.log("[googleAuth] ✅ Google OAuth redirect URI:", process.env.GOOGLE_REDIRECT_URI);
 }
 
 const client = GOOGLE_CONFIGURED
