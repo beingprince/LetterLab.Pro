@@ -295,7 +295,7 @@ app.post("/api/admin/reset-quotas", auth, async (req, res) => {
 if (ENABLE_EMAIL) {
   app.post("/api/generate-email", modelLimiter, async (req, res) => {
     try {
-      const notes = sanitizeText(req.body?.notes, 4000);
+      const notes = sanitizeText(req.body?.notes || req.body?.prompt, 4000);
       const tone = sanitizeText(req.body?.tone || "Professional", 40);
 
       if (/^\s*(hi|hello|hey)\b/i.test(notes) && notes.length < 80) {
@@ -314,11 +314,16 @@ User notes:
 
       const { text } = await generateContentWithFallback(prompt);
       if (!text?.trim()) return res.status(502).json({ error: "Empty response" });
-      res.json({ text });
+      res.json({ text, body: text });
     } catch (err) {
       console.error("[/api/generate-email]", err);
       res.status(500).json({ error: err?.message || "Generation failed" });
     }
+  });
+  // Alias for backward compatibility and simpler frontend calls
+  app.post("/api/generate", modelLimiter, (req, res, next) => {
+    req.url = "/api/generate-email";
+    app._router.handle(req, res, next);
   });
 } else {
   app.all("/api/generate-email", (_req, res) => res.status(404).end());

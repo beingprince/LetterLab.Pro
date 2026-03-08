@@ -55,7 +55,6 @@ const S = {
 
 const MODE_DEFS = [
     { id: 'chat', label: 'Chat', icon: ChatBubbleOutline, hint: 'Build context via chat.' },
-    { id: 'compose', label: 'Compose', icon: Add, hint: 'Write an email from scratch.' },
     { id: 'pull', label: 'Pull Email', icon: Email, hint: 'Pull + summarize a thread.' },
     { id: 'subject', label: 'Subject', icon: Subject, hint: 'Generate subject lines.' },
 ];

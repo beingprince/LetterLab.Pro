@@ -15,13 +15,13 @@ export const useGeneration = (jwtToken) => {
         try {
             const apiBase = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
-            const response = await fetch(`${apiBase}/api/generate`, {
+            const response = await fetch(`${apiBase}/api/generate-email`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${jwtToken}`
                 },
-                body: JSON.stringify({ prompt })
+                body: JSON.stringify({ notes: prompt })
             });
 
             if (!response.ok) {
