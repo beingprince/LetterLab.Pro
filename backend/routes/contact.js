@@ -6,6 +6,7 @@ import fs from 'fs/promises';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { isValidEmail } from '../utils/validation.js';
+import nodemailer from 'nodemailer';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -85,6 +86,25 @@ router.post('/', async (req, res) => {
     message: typeof message === 'string' ? message.trim() : '',
     area: area || undefined,
   });
+
+  try {
+    const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: process.env.EMAIL_USER || 'letterlab.contact@gmail.com',
+        pass: process.env.EMAIL_PASS || 'placeholder_pass',
+      }
+    });
+
+    await transporter.sendMail({
+      from: process.env.EMAIL_USER || 'letterlab.contact@gmail.com',
+      to: 'princepdsn@gmail.com',
+      subject: `LetterLab Contact Form - ${topic}`,
+      text: `Name: ${name.trim()}\nEmail: ${email.trim()}\nTopic: ${topic}\n\nMessage:\n${typeof message === 'string' ? message.trim() : ''}`
+    });
+  } catch (error) {
+    console.error('[contact] Failed to send email:', error);
+  }
 
   return res.status(200).json({ success: true });
 });

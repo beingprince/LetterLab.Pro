@@ -99,48 +99,68 @@ export default function SectionFeatures() {
     <section className="relative overflow-hidden py-20 md:py-32 bg-transparent">
       {/* 1. Section Header */}
       <div className="text-center max-w-3xl mx-auto px-6 mb-16">
-        <h2 className="label text-brand-dim mb-3">COMPLETE WORKSPACE</h2>
+        <h2 className="label text-brand-dim mb-3">HOW IT WORKS</h2>
         <h3 className="hero-heading text-3xl md:text-4xl font-semibold mb-5">
-          All the tools you need, nothing you don't.
+          How LetterLab Works
         </h3>
         <p className="hero-description text-sm md:text-base leading-relaxed">
-          LetterLab Pro is designed to be your one-stop-shop for perfect,
-          professional communication, powered by AI that understands context.
+          From connecting your account to generating professional emails, experience a seamless workflow designed for efficiency.
         </p>
       </div>
 
-      {/* 2. Video Showcase */}
+      {/* 2. Visual Process Section (Replacing Video) */}
       <motion.div
-        className="max-w-5xl mx-auto px-6"
+        id="how-it-works"
+        className="max-w-6xl mx-auto px-6"
         initial={{ opacity: 0, y: 20 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
         transition={{ duration: 0.7, delay: 0.2, ease: "easeOut" }}
       >
-        <div className="relative rounded-glass border border-brand-border bg-brand-card/80 shadow-glass backdrop-blur-30 p-4">
-          <div className="relative w-full aspect-video rounded-lg overflow-hidden bg-brand-icon-bg bg-200% animate-bg-pan"
-            style={{
-              backgroundImage: 'radial-gradient(circle at 20% 20%, var(--brand-icon-bg) 0%, transparent 40%), radial-gradient(circle at 80% 70%, var(--brand-card) 0%, transparent 40%)',
-            }}
-          >
-            {/* Placeholder for video */}
-            <div className="absolute inset-0 flex items-center justify-center">
-              {/* Animated "Play" Button */}
-              <button className="relative w-20 h-20 md:w-24 md:h-24 rounded-full bg-brand-card/80 border border-brand-border backdrop-blur-sm flex items-center justify-center shadow-glass transition-all hover:scale-105">
-                <span className="absolute inline-flex h-full w-full rounded-full bg-brand-text/50 opacity-75 animate-ping" />
-                <span className="relative inline-flex rounded-full h-full w-full items-center justify-center bg-brand-card">
-                  <IconPlay />
-                </span>
-              </button>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {/* Card 1 */}
+          <div className="group relative bg-brand-card/80 border border-brand-border shadow-glass backdrop-blur-md rounded-2xl p-8 hover:shadow-glass hover:-translate-y-1 transition-all duration-300">
+            <div className="w-14 h-14 rounded-full bg-brand-icon-bg flex items-center justify-center mb-6">
+              <IconWand />
             </div>
-            <div className="absolute bottom-4 left-4 md:bottom-6 md:left-6">
-              <h4 className="text-sm md:text-lg font-semibold text-brand-text">How to Use LetterLab Pro</h4>
-              <p className="text-xs md:text-sm text-brand-dim">Full 40-second demo</p>
+            <h4 className="text-xl font-bold text-brand-text mb-3">1. Connect Email</h4>
+            <p className="text-brand-dim leading-relaxed">
+              Securely connect your Gmail or Outlook account using OAuth2 authentication.
+            </p>
+          </div>
+
+          {/* Card 2 */}
+          <div className="group relative bg-brand-card/80 border border-brand-border shadow-glass backdrop-blur-md rounded-2xl p-8 hover:shadow-glass hover:-translate-y-1 transition-all duration-300">
+            <div className="w-14 h-14 rounded-full bg-brand-icon-bg flex items-center justify-center mb-6">
+              <IconZap />
             </div>
+            <h4 className="text-xl font-bold text-brand-text mb-3">2. Pull Email Context</h4>
+            <p className="text-brand-dim leading-relaxed">
+              LetterLab extracts the conversation context from the selected email thread.
+            </p>
+          </div>
+
+          {/* Card 3 */}
+          <div className="group relative bg-brand-card/80 border border-brand-border shadow-glass backdrop-blur-md rounded-2xl p-8 hover:shadow-glass hover:-translate-y-1 transition-all duration-300">
+            <div className="w-14 h-14 rounded-full bg-brand-icon-bg flex items-center justify-center mb-6">
+              <IconPlay />
+            </div>
+            <h4 className="text-xl font-bold text-brand-text mb-3">3. Generate Professional Reply</h4>
+            <p className="text-brand-dim leading-relaxed">
+              The AI generates a clear, structured email draft ready for review.
+            </p>
           </div>
         </div>
-      </motion.div>
 
+        <div className="mt-12 text-center">
+          <button
+            onClick={() => window.location.href = '/chat'}
+            className="inline-flex items-center justify-center px-8 py-4 bg-brand-primary text-white font-bold rounded-xl shadow-lg hover:-translate-y-1 transition-transform"
+          >
+            Start Drafting <IconArrowRight />
+          </button>
+        </div>
+      </motion.div>
       {/* 3. Deep-Dive Grid */}
       <motion.div
         className="max-w-5xl mx-auto px-6 mt-16 md:mt-24 grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-16 items-center"

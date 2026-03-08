@@ -1,20 +1,15 @@
-import React, { useState, useMemo } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import React, { useState } from 'react';
+import { motion } from 'framer-motion';
 import {
   Box, Container, Typography, Stack, Chip, Button, Divider,
   Accordion, AccordionSummary, AccordionDetails, Dialog, DialogTitle,
-  DialogContent, DialogActions, IconButton, Tooltip, Snackbar,
-  TextField, InputAdornment, Paper, Grid
+  DialogContent, DialogActions, IconButton, Snackbar, TextField,
+  InputAdornment, Paper, Grid
 } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
-import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import SearchIcon from '@mui/icons-material/Search';
-import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
 
-// -----------------------------------------------------
-// Master Prompt content (moved from original)
-// -----------------------------------------------------
 const PROMPTS = [
   {
     title: 'Request for deadline extension',
@@ -123,33 +118,105 @@ export default function DocsPage() {
       <Container maxWidth="md">
         <motion.div variants={containerVariants} initial="hidden" animate="visible">
 
-          {/* Quick Actions Grid */}
-          <Grid container spacing={3} sx={{ mb: 6 }}>
-            {[
-              { title: 'Prompt Library', desc: 'Pre-made high-reply email templates', icon: <AutoAwesomeIcon />, action: () => setOpenMaster(true) },
-              { title: 'Quick Start', desc: 'Get your first draft in 30 seconds', icon: <OpenInNewIcon />, path: '/chat' }
-            ].map((item, i) => (
-              <Grid item xs={12} sm={6} key={i}>
-                <Paper
-                  component={motion.div}
-                  variants={itemVariants}
-                  whileHover={{ y: -5, boxShadow: '0 20px 40px rgba(0,0,0,0.1)' }}
-                  sx={{ p: 3, borderRadius: 4, cursor: 'pointer', border: '1px solid', borderColor: 'divider' }}
-                  onClick={item.action || (() => window.location.href = item.path)}
-                >
-                  <Box sx={{ color: 'primary.main', mb: 2 }}>{item.icon}</Box>
-                  <Typography variant="h6" sx={{ fontWeight: 700, mb: 1 }}>{item.title}</Typography>
-                  <Typography variant="body2" color="text.secondary">{item.desc}</Typography>
-                </Paper>
+          <Stack spacing={6} sx={{ mb: 6 }} component={motion.div} variants={itemVariants}>
+
+            <Box>
+              <Typography variant="h4" sx={{ fontWeight: 800, mb: 2 }}>Section 1 — Overview</Typography>
+              <Typography variant="h6" sx={{ fontWeight: 700, mb: 1, color: 'primary.main' }}>What is LetterLab Pro?</Typography>
+              <Typography variant="body1" sx={{ color: 'text.secondary', lineHeight: 1.7, mb: 2 }}>
+                LetterLab Pro is an AI-assisted academic email drafting platform designed for students and professionals who communicate through Gmail and Outlook. The system analyzes email threads, understands conversation context, and generates structured, professional responses within seconds.
+              </Typography>
+              <Typography variant="body1" sx={{ color: 'text.secondary', lineHeight: 1.7 }}>
+                Unlike generic AI chat tools, LetterLab works directly with email threads. It extracts the context of previous conversations and helps users compose replies that remain accurate, polite, and aligned with academic communication standards.
+              </Typography>
+            </Box>
+
+            <Divider />
+
+            <Box>
+              <Typography variant="h4" sx={{ fontWeight: 800, mb: 3 }}>Section 2 — How LetterLab Works</Typography>
+              <Grid container spacing={4}>
+                <Grid item xs={12} sm={6}>
+                  <Typography variant="subtitle1" sx={{ fontWeight: 700, mb: 1 }}>Step 1 — Connect Email</Typography>
+                  <Typography variant="body2" sx={{ color: 'text.secondary' }}>Connect your Gmail or Outlook account securely using OAuth2 authentication.</Typography>
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <Typography variant="subtitle1" sx={{ fontWeight: 700, mb: 1 }}>Step 2 — Pull Email Thread</Typography>
+                  <Typography variant="body2" sx={{ color: 'text.secondary' }}>LetterLab retrieves the selected conversation and extracts key context.</Typography>
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <Typography variant="subtitle1" sx={{ fontWeight: 700, mb: 1 }}>Step 3 — Generate AI Draft</Typography>
+                  <Typography variant="body2" sx={{ color: 'text.secondary' }}>The AI generates a structured reply based on the email context.</Typography>
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <Typography variant="subtitle1" sx={{ fontWeight: 700, mb: 1 }}>Step 4 — Edit & Send</Typography>
+                  <Typography variant="body2" sx={{ color: 'text.secondary' }}>You can review, modify, and send the response directly.</Typography>
+                </Grid>
               </Grid>
-            ))}
-          </Grid>
+            </Box>
+
+            <Divider />
+
+            <Box>
+              <Typography variant="h4" sx={{ fontWeight: 800, mb: 3 }}>Section 3 — Core Features</Typography>
+              <Stack spacing={3}>
+                <Box>
+                  <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>Thread Context Analysis</Typography>
+                  <Typography variant="body2" sx={{ color: 'text.secondary' }}>Automatically analyzes the entire conversation before generating replies.</Typography>
+                </Box>
+                <Box>
+                  <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>AI Email Drafting</Typography>
+                  <Typography variant="body2" sx={{ color: 'text.secondary' }}>Creates structured and professional responses within seconds.</Typography>
+                </Box>
+                <Box>
+                  <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>Academic Communication Mode</Typography>
+                  <Typography variant="body2" sx={{ color: 'text.secondary' }}>Optimized specifically for communication with professors and institutions.</Typography>
+                </Box>
+                <Box>
+                  <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>Gmail & Outlook Integration</Typography>
+                  <Typography variant="body2" sx={{ color: 'text.secondary' }}>Works with both Gmail and Microsoft Outlook through OAuth2.</Typography>
+                </Box>
+              </Stack>
+            </Box>
+
+            <Divider />
+
+            <Box>
+              <Typography variant="h4" sx={{ fontWeight: 800, mb: 2 }}>Section 4 — Best Practices</Typography>
+              <Typography variant="body1" sx={{ color: 'text.secondary', mb: 2 }}>To generate the best drafts:</Typography>
+              <Box component="ul" sx={{ color: 'text.secondary', pl: 3, m: 0 }}>
+                <Typography component="li" sx={{ mb: 1 }}>Pull the full email thread before drafting</Typography>
+                <Typography component="li" sx={{ mb: 1 }}>Keep the prompt concise</Typography>
+                <Typography component="li">Review AI responses before sending</Typography>
+              </Box>
+            </Box>
+
+            <Divider />
+
+            <Box>
+              <Typography variant="h4" sx={{ fontWeight: 800, mb: 3 }}>Section 5 — Troubleshooting</Typography>
+              <Grid container spacing={3}>
+                <Grid item xs={12} sm={6}>
+                  <Paper variant="outlined" sx={{ p: 3, borderRadius: 3, height: '100%' }}>
+                    <Typography variant="subtitle1" sx={{ fontWeight: 700, mb: 1, color: 'error.main' }}>Email not loading</Typography>
+                    <Typography variant="body2" sx={{ color: 'text.secondary' }}>Make sure your Gmail or Outlook account is properly connected.</Typography>
+                  </Paper>
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <Paper variant="outlined" sx={{ p: 3, borderRadius: 3, height: '100%' }}>
+                    <Typography variant="subtitle1" sx={{ fontWeight: 700, mb: 1, color: 'error.main' }}>Draft generation fails</Typography>
+                    <Typography variant="body2" sx={{ color: 'text.secondary' }}>Retry the request or refresh the session.</Typography>
+                  </Paper>
+                </Grid>
+              </Grid>
+            </Box>
+          </Stack>
 
           <Divider sx={{ mb: 6 }} />
 
           {/* Detailed FAQs / Guides */}
           <Stack spacing={2} variants={itemVariants} component={motion.div}>
-            <Typography variant="h5" sx={{ fontWeight: 800, mb: 1 }}>Frequently Asked Questions</Typography>
+            <Typography variant="h5" sx={{ fontWeight: 800, mb: 2 }}>Frequently Asked Questions</Typography>
 
             <Accordion sx={{ borderRadius: '16px !important', overflow: 'hidden', border: '1px solid', borderColor: 'divider', '&:before': { display: 'none' } }}>
               <AccordionSummary expandIcon={<ExpandMoreIcon />}>
@@ -157,26 +224,38 @@ export default function DocsPage() {
               </AccordionSummary>
               <AccordionDetails sx={{ bgcolor: 'action.hover' }}>
                 <Typography variant="body2" color="text.secondary">
-                  LetterLab prioritizes data minimization. We do not store your email credentials and only process information explicitly provided for drafting purposes.
+                  LetterLab processes email content temporarily to generate drafts. Email data is not stored permanently and is never sold or shared.
                 </Typography>
               </AccordionDetails>
             </Accordion>
 
             <Accordion sx={{ borderRadius: '16px !important', overflow: 'hidden', border: '1px solid', borderColor: 'divider', '&:before': { display: 'none' } }}>
               <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-                <Typography sx={{ fontWeight: 700 }}>Can I use it with Outlook and Gmail?</Typography>
+                <Typography sx={{ fontWeight: 700 }}>Can I use it with Gmail and Outlook?</Typography>
               </AccordionSummary>
               <AccordionDetails sx={{ bgcolor: 'action.hover' }}>
                 <Typography variant="body2" color="text.secondary">
-                  Yes, LetterLab Pro integrates directly with both Microsoft Graph API and Google Workspace for seamless drafting.
+                  Yes. LetterLab currently supports Gmail and Microsoft Outlook through OAuth2 authentication.
                 </Typography>
               </AccordionDetails>
             </Accordion>
+
+            <Accordion sx={{ borderRadius: '16px !important', overflow: 'hidden', border: '1px solid', borderColor: 'divider', '&:before': { display: 'none' } }}>
+              <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                <Typography sx={{ fontWeight: 700 }}>Does LetterLab send emails automatically?</Typography>
+              </AccordionSummary>
+              <AccordionDetails sx={{ bgcolor: 'action.hover' }}>
+                <Typography variant="body2" color="text.secondary">
+                  No. Users always review and approve drafts before sending.
+                </Typography>
+              </AccordionDetails>
+            </Accordion>
+
           </Stack>
         </motion.div>
       </Container>
 
-      {/* Master Prompt Library Modal */}
+      {/* Master Prompt Library Modal (Keep existing logic available if needed) */}
       <Dialog open={openMaster} onClose={() => setOpenMaster(false)} fullWidth maxWidth="sm" PaperProps={{ sx: { borderRadius: 4 } }}>
         <DialogTitle sx={{ fontWeight: 800 }}>Master Prompt Library</DialogTitle>
         <DialogContent dividers>

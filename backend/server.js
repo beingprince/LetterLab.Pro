@@ -32,6 +32,7 @@ import accountRouter from "./routes/account.js";
 import footerPagesRouter from "./routes/footerPages.js";
 import statusRouter from "./routes/status.js";
 import contactRouter from "./routes/contact.js";
+import reviewsRouter from "./routes/reviews.js";
 
 // 0) Path aliases for ESM
 const __filename = fileURLToPath(import.meta.url);
@@ -209,6 +210,7 @@ app.use("/api/users", usersRouter);
 app.use("/api/footer-pages", footerPagesRouter);
 app.use("/api/status", statusRouter);
 app.use("/api/contact", contactRouter);
+app.use("/api/reviews", reviewsRouter);
 
 // ───────────────────────────────────────────────────────────────────────────────
 // 7) Protected routes

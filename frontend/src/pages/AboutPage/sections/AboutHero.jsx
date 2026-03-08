@@ -36,22 +36,7 @@ export default function AboutHero() {
             <Container maxWidth="lg" className="relative z-10 px-6 md:px-8">
                 <motion.div variants={staggerContainer} initial="hidden" animate="visible" className="flex flex-col items-center">
 
-                    <motion.div variants={fadeInUp} className="mb-6"> {/* 24px */}
-                        <Chip
-                            label="Built Independently • Developed as a Technical Engineering Project"
-                            variant="outlined"
-                            sx={{
-                                borderColor: 'rgba(59, 130, 246, 0.2)',
-                                background: 'rgba(59, 130, 246, 0.05)',
-                                color: '#3b82f6',
-                                fontWeight: 600,
-                                fontSize: '0.85rem',
-                                letterSpacing: '0.05em',
-                                px: 1,
-                                height: 32, // Fixed height for rhythm
-                            }}
-                        />
-                    </motion.div>
+
 
                     <motion.div variants={fadeInUp} className="mb-6"> {/* 24px */}
                         <Typography

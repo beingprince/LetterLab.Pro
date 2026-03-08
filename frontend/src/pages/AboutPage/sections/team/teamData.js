@@ -1,20 +1,13 @@
-/**
- * Team member data for About page Team section.
- * Photo: reuse /images/prince_profile.jpg; others use initials fallback.
- */
-
 export const TEAM_MEMBERS = [
   {
     name: 'Prince Pudasaini',
     role: 'Full Stack Engineer & Founder',
     initials: 'PP',
     image: '/images/prince_profile.jpg',
-    bio: "I specialize in software architecture and secure API integrations, building structured systems that solve defined communication problems—especially in academic workflows where accuracy, tone, and context matter. LetterLab Pro is engineered as an AI Email Workspace that pulls real thread context, summarizes what's important, and helps users draft professional replies faster, without turning the product into generic \"AI hype.\"\n\nMy focus is reliability and clarity: clean UX, strong integration boundaries, and responsible handling of user data. I build with a practical mindset—ship working features, validate with real users (students and faculty), and iterate based on measurable friction points like drafts, threading, and time-to-send.",
+    bio: "Built LetterLab to solve the problem of writing academic emails. He handled the entire stack, from training the AI models and setting up Google/Microsoft OAuth to building the frontend chat interface and secure backend architecture.",
     contributions: [
       'Architecture and API design',
-      'UX and integration boundaries',
-      'User validation with students and faculty',
-      'Iteration on drafts, threading, and time-to-send',
+      'UX and integration boundaries'
     ],
     links: [
       { label: 'GitHub', href: 'https://github.com/princepudasaini', icon: 'github' },
@@ -27,26 +20,22 @@ export const TEAM_MEMBERS = [
     role: 'Graphic Designer (Brand Identity)',
     initials: 'RK',
     image: '',
-    bio: "Rohan Kunwar is a professional graphic designer based in Nepal with 5+ years of experience. He designed LetterLab Pro's brand identity—including the logo and favicon—while staying aligned with Prince Pudasaini's visual concept and overall design direction. His work ensures the brand feels consistent, recognizable, and clean across the product and demo materials.",
+    bio: "Designed the brand identity, logo, and favicon. He established the color palette, typography guidelines, and visual assets, ensuring the platform looks professional, clean, and consistent across all screens.",
     contributions: [
       'Brand identity (logo and favicon)',
-      'Visual concept alignment with design direction',
-      'Product and demo material consistency',
-      'Clean, recognizable brand presence',
+      'Product and demo material consistency'
     ],
     links: [],
   },
   {
-    name: 'Solida Tan',
+    name: 'Solida Heng',
     role: 'Project Support (ACM Outreach)',
-    initials: 'ST',
+    initials: 'SH',
     image: '',
-    bio: "Solida Tan is a Computer Science undergraduate at McNeese State University. She supported LetterLab Pro's outreach by helping connect the project with ACM at McNeese, bringing it into the meeting, and briefly narrating the project during ACM Expo Day. Her contribution helped introduce LetterLab Pro to the campus tech community and expand early visibility.",
+    bio: "Acted as project narrator, structuring the demo presentation and writing the script. She worked to test the platform workflows and clearly communicate LetterLab’s core value to the student community.",
     contributions: [
-      'ACM outreach at McNeese State University',
       'Project presentation at ACM Expo Day',
-      'Campus tech community introduction',
-      'Early visibility expansion',
+      'Campus tech community introduction'
     ],
     links: [],
   },

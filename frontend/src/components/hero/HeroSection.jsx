@@ -205,7 +205,7 @@ function MinimalComparisonCard() {
 
 export default function SplitRevealHero({
     onGoToChat,
-    onWatchDemo,
+    onExplore,
 }) {
     const theme = useTheme();
 
@@ -310,7 +310,7 @@ export default function SplitRevealHero({
                             </Button>
 
                             <Button
-                                onClick={onWatchDemo}
+                                onClick={onExplore}
                                 variant="outlined"
                                 sx={{
                                     textTransform: "none",
@@ -333,23 +333,8 @@ export default function SplitRevealHero({
                                     width: { xs: "100%", sm: "auto" },
                                     justifyContent: "center",
                                 }}
-                                startIcon={
-                                    <Box
-                                        sx={{
-                                            width: 24,
-                                            height: 24,
-                                            background: TOKENS.blueLight,
-                                            borderRadius: "50%",
-                                            display: "grid",
-                                            placeItems: "center",
-                                            border: `1px solid ${TOKENS.blueMid}`,
-                                        }}
-                                    >
-                                        <IconPlay />
-                                    </Box>
-                                }
                             >
-                                Watch 40s demo
+                                See How LetterLab Works &rarr;
                             </Button>
                         </Stack>
 
