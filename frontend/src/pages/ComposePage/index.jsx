@@ -128,9 +128,10 @@ const ComposePage = ({ jwtToken, outlookAccessToken, authProvider, navigate }) =
 
     return (
         <div
-            className={`relative ${mode === 'chat' ? 'bg-white' : 'bg-gray-50 dark:bg-gray-900'} ${mode === 'chat' ? 'h-[calc(100dvh-var(--total-header-height))] overflow-hidden' : 'min-h-screen overflow-x-hidden overflow-y-auto'}`}
+            className={`relative ${mode === 'chat' ? 'bg-white' : 'bg-gray-50 dark:bg-gray-900'} ${mode === 'chat' ? 'overflow-hidden' : 'min-h-screen overflow-x-hidden overflow-y-auto'}`}
             style={{
-                height: mode === 'chat' ? 'calc(100dvh - var(--total-header-height, 72px))' : 'auto'
+                height: mode === 'chat' ? '100dvh' : 'auto',
+                paddingTop: mode === 'chat' ? 'var(--total-header-height, 72px)' : '0px'
             }}
         >
 

@@ -71,7 +71,7 @@ const ChatInterface = ({ onDraftEmail, onModeChange, onProfessorSelect, jwtToken
             position: 'relative',
             overflow: 'hidden',
             pt: '80px',
-            pb: '160px'
+            pb: 0, // ✅ Removed 160px hard padding since Composer is now in-flow
         }}>
 
             {/* Quota Warning Banner */}
@@ -112,6 +112,7 @@ const ChatInterface = ({ onDraftEmail, onModeChange, onProfessorSelect, jwtToken
                 onModeChange={onModeChange}
                 onProfessorSelect={onProfessorSelect}
                 disabled={isLocked}
+                layoutMode="relative" // ✅ Crucial for mobile keyboard float
             />
 
             <DraftReviewModal

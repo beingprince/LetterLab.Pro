@@ -118,7 +118,7 @@ function GrayMenu({ open, anchorRef, children }) {
 }
 
 /* ──────────── main component ──────────── */
-const Composer = ({ onGenerate, isLoading = false, currentMode = 'chat', onModeChange, onProfessorSelect, promptOverride, onTextChange, initialBody = '', initialSubject = '', disabled = false }) => {
+const Composer = ({ onGenerate, isLoading = false, currentMode = 'chat', onModeChange, onProfessorSelect, promptOverride, onTextChange, initialBody = '', initialSubject = '', disabled = false, layoutMode = 'fixed' }) => {
     const theme = useTheme();
     const isDark = theme.palette.mode === 'dark';
     const barBg = isDark ? 'rgba(17,24,39,0.9)' : 'rgba(255,255,255,0.92)';
@@ -228,12 +228,17 @@ const Composer = ({ onGenerate, isLoading = false, currentMode = 'chat', onModeC
             <style>{scopedCSS}</style>
 
             <div
-                className="cc-scope"
+                className={`cc-scope ${layoutMode === 'relative' ? 'relative w-full' : ''}`}
                 style={{
-                    position: 'fixed',
-                    bottom: 0,
-                    left: 0,
-                    right: 0,
+                    ...(layoutMode === 'fixed' ? {
+                        position: 'fixed',
+                        bottom: 0,
+                        left: 0,
+                        right: 0,
+                    } : {
+                        flexShrink: 0,
+                        marginTop: 'auto',
+                    }),
                     zIndex: 1000, // ✅ Higher z-index to stay above message list
                     background: barBg,
                     backdropFilter: 'blur(16px)',
