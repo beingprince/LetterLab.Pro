@@ -395,6 +395,13 @@ router.post('/send/new', auth, checkTokens(0, true), async (req, res) => {
 
         const client = outlookClient(user.outlookAccessToken);
 
+        // Sanitize `to` address just in case it contains "Name <email@example.com>"
+        let cleanTo = to;
+        const emailMatch = to.match(/<(.+?)>/);
+        if (emailMatch && emailMatch[1]) {
+            cleanTo = emailMatch[1];
+        }
+
         // Construct message object
         const message = {
             subject: subject,
@@ -405,7 +412,7 @@ router.post('/send/new', auth, checkTokens(0, true), async (req, res) => {
             toRecipients: [
                 {
                     emailAddress: {
-                        address: to
+                        address: cleanTo
                     }
                 }
             ]
@@ -418,9 +425,13 @@ router.post('/send/new', auth, checkTokens(0, true), async (req, res) => {
 
         try {
             const SentEmail = (await import('../models/SentEmail.js')).default;
+            const mongoose = (await import('mongoose')).default;
+            const safeConvId = conversationId && mongoose.Types.ObjectId.isValid(conversationId) && String(conversationId).length === 24
+                ? conversationId
+                : null;
             await SentEmail.create({
                 userId: req.user.id,
-                conversationId: conversationId || null,
+                conversationId: safeConvId,
                 provider: 'outlook',
                 to,
                 subject,
@@ -449,7 +460,28 @@ router.post('/send/new', auth, checkTokens(0, true), async (req, res) => {
 
     } catch (error) {
         console.error('Failed to send new Outlook email:', error);
-        res.status(500).json({ error: 'Failed to send email' });
+
+        let errorDetails = error.message;
+        let statusCode = 500;
+        if (error.statusCode) statusCode = error.statusCode;
+
+        if (error.body) {
+            try {
+                const bodyObj = JSON.parse(error.body);
+                console.error('Graph API Error Body:', JSON.stringify(bodyObj, null, 2));
+                errorDetails = JSON.stringify(bodyObj);
+                if (bodyObj.error && bodyObj.error.code === 'InvalidAuthenticationToken') {
+                    statusCode = 401;
+                }
+            } catch (e) {
+                console.error('Raw Graph API Error Body:', error.body);
+                errorDetails = error.body;
+            }
+        } else if (error.code === 'InvalidAuthenticationToken') {
+            statusCode = 401;
+        }
+
+        res.status(statusCode).json({ error: 'Failed to send email', details: errorDetails });
     }
 });
 
