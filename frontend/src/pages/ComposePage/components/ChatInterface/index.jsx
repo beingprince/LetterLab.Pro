@@ -58,6 +58,11 @@ const ChatInterface = ({ onDraftEmail, onModeChange, onProfessorSelect, jwtToken
         clearLastDraft();
     };
 
+    const handleUseDraft = (draftBody) => {
+        setCurrentDraftContent(draftBody);
+        setIsReviewOpen(true);
+    };
+
     return (
         <Box sx={{
             display: 'flex',
@@ -93,13 +98,12 @@ const ChatInterface = ({ onDraftEmail, onModeChange, onProfessorSelect, jwtToken
                 </Box>
             )}
 
+            {/* Main Message List */}
             <MessageList
                 messages={messages}
                 isTyping={isTyping}
-                onUseDraft={(body) => {
-                    setCurrentDraftContent(body);
-                    setIsReviewOpen(true);
-                }}
+                onUseDraft={handleUseDraft}
+                userName={userName}
             />
 
             <Composer
