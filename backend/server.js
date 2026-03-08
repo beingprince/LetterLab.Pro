@@ -33,6 +33,11 @@ import footerPagesRouter from "./routes/footerPages.js";
 import statusRouter from "./routes/status.js";
 import contactRouter from "./routes/contact.js";
 
+// 0) Path aliases for ESM
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const publicPath = path.resolve(__dirname, "public");
+
 // ───────────────────────────────────────────────────────────────────────────────
 // Feature flags & config (from .env)
 const ENABLE_CHAT = process.env.ENABLE_CHAT === "1";      // 0 (off) or 1 (on)
