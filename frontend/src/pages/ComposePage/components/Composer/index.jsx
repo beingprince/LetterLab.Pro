@@ -323,7 +323,7 @@ const Composer = ({ onGenerate, isLoading = false, currentMode = 'chat', onModeC
                                     maxRows={7}
                                     className={cx(
                                         'w-full bg-transparent outline-none border-0',
-                                        'text-[15px] leading-6',
+                                        'text-base leading-6', // ✅ 16px minimum prevents iOS zoom
                                         'px-2 py-2',
                                         'placeholder-gray-500 dark:placeholder-gray-400'
                                     )}
