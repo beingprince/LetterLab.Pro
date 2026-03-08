@@ -33,31 +33,36 @@ export default function StepRow({ id, label, status = "pending", meta }) {
           status === "active"
             ? "primary.main"
             : status === "done"
-            ? "success.main"
-            : status === "error"
-            ? "error.main"
-            : "divider",
+              ? "success.main"
+              : status === "error"
+                ? "error.main"
+                : "divider",
         bgcolor:
           status === "active"
             ? "action.selected"
             : status === "done"
-            ? "action.hover"
-            : "transparent",
+              ? "action.hover"
+              : "transparent",
       }}
     >
       <Icon
-        sx={{
+        sx={(theme) => ({
           fontSize: 16,
           flexShrink: 0,
           color:
             status === "done"
               ? "success.main"
               : status === "error"
-              ? "error.main"
-              : status === "active"
-              ? "primary.main"
-              : "action.disabled",
-        }}
+                ? "error.main"
+                : status === "active"
+                  ? "primary.main"
+                  : "action.disabled",
+          animation: status === "active" ? "stepPulse 1.5s ease-in-out infinite" : "none",
+          "@keyframes stepPulse": {
+            "0%, 100%": { opacity: 1, transform: "scale(1)" },
+            "50%": { opacity: 0.5, transform: "scale(0.85)" },
+          },
+        })}
       />
       <Typography
         variant="caption"
@@ -66,10 +71,10 @@ export default function StepRow({ id, label, status = "pending", meta }) {
           status === "active"
             ? "primary.main"
             : status === "done"
-            ? "text.secondary"
-            : status === "error"
-            ? "error.main"
-            : "text.disabled"
+              ? "text.secondary"
+              : status === "error"
+                ? "error.main"
+                : "text.disabled"
         }
       >
         {label}

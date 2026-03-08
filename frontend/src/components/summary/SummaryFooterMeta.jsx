@@ -36,42 +36,57 @@ export default function SummaryFooterMeta({
         };
       }}
     >
-      <Box sx={{ flex: 1, minWidth: 0 }}>
-        <Typography
-          variant="caption"
-          sx={{
-            display: "block",
-            fontSize: "0.7rem",
-            fontWeight: 600,
-            letterSpacing: "0.04em",
-            color: "text.secondary",
-            mb: 1,
-          }}
-        >
-          AI Confidence Level
-        </Typography>
-        <Box
-          sx={(theme) => ({
-            height: 8,
-            borderRadius: 4,
-            overflow: "hidden",
-            background: theme.palette.mode === "dark"
-              ? "rgba(255,255,255,0.08)"
-              : "rgba(0,0,0,0.06)",
-            maxWidth: 200,
-          })}
-        >
+      {confidence > 0 && (
+        <Box sx={{ flex: 1, minWidth: 0 }}>
+          <Typography
+            variant="caption"
+            sx={{
+              display: "block",
+              fontSize: "0.7rem",
+              fontWeight: 700,
+              letterSpacing: "0.04em",
+              color: "text.secondary",
+              mb: 0.5,
+              textTransform: "uppercase",
+            }}
+          >
+            Context Certainty
+          </Typography>
+          <Typography
+            variant="caption"
+            sx={{
+              display: "block",
+              fontSize: "0.65rem",
+              color: "text.disabled",
+              mb: 1.5,
+              lineHeight: 1.2,
+            }}
+          >
+            How confidently the AI interpreted the thread context.
+          </Typography>
           <Box
             sx={(theme) => ({
-              height: "100%",
-              width: `${animatedValue}%`,
-              background: `linear-gradient(90deg, ${theme.palette.primary.main}, ${theme.palette.primary.dark || theme.palette.primary.main})`,
-              borderRadius: 4,
-              transition: "width 0.6s cubic-bezier(0.4, 0, 0.2, 1)",
+              height: 6,
+              borderRadius: 3,
+              overflow: "hidden",
+              background: theme.palette.mode === "dark"
+                ? "rgba(255,255,255,0.08)"
+                : "rgba(0,0,0,0.06)",
+              maxWidth: 200,
             })}
-          />
+          >
+            <Box
+              sx={(theme) => ({
+                height: "100%",
+                width: `${animatedValue}%`,
+                background: `linear-gradient(90deg, ${theme.palette.primary.main}, ${theme.palette.primary.dark || theme.palette.primary.main})`,
+                borderRadius: 3,
+                transition: "width 0.6s cubic-bezier(0.4, 0, 0.2, 1)",
+              })}
+            />
+          </Box>
         </Box>
-      </Box>
+      )}
       <Box
         sx={{
           display: "flex",

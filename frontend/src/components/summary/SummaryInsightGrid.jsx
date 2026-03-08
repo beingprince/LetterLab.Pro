@@ -34,30 +34,35 @@ export default function SummaryInsightGrid({
   };
 
   const items = [
-    { title: "Intent", icon: LightbulbOutlinedIcon, text: intent, highlight: false },
     {
       title: "Action Required",
       icon: AssignmentOutlinedIcon,
       text: actionRequired || "—",
       highlight: true,
     },
-    { title: "Key Details", icon: AssignmentOutlinedIcon, text: keyDetailsText, highlight: false },
     {
-      title: "Context",
+      title: "Key Details",
+      icon: LightbulbOutlinedIcon,
+      text: keyDetailsText,
+      highlight: false
+    },
+    {
+      title: "Tone Sensitivity",
+      icon: WarningAmberOutlinedIcon,
+      text: urgency === "high"
+        ? "Highly sensitive or formal context detected. Proceed with caution."
+        : "Standard professional context. No high-risk tone sensitivity identified.",
+      highlight: false,
+    },
+    {
+      title: "Context Certainty",
       icon: TimelineOutlinedIcon,
-      text: toneText,
+      text: `AI Sentiment Detection: ${toneText}`,
       confidence,
       highlight: false,
     },
     {
-      title: "Risks",
-      icon: WarningAmberOutlinedIcon,
-      text: urgency ? "Prioritize response accordingly." : "Standard — no immediate risks identified.",
-      urgency,
-      highlight: false,
-    },
-    {
-      title: "Reply Strategy",
+      title: "Proposed Strategy",
       icon: PsychologyOutlinedIcon,
       text: strategyText,
       highlight: false,
@@ -140,21 +145,7 @@ export default function SummaryInsightGrid({
                 >
                   {item.title}
                 </Typography>
-                {item.urgency && (
-                  <Chip
-                    label={item.urgency}
-                    size="small"
-                    sx={{
-                      height: 18,
-                      fontSize: "0.6rem",
-                      fontWeight: 700,
-                      textTransform: "uppercase",
-                      letterSpacing: "0.04em",
-                      bgcolor: item.urgency === "high" ? "error.main" : item.urgency === "medium" ? "warning.main" : "success.main",
-                      color: "#fff",
-                    }}
-                  />
-                )}
+
                 {item.confidence != null && item.confidence > 0 && (
                   <Box
                     sx={{
@@ -167,8 +158,8 @@ export default function SummaryInsightGrid({
                     <Box
                       sx={{
                         width: 48,
-                        height: 6,
-                        borderRadius: 3,
+                        height: 4,
+                        borderRadius: 2,
                         overflow: "hidden",
                         bgcolor: "action.hover",
                       }}
@@ -178,17 +169,11 @@ export default function SummaryInsightGrid({
                           height: "100%",
                           width: `${item.confidence}%`,
                           background: `linear-gradient(90deg, ${t.palette.primary.main}, ${t.palette.primary.dark || t.palette.primary.main})`,
-                          borderRadius: 3,
+                          borderRadius: 2,
                           transition: "width 0.6s ease",
                         })}
                       />
                     </Box>
-                    <Typography
-                      variant="caption"
-                      sx={{ fontSize: "0.65rem", fontWeight: 600, color: "text.secondary" }}
-                    >
-                      {item.confidence}%
-                    </Typography>
                   </Box>
                 )}
               </Box>

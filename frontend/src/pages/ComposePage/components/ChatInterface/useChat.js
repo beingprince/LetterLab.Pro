@@ -64,6 +64,7 @@ export const useChat = (jwtToken) => {
         setIsTyping(true);
         setWarnings([]);
         setLastDraft(null);
+        setIsLocked(false);
 
         const token = jwtToken || localStorage.getItem('authToken') || localStorage.getItem('jwtToken');
         if (!token) {

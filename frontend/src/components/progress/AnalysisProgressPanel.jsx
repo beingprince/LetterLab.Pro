@@ -3,7 +3,6 @@ import { Box, Typography, useTheme } from "@mui/material";
 import ProgressHeader from "./ProgressHeader";
 import ProgressBarRow from "./ProgressBarRow";
 import StepsList from "./StepsList";
-import DetailsCollapse from "./DetailsCollapse";
 import ProgressFooterActions from "./ProgressFooterActions";
 import SuccessTransition from "./SuccessTransition";
 import LiveStreamPreview from "./LiveStreamPreview";
@@ -19,14 +18,11 @@ export default function AnalysisProgressPanel({
   etaSeconds = null,
   elapsedSeconds = 0,
   steps = [],
-  detailsOpen = false,
-  onToggleDetails = () => {},
-  logs = [],
   currentMessage = null,
   streamLines = [],
   state = "loading",
   errorMessage = null,
-  onRetry = () => {},
+  onRetry = () => { },
 }) {
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
@@ -71,8 +67,13 @@ export default function AnalysisProgressPanel({
         etaSeconds={etaSeconds}
         elapsedSeconds={elapsedSeconds}
       />
-      <StepsList steps={steps} />
-      <DetailsCollapse open={detailsOpen} onToggle={onToggleDetails} logs={logs} />
+
+      <Box sx={{ mt: 3, mb: 1 }}>
+        <Typography variant="overline" sx={{ fontWeight: 700, color: "text.secondary", mb: 1, display: "block" }}>
+          Analysis Steps
+        </Typography>
+        <StepsList steps={steps} />
+      </Box>
       <ProgressFooterActions state={state} onRetry={onRetry} />
     </Box>
   );

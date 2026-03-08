@@ -98,6 +98,7 @@ const PullEmail = ({ onExit, selectedProfessor, provider = 'gmail', onGenerateRe
     );
 
     const [sessionExpired, setSessionExpired] = React.useState(false);
+    const [draftError, setDraftError] = React.useState(null); // Added for classified errors
     const analysisProgress = useAnalysisProgress();
     const progressRef = React.useRef(analysisProgress);
     progressRef.current = analysisProgress;
@@ -349,14 +350,22 @@ const PullEmail = ({ onExit, selectedProfessor, provider = 'gmail', onGenerateRe
 
                 } catch (err) {
                     if (!sessionExpired) {
-                        alert("Failed to generate draft. Please try again.");
-                        goToPreviousState();
+                        let msg = "Draft generation failed. Please try again.";
+                        if (err.message.includes("429") || err.message.includes("402")) {
+                            msg = "Draft generation quota reached. Please try again later.";
+                        } else if (err.message.includes("401")) {
+                            msg = "Your session expired. Please sign in again.";
+                        } else if (err.message.includes("fetch") || err.message.includes("Network")) {
+                            msg = "Could not reach the server. Please check your connection.";
+                        }
+                        setDraftError(msg);
                     }
                 }
             };
+            setDraftError(null);
             generateDraft();
         }
-    }, [currentState, stateData, updateStateData, goToNextState, goToPreviousState]);
+    }, [currentState, stateData, updateStateData, goToNextState, goToPreviousState, sessionExpired]);
 
     // Auto-trigger Send when entering SENDING state
     React.useEffect(() => {
@@ -532,13 +541,47 @@ const PullEmail = ({ onExit, selectedProfessor, provider = 'gmail', onGenerateRe
             case PullEmailStates.LOADING_DRAFT:
                 return (
                     <div className="flex flex-col items-center justify-center h-full text-center p-8">
-                        <CircularProgress size={48} sx={{ color: '#2563EB', mb: 4 }} />
-                        <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
-                            Drafting your reply...
-                        </h3>
-                        <p className="text-gray-500 max-w-sm">
-                            Analyzing the conversation history and your instructions to create the perfect response.
-                        </p>
+                        {draftError ? (
+                            <div className="max-w-sm animate-in fade-in slide-in-from-bottom-4 duration-300">
+                                <div className="w-16 h-16 bg-red-50 dark:bg-red-900/20 rounded-full flex items-center justify-center mb-6 mx-auto">
+                                    <svg className="w-8 h-8 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+                                </div>
+                                <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
+                                    Drafting failed
+                                </h3>
+                                <p className="text-gray-500 dark:text-gray-400 mb-8 leading-relaxed">
+                                    {draftError}
+                                </p>
+                                <div className="flex flex-col gap-3">
+                                    <Button
+                                        variant="contained"
+                                        fullWidth
+                                        onClick={() => { setDraftError(null); goToState(PullEmailStates.LOADING_DRAFT); }}
+                                        sx={{ borderRadius: 3, textTransform: 'none', py: 1.5, fontWeight: 700, bgcolor: '#2563EB' }}
+                                    >
+                                        Try Again
+                                    </Button>
+                                    <Button
+                                        variant="text"
+                                        fullWidth
+                                        onClick={goToPreviousState}
+                                        sx={{ borderRadius: 3, textTransform: 'none', color: 'text.secondary' }}
+                                    >
+                                        Back to Context
+                                    </Button>
+                                </div>
+                            </div>
+                        ) : (
+                            <>
+                                <CircularProgress size={48} sx={{ color: '#2563EB', mb: 4 }} />
+                                <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
+                                    Drafting your reply...
+                                </h3>
+                                <p className="text-gray-500 max-w-sm">
+                                    Analyzing the conversation history and your instructions to create the perfect response.
+                                </p>
+                            </>
+                        )}
                     </div>
                 );
 
@@ -747,7 +790,10 @@ const PullEmail = ({ onExit, selectedProfessor, provider = 'gmail', onGenerateRe
         <div className="fixed inset-0 z-50 flex flex-col bg-white dark:bg-gray-900 overflow-hidden">
             {/* Header */}
             <div className="flex-shrink-0 z-40 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800">
-                <div className="max-w-7xl mx-auto px-4 pt-[100px] pb-4">
+                <div
+                    className="max-w-7xl mx-auto px-4 pb-4"
+                    style={{ paddingTop: 'calc(env(safe-area-inset-top, 0px) + 80px)' }}
+                >
                     <div className="flex items-center justify-between">
                         {/* Left: Back button */}
                         <div className="flex items-center gap-3">
