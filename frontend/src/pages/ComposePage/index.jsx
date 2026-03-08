@@ -101,6 +101,31 @@ const ComposePage = ({ jwtToken, outlookAccessToken, authProvider, navigate }) =
         }
     };
 
+    // ✅ Strict scroll locking for mobile chat
+    useEffect(() => {
+        if (mode === 'chat') {
+            document.body.style.overflow = 'hidden';
+            document.documentElement.style.overflow = 'hidden';
+            // Prevent elastic bounce
+            document.body.style.position = 'fixed';
+            document.body.style.width = '100%';
+            document.body.style.height = '100%';
+        } else {
+            document.body.style.overflow = '';
+            document.documentElement.style.overflow = '';
+            document.body.style.position = '';
+            document.body.style.width = '';
+            document.body.style.height = '';
+        }
+        return () => {
+            document.body.style.overflow = '';
+            document.documentElement.style.overflow = '';
+            document.body.style.position = '';
+            document.body.style.width = '';
+            document.body.style.height = '';
+        };
+    }, [mode]);
+
     const hasValidToken = !!(jwtToken || localStorage.getItem('authToken'));
     if (!hasValidToken) {
         return (
@@ -283,14 +308,24 @@ const ComposePage = ({ jwtToken, outlookAccessToken, authProvider, navigate }) =
 
                 {/* Chat Mode */}
                 {mode === 'chat' && (
-                    <div className="h-full">
+                    <div className="h-full relative isolate" style={{ overscrollBehavior: 'none' }}>
                         <ChatInterface
                             onDraftEmail={handleChatDraft}
                             jwtToken={jwtToken}
                             onModeChange={setMode}
                             onProfessorSelect={handleProfessorSelect}
                             provider={authProvider || 'gmail'}
-                            onMessagesChange={(msgs) => setHasChatMessages(msgs.length > 0)}
+                            onMessagesChange={(msgs) => {
+                                setHasChatMessages(msgs.length > 0);
+                                // ✅ Signal to App.jsx/Header via storage for logo fade
+                                if (msgs.length > 0) {
+                                    localStorage.setItem('llp_chat_active', 'true');
+                                    window.dispatchEvent(new Event('storage'));
+                                } else {
+                                    localStorage.removeItem('llp_chat_active');
+                                    window.dispatchEvent(new Event('storage'));
+                                }
+                            }}
                         />
                     </div>
                 )}

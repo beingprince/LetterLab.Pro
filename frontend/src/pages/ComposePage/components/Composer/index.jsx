@@ -235,11 +235,12 @@ const Composer = ({ onGenerate, isLoading = false, currentMode = 'chat', onModeC
                     bottom: 0,
                     left: 0,
                     right: 0,
-                    zIndex: 50,
+                    zIndex: 1000, // ✅ Higher z-index to stay above message list
                     background: barBg,
                     backdropFilter: 'blur(16px)',
                     WebkitBackdropFilter: 'blur(16px)',
                     borderTop: `1px solid ${barBorder}`,
+                    touchAction: 'none', // ✅ Prevent elastic bounce on the pill area
                 }}
             >
                 <div className="max-w-3xl mx-auto px-4 py-4">
@@ -360,8 +361,14 @@ const Composer = ({ onGenerate, isLoading = false, currentMode = 'chat', onModeC
                                             setToolsOpen(false);
                                             if (m.id === 'pull') {
                                                 setProfModalOpen(true);
+                                                if (document.activeElement instanceof HTMLElement) {
+                                                    document.activeElement.blur();
+                                                }
                                             } else {
                                                 onModeChange?.(m.id);
+                                                if (document.activeElement instanceof HTMLElement) {
+                                                    document.activeElement.blur();
+                                                }
                                             }
                                         }}
                                         className="flex items-start gap-3 transition-colors"

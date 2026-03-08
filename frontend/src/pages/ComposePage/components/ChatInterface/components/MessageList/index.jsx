@@ -33,23 +33,6 @@ const MessageList = ({ messages, isTyping, onUseDraft }) => {
                 '&::-webkit-scrollbar': { display: 'none' }
             }}
         >
-            {messages.length === 0 && (
-                <Box sx={{
-                    flex: 1,
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    opacity: 0.5,
-                    gap: 2,
-                    minHeight: '200px' // Ensure minimum height
-                }}>
-                    <Typography variant="h6" fontWeight="bold">LetterLab Chat</Typography>
-                    <Typography variant="body2" align="center" maxWidth={300}>
-                        Tell me who you're emailing and why. I'll help you draft the perfect message.
-                    </Typography>
-                </Box>
-            )}
 
             {messages.map((msg) => (
                 <MessageBubble

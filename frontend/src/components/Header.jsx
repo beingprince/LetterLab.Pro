@@ -43,6 +43,7 @@ const Header = ({
     setIsDrawerOpen,
     navigate,
     authedUser,
+    hasMessages = false, // ✅ Added to support logo fade on interaction
 }) => {
     const [userMenuAnchor, setUserMenuAnchor] = useState(null);
 
@@ -89,8 +90,8 @@ const Header = ({
                 borderTop: 'none',
                 boxShadow: 'none',
                 backdropFilter: 'blur(12px)',
-                px: { xs: 2, md: 4 },
-                pt: 'env(safe-area-inset-top, 0px)', // ✅ Added safe areas for mobile notch
+                px: { xs: 1, md: 4 }, // ✅ Reduced horizontal padding on mobile
+                pt: 'env(safe-area-inset-top, 0px)',
                 display: 'flex',
                 flexDirection: 'column',
                 justifyContent: 'center'
@@ -101,9 +102,9 @@ const Header = ({
                 sx={{
                     minHeight: '72px !important',
                     display: 'grid',
-                    gridTemplateColumns: { xs: 'auto 1fr auto', md: '1fr auto 1fr' },
+                    gridTemplateColumns: { xs: '40px 1fr 40px', md: '1fr auto 1fr' }, // ✅ Explicit widths for icons
                     alignItems: 'center',
-                    gap: 2,
+                    gap: { xs: 1, md: 2 }, // ✅ Tighter gap on mobile
                     height: '100%'
                 }}
             >
@@ -114,7 +115,7 @@ const Header = ({
                         edge="start"
                         color="inherit"
                         onClick={() => setIsDrawerOpen(true)}
-                        sx={{ display: { md: 'none' }, mr: 1 }}
+                        sx={{ display: { md: 'none' }, minWidth: 40 }} // ✅ Ensure stable width
                     >
                         <MenuIcon />
                     </IconButton>
@@ -154,6 +155,10 @@ const Header = ({
                     justifyContent: 'center',
                     alignItems: 'center',
                     flex: 1,
+                    // ✅ Smooth fade transition for mobile logo
+                    opacity: (path === '/chat' && hasMessages) ? 0 : 1,
+                    visibility: (path === '/chat' && hasMessages) ? 'hidden' : 'visible',
+                    transition: 'opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.5s'
                 }}>
                     {/* Favicon — mobile center */}
                     <Box

@@ -503,6 +503,7 @@ function App() {
           setIsDrawerOpen={setIsDrawerOpen}
           navigate={navigate}
           authedUser={authedUser}
+          hasMessages={path === '/chat' && localStorage.getItem('llp_chat_active') === 'true'}
         />
       )}
 

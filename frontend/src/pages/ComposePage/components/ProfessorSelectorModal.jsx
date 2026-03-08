@@ -122,7 +122,6 @@ export default function ProfessorSelectorModal({ open, onClose, onSelect }) {
                                             focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500/50
                                             transition-all
                                         "
-                                        autoFocus
                                     />
                                 </div>
                             </div>
