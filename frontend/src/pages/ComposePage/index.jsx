@@ -312,6 +312,7 @@ const ComposePage = ({ jwtToken, outlookAccessToken, authProvider, navigate }) =
                         <ChatInterface
                             onDraftEmail={handleChatDraft}
                             jwtToken={jwtToken}
+                            userName={userName}
                             onModeChange={setMode}
                             onProfessorSelect={handleProfessorSelect}
                             provider={authProvider || 'gmail'}

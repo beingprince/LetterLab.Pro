@@ -5,7 +5,7 @@ import MessageList from './components/MessageList';
 import Composer from '../Composer';
 import DraftReviewModal from './components/DraftReviewModal';
 
-const ChatInterface = ({ onDraftEmail, onModeChange, onProfessorSelect, jwtToken, onMessagesChange, provider = 'gmail' }) => {
+const ChatInterface = ({ onDraftEmail, onModeChange, onProfessorSelect, jwtToken, onMessagesChange, userName, provider = 'gmail' }) => {
     const {
         messages,
         sendMessage,
