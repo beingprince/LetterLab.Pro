@@ -57,6 +57,12 @@ const app = express();
 // 2) Security + CORS + body limits (BEFORE routes)
 app.use(helmet());
 
+// Serve robots.txt immediately to prevent indexing of Render wakeup page
+app.get("/robots.txt", (req, res) => {
+  res.type("text/plain");
+  res.send("User-agent: *\nDisallow: /");
+});
+
 // ⭐ UPDATED: robust CORS (handles preflight + Vercel previews)
 app.use(cors({
   origin(origin, cb) {
@@ -102,8 +108,6 @@ const modelLimiter = rateLimit({
 
 // ───────────────────────────────────────────────────────────────────────────────
 // 4) Gemini setup + helpers
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 const GEMINI_MODEL = process.env.GEMINI_MODEL_PRIMARY || "models/gemini-2.5-flash";
 const GEMINI_FALLBACK_MODEL = process.env.GEMINI_MODEL_FALLBACK || "models/gemini-2.5-flash";
 
@@ -354,7 +358,11 @@ if (ENABLE_CHAT) {
 }
 
 // ───────────────────────────────────────────────────────────────────────────────
-// 10) Serve frontend in production (optional when hosting both on Render)
+// ───────────────────────────────────────────────────────────────────────────────
+// 10) Public Assets
+app.use(express.static(publicPath));
+
+// 11) Serve frontend in production (optional when hosting both on Render)
 if (process.env.NODE_ENV === "production") {
   const distPath = path.resolve(__dirname, "../frontend/dist");
   app.use(express.static(distPath));

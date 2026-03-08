@@ -460,8 +460,11 @@ function App() {
           body: {
             margin: 0,
             overflowX: 'hidden',
-            // background gradient behind all glass surfaces
-            backgroundImage: 'linear-gradient(170deg, #F7FAFF 0%, #FFFFFF 60%)',
+            // background gradient behind all glass surfaces, solid white for chat
+            backgroundImage: path === '/chat'
+              ? 'none'
+              : 'linear-gradient(170deg, #F7FAFF 0%, #FFFFFF 60%)',
+            backgroundColor: '#FFFFFF',
             backgroundAttachment: 'scroll',
           },
           a: {
@@ -513,7 +516,7 @@ function App() {
           ──────────────────────────────────────────────────────────────────── */}
       <Box
         sx={{
-          pt: path === '/'
+          pt: (path === '/' || path === '/chat')
             ? 0
             : {
               xs: 'calc(var(--app-header-height, 72px) + 16px)',
@@ -523,12 +526,15 @@ function App() {
           minHeight: '100dvh',
           isolation: 'isolate',
           position: 'relative',
-          zIndex: path === '/' ? 0 : 1,
+          zIndex: (path === '/' || path === '/chat') ? 0 : 1,
           p: 0,
+          width: '100%',
         }}
       >
         {path === '/' ? (
           <HomePage />
+        ) : path === '/chat' ? (
+          renderPage()
         ) : (
           <Box sx={{ px: { xs: 1.5, sm: 3 }, py: { xs: 2, sm: 3 } }}>
             {renderPage()}

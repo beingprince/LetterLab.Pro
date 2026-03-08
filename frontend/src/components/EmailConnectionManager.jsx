@@ -3,10 +3,12 @@ import { Button, Box, Alert, CircularProgress, Typography, Paper, Tooltip } from
 import EmailIcon from '@mui/icons-material/Email';
 import MailOutlineIcon from "@mui/icons-material/MailOutline";      // Gmail style
 import EmailOutlinedIcon from "@mui/icons-material/EmailOutlined";  // Outlook style
+import WakingUpLoader from './WakingUpLoader';
 
 export default function EmailConnectionManager() {
   const [outlookStatus, setOutlookStatus] = useState({ loading: true, connected: false });
   const [gmailStatus, setGmailStatus] = useState({ loading: true, connected: false });
+  const [wakingUp, setWakingUp] = useState(false);
 
   useEffect(() => {
     checkConnectionStatus();
@@ -74,13 +76,32 @@ export default function EmailConnectionManager() {
     }
   };
 
+  const preWarmAndRedirect = async (url) => {
+    const timer = setTimeout(() => setWakingUp(true), 800);
+    try {
+      // Use local port if in dev, but on Render /api/health works via proxy
+      // The current frontend uses localhost:5000 in checkStatus, so we follow that
+      const baseUrl = window.location.hostname === 'localhost' ? 'http://localhost:5000' : '';
+      await fetch(`${baseUrl}/api/health`);
+      clearTimeout(timer);
+      window.location.href = url;
+    } catch (err) {
+      clearTimeout(timer);
+      window.location.href = url;
+    }
+  };
+
   const connectOutlook = () => {
-    window.location.href = `http://localhost:5000/api/oauth/outlook/connect`;
+    const baseUrl = window.location.hostname === 'localhost' ? 'http://localhost:5000' : '';
+    preWarmAndRedirect(`${baseUrl}/api/oauth/outlook/connect`);
   };
 
   const connectGmail = () => {
-    window.location.href = `http://localhost:5000/auth/google`;
+    const baseUrl = window.location.hostname === 'localhost' ? 'http://localhost:5000' : '';
+    preWarmAndRedirect(`${baseUrl}/auth/google`);
   };
+
+  if (wakingUp) return <WakingUpLoader />;
 
   return (
     <Box

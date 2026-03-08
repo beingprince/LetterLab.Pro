@@ -18,6 +18,7 @@ import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import GoogleIcon from '@mui/icons-material/Google';
 // import AuroraBackground from './AuroraBackground'; // ❌ REMOVED
 import MicrosoftIcon from './components/icons/MicrosoftIcon'; // ✅ ADDED
+import WakingUpLoader from './components/WakingUpLoader';
 
 const LS_KEY = 'letterlab_user';
 
@@ -57,6 +58,7 @@ function completeLogin(userLike) {
 
 export default function AuthPage() {
   const [reasonMessage, setReasonMessage] = useState(null);
+  const [wakingUp, setWakingUp] = useState(false);
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const reason = params.get('reason');
@@ -69,13 +71,31 @@ export default function AuthPage() {
 
   // Use relative paths so the browser stays on letterlab.pro
   // Vercel rewrites proxy /auth/* and /api/* to the Render backend invisibly
+  const preWarmAndRedirect = async (url) => {
+    // Start showing loader if it takes > 800ms
+    const timer = setTimeout(() => setWakingUp(true), 800);
+
+    try {
+      // Ping the backend health check
+      await fetch('/api/health');
+      clearTimeout(timer);
+      window.location.href = url;
+    } catch (err) {
+      console.warn("Backend pre-warm ping failed, redirecting anyway", err);
+      clearTimeout(timer);
+      window.location.href = url;
+    }
+  };
+
   const handleGoogleLogin = () => {
-    window.location.href = '/auth/google';
+    preWarmAndRedirect('/auth/google');
   };
 
   const handleOutlookLogin = () => {
-    window.location.href = '/api/oauth/outlook/login';
+    preWarmAndRedirect('/api/oauth/outlook/login');
   };
+
+  if (wakingUp) return <WakingUpLoader />;
 
   return (
     <Box sx={{

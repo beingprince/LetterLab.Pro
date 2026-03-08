@@ -141,23 +141,26 @@ const ComposePage = ({ jwtToken, outlookAccessToken, authProvider, navigate }) =
 
     return (
         <div
-            className={`relative bg-gray-50 dark:bg-gray-900 ${mode === 'chat' ? 'h-[calc(100dvh-var(--total-header-height))] overflow-hidden' : 'min-h-screen overflow-x-hidden overflow-y-auto'}`}
+            className={`relative ${mode === 'chat' ? 'bg-white' : 'bg-gray-50 dark:bg-gray-900'} ${mode === 'chat' ? 'h-[calc(100dvh-var(--total-header-height))] overflow-hidden' : 'min-h-screen overflow-x-hidden overflow-y-auto'}`}
             style={{
                 height: mode === 'chat' ? 'calc(100dvh - var(--total-header-height, 72px))' : 'auto'
             }}
         >
 
-            {/* Glassmorphism Background Gradients */}
-            <div className="fixed inset-0 z-0 pointer-events-none">
-                <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] bg-blue-400/10 rounded-full blur-[120px]" />
-                <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-purple-400/10 rounded-full blur-[120px]" />
-                <div className="absolute top-[40%] right-[20%] w-[30%] h-[30%] bg-pink-400/5 rounded-full blur-[100px]" />
-            </div>
+            {/* Glassmorphism Background Gradients - Disabled in full-bleed Chat */}
+            {mode !== 'chat' && (
+                <div className="fixed inset-0 z-0 pointer-events-none">
+                    <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] bg-blue-400/10 rounded-full blur-[120px]" />
+                    <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-purple-400/10 rounded-full blur-[120px]" />
+                    <div className="absolute top-[40%] right-[20%] w-[30%] h-[30%] bg-pink-400/5 rounded-full blur-[100px]" />
+                </div>
+            )}
 
             {/* Content */}
             <div className={`relative z-10 
                     ${mode === 'chat' ? 'w-full h-full' : 'max-w-7xl mx-auto px-4 pt-14'} 
                     ${mode === 'chat' ? '' : 'py-12 pb-48 transition-all duration-500'}
+                    ${mode === 'chat' ? 'overflow-hidden' : ''}
                 `}>
 
 
