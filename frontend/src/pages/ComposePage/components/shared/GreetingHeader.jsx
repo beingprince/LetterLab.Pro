@@ -1,7 +1,7 @@
 import React from 'react';
 import { Box, Typography } from '@mui/material';
 
-const GreetingHeader = ({ userName, mode }) => {
+const GreetingHeader = ({ userName, mode, hasMessages = false }) => {
     const getGreeting = () => {
         const hour = new Date().getHours();
         if (hour < 12) return 'Good morning';
@@ -19,12 +19,13 @@ const GreetingHeader = ({ userName, mode }) => {
     return (
         <Box sx={{
             textAlign: 'center',
-            pt: { xs: 8, md: 10 },
+            pt: { xs: 6, md: 10 },
             pb: 4,
             position: 'relative',
             zIndex: 10,
             maxWidth: '800px',
-            mx: 'auto'
+            mx: 'auto',
+            display: hasMessages ? { xs: 'none', md: 'block' } : 'block' // ✅ Hide on mobile if interaction started
         }}>
             <Typography variant="h3" sx={{
                 fontWeight: 800,

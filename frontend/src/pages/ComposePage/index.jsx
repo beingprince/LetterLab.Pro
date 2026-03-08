@@ -23,7 +23,8 @@ const ComposePage = ({ jwtToken, outlookAccessToken, authProvider, navigate }) =
     // State for Draft Handover
     const [draftText, setDraftText] = useState('');
     const [draftSubject, setDraftSubject] = useState('');
-    const [chatContext, setChatContext] = useState(null); // { professorName, recipientEmail, conversationId }
+    const [chatContext, setChatContext] = useState(null);
+    const [hasChatMessages, setHasChatMessages] = useState(false); // ✅ Track if chat has started
 
     const { generateEmail, isLoading } = useGeneration(jwtToken);
 
@@ -114,7 +115,12 @@ const ComposePage = ({ jwtToken, outlookAccessToken, authProvider, navigate }) =
     }
 
     return (
-        <div className={`relative bg-gray-50 dark:bg-gray-900 ${mode === 'chat' ? 'h-screen overflow-hidden' : 'min-h-screen overflow-x-hidden overflow-y-auto'}`}>
+        <div
+            className={`relative bg-gray-50 dark:bg-gray-900 ${mode === 'chat' ? 'h-[calc(100dvh-var(--total-header-height))] overflow-hidden' : 'min-h-screen overflow-x-hidden overflow-y-auto'}`}
+            style={{
+                height: mode === 'chat' ? 'calc(100dvh - var(--total-header-height, 72px))' : 'auto'
+            }}
+        >
 
             {/* Glassmorphism Background Gradients */}
             <div className="fixed inset-0 z-0 pointer-events-none">
@@ -125,13 +131,13 @@ const ComposePage = ({ jwtToken, outlookAccessToken, authProvider, navigate }) =
 
             {/* Content */}
             <div className={`relative z-10 
-                ${mode === 'chat' ? 'w-full h-screen' : 'max-w-7xl mx-auto px-4 pt-14'} 
+                ${mode === 'chat' ? 'w-full h-full' : 'max-w-7xl mx-auto px-4 pt-14'} 
                 ${mode === 'chat' ? '' : 'py-12 pb-48 transition-all duration-500'}
             `}>
 
                 {/* Greeting Header */}
                 {mode !== 'subject' && mode !== 'chat_send_preview' && mode !== 'subject_send_preview' && (
-                    <GreetingHeader userName={userName} mode={mode} />
+                    <GreetingHeader userName={userName} mode={mode} hasMessages={hasChatMessages} />
                 )}
 
 
@@ -284,6 +290,7 @@ const ComposePage = ({ jwtToken, outlookAccessToken, authProvider, navigate }) =
                             onModeChange={setMode}
                             onProfessorSelect={handleProfessorSelect}
                             provider={authProvider || 'gmail'}
+                            onMessagesChange={(msgs) => setHasChatMessages(msgs.length > 0)}
                         />
                     </div>
                 )}

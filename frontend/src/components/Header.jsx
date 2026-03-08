@@ -82,8 +82,7 @@ const Header = ({
             color="default"
             elevation={0}
             sx={{
-                height: 72,
-                overflow: "visible",
+                height: { xs: 'calc(72px + env(safe-area-inset-top, 0px))', md: 72 },
                 zIndex: 1100,
                 background: 'rgba(255,255,255,0.8)',
                 borderBottom: 'none',
@@ -91,6 +90,10 @@ const Header = ({
                 boxShadow: 'none',
                 backdropFilter: 'blur(12px)',
                 px: { xs: 2, md: 4 },
+                pt: 'env(safe-area-inset-top, 0px)', // ✅ Added safe areas for mobile notch
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'center'
             }}
         >
             <Toolbar
@@ -98,9 +101,10 @@ const Header = ({
                 sx={{
                     minHeight: '72px !important',
                     display: 'grid',
-                    gridTemplateColumns: { xs: 'auto 1fr auto', md: '1fr auto 1fr' }, // Mobile: Auto-Space-Auto | Desktop: 3-column
+                    gridTemplateColumns: { xs: 'auto 1fr auto', md: '1fr auto 1fr' },
                     alignItems: 'center',
                     gap: 2,
+                    height: '100%'
                 }}
             >
                 {/* 1️⃣ LEFT SECTION */}

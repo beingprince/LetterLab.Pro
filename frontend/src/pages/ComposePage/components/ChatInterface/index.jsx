@@ -5,7 +5,7 @@ import MessageList from './components/MessageList';
 import Composer from '../Composer';
 import DraftReviewModal from './components/DraftReviewModal';
 
-const ChatInterface = ({ onDraftEmail, onModeChange, onProfessorSelect, jwtToken, provider = 'gmail' }) => {
+const ChatInterface = ({ onDraftEmail, onModeChange, onProfessorSelect, jwtToken, onMessagesChange, provider = 'gmail' }) => {
     const {
         messages,
         sendMessage,
@@ -17,6 +17,13 @@ const ChatInterface = ({ onDraftEmail, onModeChange, onProfessorSelect, jwtToken
         resetAt,
         clearLastDraft
     } = useChat(jwtToken);
+
+    // ✅ Report message count to parent (for hiding greetings)
+    useEffect(() => {
+        if (onMessagesChange) {
+            onMessagesChange(messages);
+        }
+    }, [messages, onMessagesChange]);
 
     const [isReviewOpen, setIsReviewOpen] = useState(false);
     const [currentDraftContent, setCurrentDraftContent] = useState('');

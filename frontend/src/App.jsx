@@ -448,6 +448,8 @@ function App() {
         styles={{
           ':root': {
             '--app-header-height': `${headerHeight || HEADER_HEIGHT_DEFAULT}px`,
+            '--safe-area-top': 'env(safe-area-inset-top, 0px)',
+            '--total-header-height': 'calc(72px + var(--safe-area-top))',
           },
           '*, *::before, *::after': { boxSizing: 'border-box' },
           'html, body, #root': { height: '100%' },

@@ -792,7 +792,7 @@ const PullEmail = ({ onExit, selectedProfessor, provider = 'gmail', onGenerateRe
             <div className="flex-shrink-0 z-40 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800">
                 <div
                     className="max-w-7xl mx-auto px-4 pb-4"
-                    style={{ paddingTop: 'calc(env(safe-area-inset-top, 0px) + 80px)' }}
+                    style={{ paddingTop: 'calc(env(safe-area-inset-top, 0px) + 72px)' }}
                 >
                     <div className="flex items-center justify-between">
                         {/* Left: Back button */}
