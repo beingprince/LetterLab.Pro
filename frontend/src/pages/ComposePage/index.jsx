@@ -156,14 +156,9 @@ const ComposePage = ({ jwtToken, outlookAccessToken, authProvider, navigate }) =
 
             {/* Content */}
             <div className={`relative z-10 
-                ${mode === 'chat' ? 'w-full h-full' : 'max-w-7xl mx-auto px-4 pt-14'} 
-                ${mode === 'chat' ? '' : 'py-12 pb-48 transition-all duration-500'}
-            `}>
-
-                {/* Greeting Header */}
-                {mode !== 'subject' && mode !== 'chat_send_preview' && mode !== 'subject_send_preview' && (
-                    <GreetingHeader userName={userName} mode={mode} hasMessages={hasChatMessages} />
-                )}
+                    ${mode === 'chat' ? 'w-full h-full' : 'max-w-7xl mx-auto px-4 pt-14'} 
+                    ${mode === 'chat' ? '' : 'py-12 pb-48 transition-all duration-500'}
+                `}>
 
 
                 {/* Compose Mode */}
