@@ -36,7 +36,7 @@ const WakingUpLoader = () => {
                 <img
                     src="/brand/letterlab-logo.svg"
                     alt="LetterLab.Pro"
-                    style={{ height: 60, width: 'auto' }}
+                    style={{ height: 60, width: 'auto', color: 'transparent' }}
                 />
             </Box>
 
