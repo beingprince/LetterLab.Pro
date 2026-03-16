@@ -543,19 +543,9 @@ export default function PrivacyPage() {
                     </div>
                     <div className="flex flex-col sm:flex-row items-baseline gap-1 sm:gap-4 text-[1.05rem]">
                       <span className="font-semibold text-slate-100 min-w-[140px]">Contact Email:</span>
-                      <a href="mailto:[princepdsn@gmail.com]" className="text-blue-400 hover:text-blue-300 transition-colors font-medium text-lg bg-blue-500/10 px-3 py-1.5 rounded-lg -ml-3 sm:ml-0 mt-2 sm:mt-0">
-                        [princepdsn@gmail.com]
+                      <a href="mailto:princepdsn@gmail.com" className="text-blue-400 hover:text-blue-300 transition-colors font-medium text-lg bg-blue-500/10 px-3 py-1.5 rounded-lg -ml-3 sm:ml-0 mt-2 sm:mt-0">
+                        princepdsn@gmail.com
                       </a>
-                    </div>
-                  </div>
-
-                  {/* Publishing Note */}
-                  <div className="mt-8 pt-6 border-t border-slate-700/60 relative z-10">
-                    <div className="flex gap-3 items-start bg-rose-500/10 border border-rose-500/20 rounded-xl p-4">
-                      <AlertTriangle className="w-5 h-5 text-rose-400 shrink-0 mt-0.5" />
-                      <p className="text-sm text-rose-200">
-                        <strong>Pre-launch reminder:</strong> Replace <code className="bg-rose-950/50 px-1.5 py-0.5 rounded text-rose-300 font-mono">[YOUR-EMAIL@gmail.com]</code> with your actual contact email before publishing.
-                      </p>
                     </div>
                   </div>
                 </div>
