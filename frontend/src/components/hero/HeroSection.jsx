@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import {
     Box,
     Container,
@@ -274,6 +274,28 @@ export default function SplitRevealHero({
     const theme = useTheme();
     const shouldReduce = useReducedMotion();
 
+    const [userStats, setUserStats] = useState({ count: 12, initials: ['A', 'P', 'J', 'S'] });
+
+    useEffect(() => {
+        const fetchStats = async () => {
+            try {
+                // Adjust URL based on your backend environment if needed, but relative should work in Vite proxy
+                const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/users/stats`);
+                const data = await res.json();
+                if (data.success) {
+                    // Fallback to minimal sensible defaults if DB is too small or fresh
+                    setUserStats({
+                        count: Math.max(data.count, 12),
+                        initials: data.initials?.length > 0 ? data.initials : ['A', 'P', 'J', 'S']
+                    });
+                }
+            } catch (err) {
+                console.error("Failed to fetch user stats:", err);
+            }
+        };
+        fetchStats();
+    }, []);
+
     return (
         <Box sx={{ background: TOKENS.bg, minHeight: { xs: "100dvh", md: "100vh" }, overflowX: "hidden", pt: { xs: 12, md: 15 }, pb: { xs: 8, md: 12 } }}>
 
@@ -418,17 +440,19 @@ export default function SplitRevealHero({
                                         width: 32, 
                                         height: 32, 
                                         fontSize: 12,
-                                        border: `2px solid ${TOKENS.bg}` 
+                                        fontWeight: 600,
+                                        border: `2px solid ${TOKENS.bg}`,
+                                        bgcolor: TOKENS.blueMid,
+                                        color: TOKENS.blue,
                                     } 
                                 }}
                             >
-                                <Avatar alt="User" src="https://i.pravatar.cc/100?img=1" />
-                                <Avatar alt="User" src="https://i.pravatar.cc/100?img=2" />
-                                <Avatar alt="User" src="https://i.pravatar.cc/100?img=3" />
-                                <Avatar alt="User" src="" />
+                                {userStats.initials.map((init, idx) => (
+                                    <Avatar key={idx}>{init}</Avatar>
+                                ))}
                             </AvatarGroup>
                             <Typography sx={{ fontSize: 13, fontWeight: 600, color: TOKENS.inkSoft }}>
-                                Join 1,200+ professionals
+                                Join {userStats.count}+ early adopters
                             </Typography>
                         </Box>
 

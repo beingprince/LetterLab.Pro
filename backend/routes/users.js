@@ -71,6 +71,36 @@ router.post('/login', async (req, res) => {
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
+// Public Routes
+// ─────────────────────────────────────────────────────────────────────────────
+
+// GET /api/users/stats
+router.get('/stats', async (req, res) => {
+  try {
+    const totalUsers = await User.countDocuments();
+    // Fetch a few meaningful latest users to generate initials
+    const recentUsers = await User.find().sort({ createdAt: -1 }).limit(4).select('name email');
+    
+    const initials = recentUsers.map(u => {
+      const targetString = u.name || u.email || '?';
+      const parts = targetString.split(/[ \.\-_]/).filter(Boolean);
+      let init = parts[0]?.charAt(0).toUpperCase() || '?';
+      if (parts.length > 1) {
+        init += parts[parts.length - 1].charAt(0).toUpperCase();
+      } else if (targetString.length > 1) {
+        init = targetString.slice(0, 2).toUpperCase();
+      }
+      return init;
+    });
+
+    res.json({ success: true, count: totalUsers, initials });
+  } catch (error) {
+    console.error('Get Stats Error:', error);
+    res.status(500).json({ error: 'Server error fetching user stats' });
+  }
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
 // Protected Routes
 // ─────────────────────────────────────────────────────────────────────────────
 import { auth } from '../middleware/auth.js';
