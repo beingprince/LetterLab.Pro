@@ -11,8 +11,8 @@ const steps = [
   {
     id: 2,
     badge: "02",
-    title: "Pull the Context",
-    description: "LetterLab scans the thread before writing anything."
+    title: "Chat & Refine",
+    description: "Converse with the AI assistant to provide context and shape the perfect message."
   },
   {
     id: 3,
