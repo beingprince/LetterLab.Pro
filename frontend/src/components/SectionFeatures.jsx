@@ -7,7 +7,7 @@ const IconPlay = () => (
     xmlns="http://www.w3.org/2000/svg"
     viewBox="0 0 24 24"
     fill="currentColor"
-    className="w-8 h-8 text-brand-text"
+    className="w-8 h-8 text-brand-primary drop-shadow-sm"
     aria-hidden="true"
   >
     <path
@@ -27,7 +27,7 @@ const IconZap = () => (
     strokeWidth="2"
     strokeLinecap="round"
     strokeLinejoin="round"
-    className="w-6 h-6 text-brand-text"
+    className="w-6 h-6 text-brand-primary drop-shadow-sm"
     aria-hidden="true"
   >
     <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
@@ -43,7 +43,7 @@ const IconWand = () => (
     strokeWidth="2"
     strokeLinecap="round"
     strokeLinejoin="round"
-    className="w-6 h-6 text-brand-text"
+    className="w-6 h-6 text-brand-primary drop-shadow-sm"
     aria-hidden="true"
   >
     <path d="M15 4V2" />
@@ -122,7 +122,7 @@ export const SectionFeatures = () => {
   }, [])
 
   return (
-    <section aria-labelledby="how-it-works-heading" id="how-it-works" className="py-20 bg-brand-bg relative overflow-hidden">
+    <section aria-labelledby="how-it-works-heading" id="how-it-works" className="pt-20 pb-32 md:py-32 bg-brand-bg relative">
       <motion.div 
         className="max-w-6xl mx-auto px-6"
         {...(shouldReduce ? {} : {
@@ -170,7 +170,7 @@ export const SectionFeatures = () => {
                 >
                   <motion.div 
                     tabIndex={0} 
-                    className="glass-surface bg-brand-card h-full rounded-glass p-8 flex flex-col md:items-center text-left md:text-center border-l-2 border-brand-primary md:border-l-0 focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:outline-none pl-6 md:pl-8"
+                    className="glass-surface bg-brand-card h-full flex flex-col items-start md:items-center text-left md:text-center p-8 rounded-glass border border-brand-border md:border-t hover:-translate-y-2 hover:shadow-xl hover:bg-white/80 transition-all duration-300 focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:outline-none"
                     {...(shouldReduce ? {} : {
                       whileInView: { opacity: 1, y: 0 },
                       initial: { opacity: 0, y: 32 },
@@ -201,10 +201,10 @@ export const SectionFeatures = () => {
           </ol>
         </div>
 
-        <div className="mt-20 flex justify-center">
+        <div className="mt-20 md:mt-24 flex justify-center pb-8 relative z-20">
           <button
             onClick={() => window.location.href = '/chat'}
-            className="inline-flex items-center gap-2 px-8 py-4 bg-brand-primary text-white font-heading font-bold rounded-xl shadow-glass hover:-translate-y-1 transition-transform focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-brand-primary focus-visible:outline-none"
+            className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-brand-primary via-blue-400 to-brand-primary bg-[size:200%] animate-bg-pan text-white font-heading font-bold rounded-xl shadow-glass hover:shadow-2xl hover:-translate-y-1 transition-all focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-brand-primary focus-visible:outline-none"
           >
             Start Drafting <IconArrowRight />
           </button>

@@ -10,6 +10,7 @@ module.exports = {
       },
       colors: {
         brand: {
+          primary: "hsl(var(--brand))",
           text: "var(--brand-text)",
           dim: "var(--brand-dim)",
           card: "var(--brand-card)",
