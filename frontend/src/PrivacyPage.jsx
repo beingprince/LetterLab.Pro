@@ -5,7 +5,7 @@ import { Mail, Shield, CheckCircle2, AlertTriangle, ArrowRight, ExternalLink, Me
 const POLICY_SECTIONS = [
   { id: '1', title: '1. Information We Collect' },
   { id: '2', title: '2. How We Use Your Information' },
-  { id: '3', title: '3. Google API Services — Limited Use Disclosure' },
+  { id: '3', title: '3. API Services Disclosure (Google & Microsoft)' },
   { id: '4', title: '4. Cookies and Tracking Technologies' },
   { id: '5', title: '5. Data Storage and Retention' },
   { id: '6', title: '6. Third-Party AI Services' },
@@ -232,15 +232,15 @@ export default function PrivacyPage() {
                   </div>
 
                   <div>
-                    <h3 className="text-[1.15rem] sm:text-xl font-semibold text-slate-800 mb-4">1.2 Information Collected via OAuth (Google / Microsoft)</h3>
+                    <h3 className="text-[1.15rem] sm:text-xl font-semibold text-slate-800 mb-4">1.2 Information Collected via OAuth (Google / Microsoft Graph API)</h3>
                     <p className="text-[1.05rem] text-slate-600 mb-4 leading-relaxed">
-                      When you sign in using Google or connect your Gmail account, we request access to the following Google user data, strictly limited to what is necessary to provide the Service:
+                      When you sign in using Google or Microsoft, or when you connect your Gmail or Outlook account, we request access to the following user data, strictly limited to what is necessary to provide the Service:
                     </p>
                     <ul className="list-disc pl-5 space-y-2.5 text-[1.05rem] text-slate-600 leading-relaxed marker:text-slate-400">
-                      <li><strong>Basic profile information:</strong> your name, email address, and Google Account ID.</li>
-                      <li><strong>Gmail email threads:</strong> content of threads you explicitly select for AI-assisted drafting.</li>
-                      <li><strong>Gmail metadata:</strong> subject lines, sender/recipient info, and conversation IDs.</li>
-                      <li><strong>Contacts (read-only):</strong> used within the contact picker only; we do not store your contacts.</li>
+                      <li><strong>Basic profile information:</strong> your name, email address, and OAuth Account ID (Google or Microsoft).</li>
+                      <li><strong>Email threads (Gmail & Outlook):</strong> content of threads you explicitly select for AI-assisted drafting via the Gmail API or Microsoft Graph API.</li>
+                      <li><strong>Email metadata:</strong> subject lines, sender/recipient info, and conversation IDs.</li>
+                      <li><strong>Contacts (read-only):</strong> used within the contact picker only; we do not store your contacts in our database.</li>
                       <li><strong>Ability to send emails:</strong> only when you explicitly click "Send" to dispatch a draft you have reviewed and approved.</li>
                     </ul>
                   </div>
@@ -308,36 +308,36 @@ export default function PrivacyPage() {
 
               {/* SECTION 3 */}
               <section id="3" className="scroll-mt-32">
-                <h2 className="text-2xl sm:text-[1.75rem] font-bold text-slate-900 mb-6 tracking-tight">3. Google API Services — Limited Use Disclosure</h2>
+                <h2 className="text-2xl sm:text-[1.75rem] font-bold text-slate-900 mb-6 tracking-tight">3. API Services Disclosure (Google & Microsoft)</h2>
                 <p className="text-[1.05rem] text-slate-600 mb-5 leading-relaxed">
-                  LetterLab's use of information received from Google APIs adheres to the <a href="https://developers.google.com/terms/api-services-user-data-policy" className="text-blue-600 hover:underline" target="_blank" rel="noopener noreferrer">Google API Services User Data Policy</a>, including the Limited Use requirements.
+                  LetterLab's use of information received from Google APIs adheres to the <a href="https://developers.google.com/terms/api-services-user-data-policy" className="text-blue-600 hover:underline" target="_blank" rel="noopener noreferrer">Google API Services User Data Policy</a>, including the Limited Use requirements. Our use of Microsoft Graph API adheres to the corresponding <a href="https://learn.microsoft.com/en-us/legal/microsoft-apis/terms-of-use" className="text-blue-600 hover:underline" target="_blank" rel="noopener noreferrer">Microsoft APIs Terms of Use</a>.
                 </p>
                 <div className="bg-slate-50 border border-slate-200 rounded-2xl p-6 sm:p-8">
-                  <p className="font-semibold text-slate-800 mb-4 text-[1.1rem]">We confirm the following:</p>
+                  <p className="font-semibold text-slate-800 mb-4 text-[1.1rem]">We confirm the following for both Google and Microsoft user data:</p>
                   <ul className="space-y-4 text-[1.05rem] text-slate-700 leading-relaxed">
                     <li className="flex items-start gap-3">
                       <CheckCircle2 className="w-5 h-5 text-emerald-500 shrink-0 mt-0.5" />
-                      <span>We do <strong>NOT</strong> sell your Google user data to any third party.</span>
+                      <span>We do <strong>NOT</strong> sell your user data to any third party.</span>
                     </li>
                     <li className="flex items-start gap-3">
                       <CheckCircle2 className="w-5 h-5 text-emerald-500 shrink-0 mt-0.5" />
-                      <span>We do <strong>NOT</strong> use your Google user data for advertising purposes.</span>
+                      <span>We do <strong>NOT</strong> use your user data for advertising purposes.</span>
                     </li>
                     <li className="flex items-start gap-3">
                       <CheckCircle2 className="w-5 h-5 text-emerald-500 shrink-0 mt-0.5" />
-                      <span>We do <strong>NOT</strong> allow humans to read your Gmail data except as required by law, for security incident response, or if you explicitly request support requiring it.</span>
+                      <span>We do <strong>NOT</strong> allow humans to read your email data except as required by law, for security incident response, or if you explicitly request support requiring it.</span>
                     </li>
                     <li className="flex items-start gap-3">
                       <CheckCircle2 className="w-5 h-5 text-emerald-500 shrink-0 mt-0.5" />
-                      <span>Email thread content from Gmail is processed in memory only and is <strong>NOT</strong> persistently stored in our database.</span>
+                      <span>Email thread content from Gmail or Outlook is processed in memory only and is <strong>NOT</strong> persistently stored in our database.</span>
                     </li>
                     <li className="flex items-start gap-3">
                       <CheckCircle2 className="w-5 h-5 text-emerald-500 shrink-0 mt-0.5" />
-                      <span>Google user data is used only to provide the specific features you requested (AI email drafting).</span>
+                      <span>OAuth user data is used only to provide the specific features you requested (AI email drafting).</span>
                     </li>
                     <li className="flex items-start gap-3">
                       <CheckCircle2 className="w-5 h-5 text-emerald-500 shrink-0 mt-0.5" />
-                      <span>We do <strong>NOT</strong> transfer your Google user data to third parties except as necessary to provide the Service (passing summarized context to AI models).</span>
+                      <span>We do <strong>NOT</strong> transfer your API user data to third parties except as necessary to provide the Service (passing summarized context to AI models).</span>
                     </li>
                   </ul>
                 </div>
@@ -394,8 +394,8 @@ export default function PrivacyPage() {
                     <h3 className="text-[1.15rem] sm:text-xl font-semibold text-slate-800 mb-4">5.2 What We Do NOT Store</h3>
                     <ul className="list-disc pl-5 space-y-2.5 text-[1.05rem] text-slate-600 leading-relaxed marker:text-slate-400">
                       <li>Gmail or Outlook email content, thread bodies, or full messages — processed in memory only and discarded after draft generation.</li>
-                      <li>Your Google or Microsoft OAuth tokens beyond what is needed for your active session.</li>
-                      <li>Your contact lists retrieved from Google.</li>
+                      <li>Your Google or Microsoft OAuth tokens beyond what is needed for your active session and API requests.</li>
+                      <li>Your contact lists retrieved from Google or Microsoft.</li>
                     </ul>
                   </div>
 
@@ -440,7 +440,7 @@ export default function PrivacyPage() {
                   <li><strong>OpenAI GPT-4o-mini (fallback)</strong> — <a href="https://openai.com/policies/privacy-policy" className="text-blue-600 hover:underline break-all" target="_blank" rel="noopener noreferrer">https://openai.com/policies/privacy-policy</a></li>
                 </ul>
                 <p className="text-[1.05rem] text-slate-600 leading-relaxed font-medium">
-                  Raw email thread bodies are summarized before being passed to any AI model. We do not send your full Gmail inbox to AI services.
+                  Raw email thread bodies are summarized before being passed to any AI model. We do not send your full Gmail or Outlook inbox to AI services.
                 </p>
               </section>
 
