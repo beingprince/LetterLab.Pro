@@ -1,13 +1,14 @@
-import React from "react";
-import { motion } from "framer-motion";
+import React, { useEffect } from "react";
+import { motion, useReducedMotion } from "framer-motion";
 
-// --- INLINE ICON COMPONENTS ---
+// --- INLINE ICONS ---
 const IconPlay = () => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
     viewBox="0 0 24 24"
     fill="currentColor"
     className="w-8 h-8 text-brand-text"
+    aria-hidden="true"
   >
     <path
       fillRule="evenodd"
@@ -18,7 +19,6 @@ const IconPlay = () => (
 );
 
 const IconZap = () => (
-  // Icon for "Summarize"
   <svg
     xmlns="http://www.w3.org/2000/svg"
     viewBox="0 0 24 24"
@@ -28,13 +28,13 @@ const IconZap = () => (
     strokeLinecap="round"
     strokeLinejoin="round"
     className="w-6 h-6 text-brand-text"
+    aria-hidden="true"
   >
     <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
   </svg>
 );
 
 const IconWand = () => (
-  // Icon for "Rewrite"
   <svg
     xmlns="http://www.w3.org/2000/svg"
     viewBox="0 0 24 24"
@@ -44,6 +44,7 @@ const IconWand = () => (
     strokeLinecap="round"
     strokeLinejoin="round"
     className="w-6 h-6 text-brand-text"
+    aria-hidden="true"
   >
     <path d="M15 4V2" />
     <path d="M15 16v-2" />
@@ -67,6 +68,7 @@ const IconArrowRight = () => (
     viewBox="0 0 20 20"
     fill="currentColor"
     className="w-5 h-5"
+    aria-hidden="true"
   >
     <path
       fillRule="evenodd"
@@ -77,99 +79,139 @@ const IconArrowRight = () => (
 );
 // --- END OF INLINE ICONS ---
 
-export default function SectionFeatures() {
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: { staggerChildren: 0.1, delayChildren: 0.2 },
-    },
-  };
+const steps = [
+  {
+    id: 1,
+    badge: "1",
+    icon: <IconPlay />,
+    title: "Connect Your Email",
+    description: "Sign in securely with your email provider. LetterLab only reads what's needed to help you respond."
+  },
+  {
+    id: 2,
+    badge: "2",
+    icon: <IconZap />,
+    title: "Pull the Context",
+    description: "LetterLab scans the email thread to understand the full conversation before writing anything."
+  },
+  {
+    id: 3,
+    badge: "3",
+    icon: <IconWand />,
+    title: "Generate Your Reply",
+    description: "Get a clear, professional draft in seconds. Edit it if you like, then send with confidence."
+  }
+];
 
-  const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: { type: "spring", stiffness: 100 },
-    },
-  };
+export const SectionFeatures = () => {
+  const shouldReduce = useReducedMotion();
+
+  useEffect(() => {
+    const el = document.getElementById('how-it-works')
+    if (!el) return
+    const obs = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting) {
+        if (typeof window.gtag !== 'undefined') {
+          window.gtag('event', 'section_view', { section_name: 'how_it_works' })
+        }
+        obs.disconnect()
+      }
+    }, { threshold: 0.3 })
+    obs.observe(el)
+    return () => obs.disconnect()
+  }, [])
 
   return (
-    <section className="relative overflow-hidden py-20 md:py-32 bg-transparent">
-      {/* 1. Section Header */}
-      <div className="text-center max-w-3xl mx-auto px-6 mb-16">
-        <h2 className="label text-brand-dim mb-3">HOW IT WORKS</h2>
-        <h3 className="hero-heading text-3xl md:text-4xl font-semibold mb-5">
-          How LetterLab Works
-        </h3>
-        <p className="hero-description text-sm md:text-base leading-relaxed">
-          From connecting your account to generating professional emails, experience a seamless workflow designed for efficiency.
-        </p>
-      </div>
-
-      {/* 2. Visual Process Section (Replacing Video) */}
-      <motion.div
-        id="how-it-works"
+    <section aria-labelledby="how-it-works-heading" id="how-it-works" className="py-20 bg-brand-bg relative overflow-hidden">
+      <motion.div 
         className="max-w-6xl mx-auto px-6"
-        initial={{ opacity: 0, y: 20 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true }}
-        transition={{ duration: 0.7, delay: 0.2, ease: "easeOut" }}
+        {...(shouldReduce ? {} : {
+          whileInView: { opacity: 1, y: 0 },
+          initial: { opacity: 0, y: 16 },
+          viewport: { once: true },
+          transition: { duration: 0.45, ease: 'easeOut' }
+        })}
       >
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {/* Card 1 */}
-          <div className="group relative bg-brand-card/80 border border-brand-border shadow-glass backdrop-blur-md rounded-2xl p-8 hover:shadow-glass hover:-translate-y-1 transition-all duration-300">
-            <div className="w-14 h-14 rounded-full bg-brand-icon-bg flex items-center justify-center mb-6">
-              <IconWand />
-            </div>
-            <h4 className="text-xl font-bold text-brand-text mb-3">1. Connect Email</h4>
-            <p className="text-brand-dim leading-relaxed">
-              Securely connect your Gmail or Outlook account using OAuth2 authentication.
-            </p>
-          </div>
-
-          {/* Card 2 */}
-          <div className="group relative bg-brand-card/80 border border-brand-border shadow-glass backdrop-blur-md rounded-2xl p-8 hover:shadow-glass hover:-translate-y-1 transition-all duration-300">
-            <div className="w-14 h-14 rounded-full bg-brand-icon-bg flex items-center justify-center mb-6">
-              <IconZap />
-            </div>
-            <h4 className="text-xl font-bold text-brand-text mb-3">2. Pull Email Context</h4>
-            <p className="text-brand-dim leading-relaxed">
-              LetterLab extracts the conversation context from the selected email thread.
-            </p>
-          </div>
-
-          {/* Card 3 */}
-          <div className="group relative bg-brand-card/80 border border-brand-border shadow-glass backdrop-blur-md rounded-2xl p-8 hover:shadow-glass hover:-translate-y-1 transition-all duration-300">
-            <div className="w-14 h-14 rounded-full bg-brand-icon-bg flex items-center justify-center mb-6">
-              <IconPlay />
-            </div>
-            <h4 className="text-xl font-bold text-brand-text mb-3">3. Generate Professional Reply</h4>
-            <p className="text-brand-dim leading-relaxed">
-              The AI generates a clear, structured email draft ready for review.
-            </p>
-          </div>
+        <div className="text-center mb-20">
+          <p role="doc-subtitle" className="font-heading font-semibold text-brand-primary tracking-wider uppercase text-sm mb-4">HOW IT WORKS</p>
+          <h2 id="how-it-works-heading" className="font-heading text-4xl md:text-5xl font-bold text-brand-text mb-6">Write Better Emails Instantly</h2>
+          <p className="font-body text-brand-dim text-lg md:text-xl max-w-2xl mx-auto leading-relaxed">Connect your inbox and let LetterLab understand the conversation before crafting a clear, professional reply.</p>
         </div>
 
-        <div className="mt-12 text-center">
+        <div className="relative">
+          {/* Connector Line - Hidden on Mobile */}
+          <div className="hidden md:block absolute top-[28px] left-[16.66%] right-[16.66%] z-0 h-1" aria-hidden="true">
+             <svg className="w-full h-full overflow-visible" preserveAspectRatio="none">
+              <motion.line 
+                x1="0" 
+                y1="0" 
+                x2="100%" 
+                y2="0" 
+                stroke="#3B82F6" 
+                strokeDasharray="6 5" 
+                strokeWidth="1.5"
+                {...(shouldReduce ? { style: { pathLength: 1, opacity: 1 } } : {
+                  initial: { pathLength: 0, opacity: 0 },
+                  whileInView: { pathLength: 1, opacity: 1 },
+                  viewport: { once: true },
+                  transition: { duration: 0.9, ease: 'easeInOut', delay: 0.2 }
+                })}
+              />
+            </svg>
+          </div>
+
+          <ol role="list" className="list-none flex flex-col md:grid md:grid-cols-3 gap-8 md:gap-12 relative z-10">
+            {steps.map((step, index) => {
+              return (
+                <li 
+                  key={step.id} 
+                  aria-label={`Step ${step.id}`}
+                  className="group outline-none"
+                >
+                  <motion.div 
+                    tabIndex={0} 
+                    className="glass-surface bg-brand-card h-full rounded-glass p-8 flex flex-col md:items-center text-left md:text-center border-l-2 border-brand-primary md:border-l-0 focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:outline-none pl-6 md:pl-8"
+                    {...(shouldReduce ? {} : {
+                      whileInView: { opacity: 1, y: 0 },
+                      initial: { opacity: 0, y: 32 },
+                      viewport: { once: true, margin: '-60px' },
+                      transition: { duration: 0.5, delay: index * 0.15, ease: [0.25, 0.1, 0.25, 1] },
+                      whileHover: { y: -6, transition: { duration: 0.2, ease: 'easeOut' } },
+                      whileTap: { scale: 0.97 }
+                    })}
+                  >
+                    <motion.div 
+                      className="w-14 h-14 rounded-full bg-brand-iconBg border border-brand-border relative flex items-center justify-center mb-6 shrink-0"
+                      {...(shouldReduce ? {} : {
+                        whileHover: { scale: 1.08 }
+                      })}
+                    >
+                      {step.icon}
+                      <div className="absolute top-0 right-0 w-5 h-5 rounded-full bg-brand-primary text-white text-xs font-bold flex items-center justify-center">
+                        {step.badge}
+                      </div>
+                    </motion.div>
+                    
+                    <h3 className="font-heading font-semibold text-brand-text mb-3 text-xl">{step.title}</h3>
+                    <p className="font-body text-sm text-brand-dim leading-relaxed">{step.description}</p>
+                  </motion.div>
+                </li>
+              );
+            })}
+          </ol>
+        </div>
+
+        <div className="mt-20 flex justify-center">
           <button
             onClick={() => window.location.href = '/chat'}
-            className="inline-flex items-center justify-center px-8 py-4 bg-brand-primary text-white font-bold rounded-xl shadow-lg hover:-translate-y-1 transition-transform"
+            className="inline-flex items-center gap-2 px-8 py-4 bg-brand-primary text-white font-heading font-bold rounded-xl shadow-glass hover:-translate-y-1 transition-transform focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-brand-primary focus-visible:outline-none"
           >
             Start Drafting <IconArrowRight />
           </button>
         </div>
       </motion.div>
-      {/* 3. Deep-Dive Grid */}
-      <motion.div
-        className="max-w-5xl mx-auto px-6 mt-16 md:mt-24 grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-16 items-center"
-        variants={containerVariants}
-        initial="hidden"
-        whileInView="visible"
-        viewport={{ once: true, amount: 0.2 }}
-      >
-      </motion.div>
     </section>
   );
-}
+};
+
+export default SectionFeatures;
