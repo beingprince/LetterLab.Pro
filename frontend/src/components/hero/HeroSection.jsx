@@ -8,17 +8,19 @@ import {
     Stack,
     Grid,
     Divider,
+    Avatar,
+    AvatarGroup,
     useMediaQuery,
 } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import CheckCircleRoundedIcon from '@mui/icons-material/CheckCircleRounded';
 import CancelRoundedIcon from '@mui/icons-material/CancelRounded';
 import OutlookIcon from '../../assets/Microsoft-outlook-icon.svg.png';
+import { motion, useReducedMotion } from "framer-motion";
 
 /**
  * SplitRevealHero.jsx
- * - Preserves original Left Side content/style
- * - Implements new Minimal Square Comparison Card (Right Side)
+ * - Implements AI feedback: Copy updates, Staggered Animations, Social Proof
  * - Uses 'Outfit' / 'Inter' fonts via TOKENS
  */
 
@@ -41,6 +43,8 @@ const TOKENS = {
     shadowCard: "0 24px 64px rgba(38,65,245,.12), 0 4px 16px rgba(13,15,26,.08)",
     shadowMD: "0 8px 32px rgba(13,15,26,.10)",
 };
+
+const MotionButton = motion(Button);
 
 function GmailMini() {
     return (
@@ -85,27 +89,87 @@ function IconStarGreen() {
 
 function MinimalComparisonCard() {
     const theme = useTheme();
+    const shouldReduce = useReducedMotion();
+
+    // Framer Motion Variants
+    const dimVariants = shouldReduce ? {} : {
+        hidden: { opacity: 1 },
+        visible: { opacity: 0.4, transition: { delay: 1.0, duration: 0.8 } }
+    };
+
+    const scanVariants = shouldReduce ? { hidden: { display: 'none' } } : {
+        hidden: { top: "-10%", opacity: 0 },
+        visible: {
+            top: "110%",
+            opacity: [0, 1, 1, 0],
+            transition: { delay: 1.2, duration: 1.2, ease: "linear" }
+        }
+    };
+
+    const listVariants = shouldReduce ? {} : {
+        hidden: {},
+        visible: {
+            transition: {
+                staggerChildren: 0.12,
+                delayChildren: 2.0
+            }
+        }
+    };
+
+    const checkItemVariants = shouldReduce ? {} : {
+        hidden: { scale: 0, opacity: 0 },
+        visible: {
+            scale: 1,
+            opacity: 1,
+            transition: { type: "spring", stiffness: 200 }
+        }
+    };
+
     return (
         <Paper
+            component={motion.div}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: '-50px' }}
             elevation={0}
             sx={{
                 borderRadius: '20px',
-                bgcolor: '#FFFFFF',
-                border: `1px solid ${TOKENS.border}`,
+                bgcolor: 'rgba(255, 255, 255, 0.7)',
+                backdropFilter: 'blur(12px)',
+                border: `1px solid rgba(255, 255, 255, 0.4)`,
                 boxShadow: TOKENS.shadowCard,
                 p: 0,
                 display: 'flex',
                 flexDirection: 'column',
-                maxWidth: 480,
+                maxWidth: 540, // Expanded 10-15%
                 width: '100%',
                 mx: 'auto',
                 position: 'relative',
                 overflow: 'hidden',
             }}
         >
-            <Box sx={{ display: 'flex', flexDirection: 'row' }}>
+            {/* Scanning Light Effect */}
+            <Box
+                component={motion.div}
+                variants={scanVariants}
+                sx={{
+                    position: 'absolute',
+                    left: 0,
+                    right: 0,
+                    height: '4px',
+                    background: TOKENS.blue,
+                    boxShadow: `0 0 16px 4px ${TOKENS.blueGlow}`,
+                    zIndex: 10,
+                }}
+            />
+
+            <Box sx={{ display: 'flex', flexDirection: 'row', minHeight: '100%' }}>
                 {/* Left: Raw Thread */}
-                <Box sx={{ flex: 1, p: { xs: 2, md: 4 }, borderRight: `1px solid ${TOKENS.border}`, display: 'flex', flexDirection: 'column', gap: 2.5, justifyContent: 'center' }}>
+                <Box
+                    component={motion.div}
+                    variants={dimVariants}
+                    sx={{ flex: 1, p: { xs: 2, md: 4 }, borderRight: `1px solid ${TOKENS.border}`, display: 'flex', flexDirection: 'column', gap: 2.5, justifyContent: 'center' }}
+                >
                     <Typography
                         variant="subtitle2"
                         sx={{
@@ -168,13 +232,13 @@ function MinimalComparisonCard() {
                         LETTERLAB
                     </Typography>
 
-                    <Stack spacing={2.5}>
+                    <Stack component={motion.div} variants={listVariants} spacing={2.5}>
                         {[
                             "3 key decisions extracted",
                             "Clear next steps",
                             "Tone-matched reply ready"
                         ].map((text, i) => (
-                            <Box key={i} sx={{ display: 'flex', gap: 1.5, alignItems: 'flex-start' }}>
+                            <Box key={i} component={motion.div} variants={checkItemVariants} sx={{ display: 'flex', gap: 1.5, alignItems: 'flex-start' }}>
                                 <CheckCircleRoundedIcon
                                     sx={{
                                         fontSize: 20,
@@ -208,6 +272,7 @@ export default function SplitRevealHero({
     onExplore,
 }) {
     const theme = useTheme();
+    const shouldReduce = useReducedMotion();
 
     return (
         <Box sx={{ background: TOKENS.bg, minHeight: { xs: "100dvh", md: "100vh" }, overflowX: "hidden", pt: { xs: 12, md: 15 }, pb: { xs: 8, md: 12 } }}>
@@ -231,10 +296,10 @@ export default function SplitRevealHero({
                                 fontSize: { xs: 34, md: "clamp(38px, 4.2vw, 58px)" },
                                 fontWeight: 900,
                                 lineHeight: 1.06,
-                                letterSpacing: "-.03em",
+                                letterSpacing: "-.05em",
                                 color: TOKENS.ink,
                                 mb: 2.7,
-                                animation: "llFadeUp .5s .08s ease both",
+                                animation: shouldReduce ? "none" : "llFadeUp .5s .08s ease both",
                             }}
                         >
                             Email replies
@@ -270,24 +335,28 @@ export default function SplitRevealHero({
                                 color: TOKENS.inkSoft,
                                 maxWidth: 420,
                                 mb: 5,
-                                animation: "llFadeUp .5s .16s ease both",
+                                animation: shouldReduce ? "none" : "llFadeUp .5s .16s ease both",
                             }}
                         >
-                            LetterLab pulls the right context from your threads, summarizes what matters, and drafts a reply
-                            that sounds exactly like you — so you spend more time deciding, not typing.
+                            LetterLab reads your thread, extracts what matters, and drafts a reply that sounds like you — so you spend more time deciding, not typing.
                         </Typography>
 
                         {/* Actions */}
                         <Stack
                             direction={{ xs: "column", sm: "row" }}
-                            spacing={1.5}
-                            sx={{ mb: 6.5, animation: "llFadeUp .5s .24s ease both" }}
+                            spacing={2}
+                            alignItems={{ xs: "stretch", sm: "center" }}
+                            sx={{ mb: 4.5, animation: shouldReduce ? "none" : "llFadeUp .5s .24s ease both" }}
                         >
-                            <Button
+                            <MotionButton
                                 onClick={onGoToChat}
                                 variant="contained"
                                 disableElevation
                                 endIcon={<IconArrowRight />}
+                                {...(!shouldReduce && {
+                                    whileHover: { y: -2, boxShadow: "0 8px 28px rgba(38,65,245,.48)" },
+                                    whileTap: { scale: 0.97 }
+                                })}
                                 sx={{
                                     textTransform: "none",
                                     fontSize: 15,
@@ -297,46 +366,71 @@ export default function SplitRevealHero({
                                     px: 3.4,
                                     py: 1.7,
                                     boxShadow: "0 4px 20px rgba(38,65,245,.38)",
-                                    "&:hover": {
-                                        background: TOKENS.blueHover,
-                                        transform: "translateY(-2px)",
-                                        boxShadow: "0 8px 28px rgba(38,65,245,.48)",
-                                    },
-                                    transition: "background .15s, transform .12s, box-shadow .15s",
+                                    transition: "background .15s",
                                     width: { xs: "100%", sm: "auto" },
                                 }}
                             >
-                                Go to Chat
-                            </Button>
+                                Draft My First Email
+                            </MotionButton>
 
-                            <Button
+                            <MotionButton
                                 onClick={onExplore}
-                                variant="outlined"
+                                variant="text"
+                                disableRipple
+                                {...(!shouldReduce && {
+                                    whileHover: { scale: 1.03 },
+                                    whileTap: { scale: 0.97 }
+                                })}
+                                endIcon={<span style={{ marginLeft: 4 }}>&rarr;</span>}
                                 sx={{
                                     textTransform: "none",
                                     fontSize: 15,
-                                    fontWeight: 800,
+                                    fontWeight: 700,
                                     color: TOKENS.inkSoft,
-                                    borderColor: TOKENS.border,
-                                    borderWidth: "1.5px",
-                                    background: "#fff",
-                                    borderRadius: "13px",
-                                    px: 2.6,
                                     py: 1.6,
                                     "&:hover": {
-                                        borderColor: TOKENS.blueMid,
                                         color: TOKENS.blue,
-                                        transform: "translateY(-1px)",
-                                        background: "#fff",
+                                        background: "transparent",
                                     },
-                                    transition: "border-color .15s, color .15s, transform .12s",
+                                    transition: "color .15s",
                                     width: { xs: "100%", sm: "auto" },
-                                    justifyContent: "center",
+                                    justifyContent: "flex-start",
                                 }}
                             >
-                                See How LetterLab Works &rarr;
-                            </Button>
+                                See How LetterLab Works
+                            </MotionButton>
                         </Stack>
+                        
+                        {/* Social Proof Stack */}
+                        <Box 
+                            sx={{ 
+                                display: 'flex', 
+                                alignItems: 'center', 
+                                gap: 2, 
+                                mb: 6,
+                                animation: shouldReduce ? "none" : "llFadeUp .5s .28s ease both" 
+                            }}
+                        >
+                            <AvatarGroup 
+                                max={4} 
+                                sx={{ 
+                                    '& .MuiAvatar-root': { 
+                                        width: 32, 
+                                        height: 32, 
+                                        fontSize: 12,
+                                        border: `2px solid ${TOKENS.bg}` 
+                                    } 
+                                }}
+                            >
+                                <Avatar alt="User" src="https://i.pravatar.cc/100?img=1" />
+                                <Avatar alt="User" src="https://i.pravatar.cc/100?img=2" />
+                                <Avatar alt="User" src="https://i.pravatar.cc/100?img=3" />
+                                <Avatar alt="User" src="" />
+                            </AvatarGroup>
+                            <Typography sx={{ fontSize: 13, fontWeight: 600, color: TOKENS.inkSoft }}>
+                                Join 1,200+ professionals
+                            </Typography>
+                        </Box>
 
                         {/* Trust bar */}
                         <Box
@@ -346,23 +440,26 @@ export default function SplitRevealHero({
                                 alignItems: { xs: "flex-start", sm: "center" },
                                 gap: { xs: 2.2, sm: 2.2 },
                                 flexWrap: "wrap",
-                                animation: "llFadeUp .5s .32s ease both",
+                                animation: shouldReduce ? "none" : "llFadeUp .5s .32s ease both",
                             }}
                         >
                             <Box sx={{ display: "flex", alignItems: "center", gap: 0.9 }}>
                                 <IconStarGreen />
-                                <Typography
-                                    sx={{
-                                        fontSize: 12.5,
-                                        fontWeight: 700,
-                                        color: TOKENS.inkMuted,
-                                    }}
-                                >
-                                    OAuth2 secured
-                                </Typography>
+                                <Box>
+                                    <Typography
+                                        sx={{
+                                            fontSize: 12.5,
+                                            fontWeight: 700,
+                                            color: TOKENS.inkMuted,
+                                        }}
+                                    >
+                                        OAuth2 secured
+                                    </Typography>
+                                    <Typography sx={{ fontSize: 11, color: TOKENS.inkMuted }}>
+                                        We never store your emails
+                                    </Typography>
+                                </Box>
                             </Box>
-
-
 
                             <Box sx={{ display: "flex", alignItems: "center", gap: 0.8, flexWrap: "wrap" }}>
                                 <Typography
@@ -381,14 +478,18 @@ export default function SplitRevealHero({
                                         display: "flex",
                                         alignItems: "center",
                                         gap: 0.8,
-                                        background: "#fff",
-                                        border: `1px solid ${TOKENS.border}`,
-                                        borderRadius: "7px",
-                                        px: 1.3,
+                                        background: "transparent",
+                                        px: 1.0,
                                         py: 0.7,
                                         fontSize: 12,
                                         fontWeight: 700,
                                         color: TOKENS.inkSoft,
+                                        filter: "grayscale(100%)",
+                                        transition: "all 0.2s ease",
+                                        "&:hover": {
+                                            filter: "grayscale(0%)",
+                                            transform: "translateY(-1px)",
+                                        }
                                     }}
                                 >
                                     <GmailMini /> Gmail
@@ -399,14 +500,18 @@ export default function SplitRevealHero({
                                         display: "flex",
                                         alignItems: "center",
                                         gap: 0.8,
-                                        background: "#fff",
-                                        border: `1px solid ${TOKENS.border}`,
-                                        borderRadius: "7px",
-                                        px: 1.3,
+                                        background: "transparent",
+                                        px: 1.0,
                                         py: 0.7,
                                         fontSize: 12,
                                         fontWeight: 700,
                                         color: TOKENS.inkSoft,
+                                        filter: "grayscale(100%)",
+                                        transition: "all 0.2s ease",
+                                        "&:hover": {
+                                            filter: "grayscale(0%)",
+                                            transform: "translateY(-1px)",
+                                        }
                                     }}
                                 >
                                     <OutlookMini /> Outlook
@@ -419,13 +524,13 @@ export default function SplitRevealHero({
                     <Box
                         sx={{
                             position: "relative",
-                            animation: "llFadeUp .5s .1s ease both",
+                            animation: shouldReduce ? "none" : "llFadeUp .5s .1s ease both",
                             width: '100%',
                             display: 'flex',
                             justifyContent: 'center',
                         }}
                     >
-                        {/* Background Glow - Simplified/Optional but nice to keep a little depth */}
+                        {/* Background Glow - Static radial glow (4-6% opacity) */}
                         <Box
                             sx={{
                                 position: "absolute",
@@ -434,7 +539,7 @@ export default function SplitRevealHero({
                                 transform: "translate(-50%, -50%)",
                                 width: "80%",
                                 height: "60%",
-                                background: "radial-gradient(ellipse, rgba(38,65,245,.10) 0%, transparent 70%)",
+                                background: "radial-gradient(ellipse, rgba(38,65,245,.06) 0%, transparent 70%)",
                                 filter: "blur(40px)",
                                 pointerEvents: "none",
                                 zIndex: 0,
@@ -445,7 +550,51 @@ export default function SplitRevealHero({
                     </Box>
                 </Box>
             </Container>
+            
+            {/* Scroll Indicator */}
+            <Box 
+                sx={{
+                    position: 'absolute',
+                    bottom: 24,
+                    left: '50%',
+                    transform: 'translateX(-50%)',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    gap: 1,
+                    opacity: 0,
+                    animation: shouldReduce ? "none" : "llFadeIn 1s 1.5s forwards",
+                    color: TOKENS.inkMuted,
+                }}
+            >
+                <Typography sx={{ fontSize: 12, fontWeight: 600 }}>See how LetterLab works</Typography>
+                <motion.div
+                    animate={{ y: [0, 5, 0] }}
+                    transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }}
+                >
+                    &darr;
+                </motion.div>
+            </Box>
+            
+            {/* Global Keyframes for initial load */}
+            <style dangerouslySetInnerHTML={{__html: `
+                @keyframes llFadeUp {
+                    from { opacity: 0; transform: translateY(16px); }
+                    to { opacity: 1; transform: translateY(0); }
+                }
+                @keyframes llFadeIn {
+                    from { opacity: 0; }
+                    to { opacity: 1; }
+                }
+                @media (prefers-reduced-motion: reduce) {
+                    * {
+                        animation-duration: 0.01ms !important;
+                        animation-iteration-count: 1 !important;
+                        transition-duration: 0.01ms !important;
+                        scroll-behavior: auto !important;
+                    }
+                }
+            `}} />
         </Box>
     );
 }
-
