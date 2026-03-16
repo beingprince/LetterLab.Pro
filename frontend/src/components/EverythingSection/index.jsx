@@ -28,8 +28,8 @@ export default function EverythingSection() {
 
     // Desktop View (Existing)
     return (
-        <section className="relative w-full py-20 md:py-24 px-6 bg-[#f8f9fb] dark:bg-neutral-950/30 overflow-hidden">
-            <div className="max-w-[1200px] mx-auto relative z-10">
+        <section className="w-full py-20 md:py-24 bg-[#f8f9fb] dark:bg-neutral-950/30 overflow-hidden relative">
+            <div className="w-full max-w-7xl mx-auto px-6 lg:px-8 relative z-10">
                 <EverythingHeader />
 
                 {/* 

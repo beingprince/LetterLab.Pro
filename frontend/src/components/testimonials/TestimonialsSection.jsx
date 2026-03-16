@@ -77,12 +77,12 @@ export default function TestimonialsSection() {
 
     return (
         <section
-            className="w-full py-16 lg:py-24 bg-white dark:bg-neutral-950 border-t border-neutral-100 dark:border-neutral-800"
+            className="w-full py-20 md:py-24 bg-white dark:bg-neutral-950 border-t border-neutral-100 dark:border-neutral-800"
             {...handlers}
             aria-label="Community Testimonials"
         >
-            <div className="max-w-6xl mx-auto px-6">
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16 items-start">
+            <div className="w-full max-w-7xl mx-auto px-6 lg:px-8">
+                <div className="grid grid-cols-1 md:grid-cols-12 gap-8 lg:gap-12 items-start">
 
                     {/* LEFT COLUMN (35%) - Static Content + Nav */}
                     <div className="lg:col-span-4 flex flex-col items-start space-y-6 lg:sticky lg:top-32 order-1">

@@ -19,19 +19,19 @@ const style = `
 export default function SectionSupporters() {
   return (
     // Use brand tokens for padding and text
-    <section className="relative overflow-hidden py-20 md:py-24 bg-transparent">
+    <section className="w-full py-16 md:py-20 bg-transparent relative overflow-hidden">
       <style>{style}</style>
 
       {/* Heading and content */}
-      <div className="text-center max-w-3xl mx-auto px-6 mb-10">
+      <div className="w-full max-w-3xl mx-auto px-6 text-center space-y-4 mb-10">
 
         {/* UPDATED: Uses label class and brand-dim token */}
-        <h2 className="label text-brand-dim mb-3">
+        <h2 className="label text-brand-dim">
           Supported by Innovation & Trust
         </h2>
 
         {/* GOOD: This already uses hero-heading */}
-        <h3 className="hero-heading text-3xl md:text-4xl font-semibold mb-5">
+        <h3 className="hero-heading text-3xl md:text-4xl font-semibold">
           Partners Powering the Future of Communication
         </h3>
 

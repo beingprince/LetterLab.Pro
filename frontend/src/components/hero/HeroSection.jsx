@@ -297,20 +297,12 @@ export default function SplitRevealHero({
     }, []);
 
     return (
-        <Box sx={{ background: TOKENS.bg, minHeight: { xs: "100dvh", md: "100vh" }, overflowX: "hidden", pt: { xs: 12, md: 15 }, pb: { xs: 8, md: 12 } }}>
+        <section className="w-full py-24 md:py-32 relative min-h-[100dvh] md:min-h-screen overflow-x-hidden flex items-center" style={{ backgroundColor: TOKENS.bg }}>
 
-            <Container maxWidth="lg" sx={{ px: { xs: 2, md: 3 } }}>
-                <Box
-                    sx={{
-                        position: "relative",
-                        display: "grid",
-                        gridTemplateColumns: { xs: "1fr", md: "1fr 1fr" }, // Equal columns as requested
-                        gap: { xs: 6, md: 10 },
-                        alignItems: "center",
-                    }}
-                >
+            <div className="w-full max-w-7xl mx-auto px-6 lg:px-8">
+                <div className="grid grid-cols-1 md:grid-cols-12 gap-8 lg:gap-12 items-center">
                     {/* LEFT SIDE - PRESERVED EXACTLY */}
-                    <Box sx={{ display: "flex", flexDirection: "column" }}>
+                    <div className="md:col-span-6 lg:col-span-6 flex flex-col">
                         {/* H1 */}
                         <Typography
                             sx={{
@@ -542,16 +534,13 @@ export default function SplitRevealHero({
                                 </Box>
                             </Box>
                         </Box>
-                    </Box>
+                    </div>
 
                     {/* RIGHT SIDE - NEW MINIMAL CARD */}
-                    <Box
-                        sx={{
-                            position: "relative",
+                    <div
+                        className="md:col-span-6 lg:col-span-6 relative w-full flex justify-center"
+                        style={{
                             animation: shouldReduce ? "none" : "llFadeUp .5s .1s ease both",
-                            width: '100%',
-                            display: 'flex',
-                            justifyContent: 'center',
                         }}
                     >
                         {/* Background Glow - Static radial glow (4-6% opacity) */}
@@ -571,9 +560,9 @@ export default function SplitRevealHero({
                         />
 
                         <MinimalComparisonCard />
-                    </Box>
-                </Box>
-            </Container>
+                    </div>
+                </div>
+            </div>
             
             {/* Scroll Indicator */}
             <Box 
@@ -619,6 +608,6 @@ export default function SplitRevealHero({
                     }
                 }
             `}} />
-        </Box>
+        </section>
     );
 }

@@ -41,9 +41,9 @@ export const SectionFeatures = () => {
   }, [])
 
   return (
-    <section aria-labelledby="how-it-works-heading" id="how-it-works" className="pt-20 pb-32 md:py-32 bg-brand-bg relative overflow-hidden">
+    <section aria-labelledby="how-it-works-heading" id="how-it-works" className="w-full py-20 md:py-24 bg-brand-bg relative overflow-hidden">
       <motion.div 
-        className="max-w-[1120px] mx-auto px-6 lg:px-8"
+        className="w-full max-w-7xl mx-auto px-6 lg:px-8"
         {...(shouldReduce ? {} : {
           whileInView: { opacity: 1, y: 0 },
           initial: { opacity: 0, y: 16 },
@@ -51,14 +51,14 @@ export const SectionFeatures = () => {
           transition: { duration: 0.45, ease: 'easeOut' }
         })}
       >
-        <div className="text-center mb-16 md:mb-24">
-          <p role="doc-subtitle" className="font-heading font-semibold text-brand-dim/80 tracking-widest text-xs uppercase mb-4">
+        <div className="space-y-6 mb-16 md:mb-24 text-left">
+          <p role="doc-subtitle" className="font-heading font-semibold text-brand-dim/80 tracking-widest text-xs uppercase">
             How It Works
           </p>
-          <h2 id="how-it-works-heading" className="font-heading text-3xl md:text-5xl font-bold text-brand-text tracking-tight mb-5">
+          <h2 id="how-it-works-heading" className="font-heading text-3xl md:text-5xl font-bold text-brand-text tracking-tight">
             Write Better Emails Instantly
           </h2>
-          <p className="font-body text-brand-dim text-lg max-w-xl mx-auto leading-relaxed">
+          <p className="font-body text-brand-dim text-lg max-w-2xl leading-relaxed">
             Connect your inbox and let LetterLab understand the conversation before crafting a clear, professional reply.
           </p>
         </div>
