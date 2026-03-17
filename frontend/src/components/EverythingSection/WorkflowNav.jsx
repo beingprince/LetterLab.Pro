@@ -2,7 +2,7 @@
 import React, { useRef, useEffect } from "react";
 import { motion, LayoutGroup } from "framer-motion";
 
-export default function WorkflowNav({ steps, activeStepId, onSelect }) {
+export default function WorkflowNav({ steps, activeStepId, onSelect, onHover }) {
     const scrollRef = useRef(null);
 
     // Auto-scroll on mobile when active step changes (optional UX polish)
@@ -43,15 +43,23 @@ export default function WorkflowNav({ steps, activeStepId, onSelect }) {
                             key={step.id}
                             data-id={step.id}
                             onClick={() => onSelect(step.id)}
-                            onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && onSelect(step.id)}
+                            onKeyDown={(e) => {
+                                if (e.key === 'Enter' || e.key === ' ') {
+                                    e.preventDefault();
+                                    onSelect(step.id);
+                                }
+                            }}
+                            onMouseEnter={() => onHover && onHover(step.id)}
+                            onMouseLeave={() => onHover && onHover(null)}
                             role="tab"
                             tabIndex={0}
                             aria-selected={isActive}
+                            aria-controls={`panel-${step.id}`}
                             className={`
                 relative group flex-shrink-0 
                 w-[280px] md:w-full 
                 snap-center 
-                cursor-pointer outline-none 
+                cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2
                 rounded-2xl border transition-all duration-300
                 ${isActive
                                     ? "bg-white dark:bg-neutral-900 border-neutral-200 dark:border-neutral-800 shadow-lg scale-[1.02] opacity-100 z-10"

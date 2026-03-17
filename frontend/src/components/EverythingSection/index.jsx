@@ -6,7 +6,12 @@ import MobileScrollytelling from "./MobileScrollytelling";
 import { workflowSteps } from "./data";
 
 export default function EverythingSection() {
-    const [activeStepId, setActiveStepId] = useState(workflowSteps[0].id);
+    const [lockedStepId, setLockedStepId] = useState(workflowSteps[0].id);
+    const [hoveredStepId, setHoveredStepId] = useState(null);
+
+    // Derived single source of truth for both nav active states and visual panel content
+    const activeStepId = hoveredStepId ?? lockedStepId;
+
     const [isMobile, setIsMobile] = useState(() => {
         if (typeof window === 'undefined') return false;
         return window.matchMedia("(max-width: 768px), (pointer: coarse)").matches;
@@ -45,7 +50,8 @@ export default function EverythingSection() {
                         <WorkflowNav
                             steps={workflowSteps}
                             activeStepId={activeStepId}
-                            onSelect={setActiveStepId}
+                            onSelect={setLockedStepId}
+                            onHover={setHoveredStepId}
                         />
                     </div>
 
