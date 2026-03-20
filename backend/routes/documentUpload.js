@@ -20,7 +20,8 @@ import Document from '../models/Document.js';
 import DocumentJob from '../models/DocumentJob.js';
 import { auth } from '../middleware/auth.js';
 import { addExtractJob } from '../services/queueService.js';
-import fs from 'fs';
+import fs from 'fs/promises';
+import { existsSync, mkdirSync, createReadStream } from 'fs'; // For the multer setup
 import path from 'path';
 import axios from 'axios';
 
@@ -39,8 +40,8 @@ const router = express.Router();
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     const uploadsDir = path.join(process.cwd(), 'uploads');
-    if (!fs.existsSync(uploadsDir)) {
-      fs.mkdirSync(uploadsDir, { recursive: true });
+    if (!existsSync(uploadsDir)) {
+      mkdirSync(uploadsDir, { recursive: true });
     }
     cb(null, uploadsDir);
   },
@@ -133,7 +134,7 @@ router.post(
       const webhookUrl = `${baseUrl}/api/v1/documents/webhook/python-extract`;
 
       // Read file into Buffer and convert to Blob for Node.js FormData compatibility
-      const fileBuffer = await fs.promises.readFile(localPath);
+      const fileBuffer = await fs.readFile(localPath);
       const workerForm = new FormData();
       const blob = new Blob([fileBuffer], { type: req.file.mimetype });
       
