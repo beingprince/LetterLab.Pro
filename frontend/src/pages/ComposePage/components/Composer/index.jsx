@@ -1,4 +1,4 @@
-﻿import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useTheme } from '@mui/material/styles';
 import {
     Add,
@@ -336,28 +336,66 @@ const Composer = ({ onGenerate, isLoading = false, currentMode = 'chat', onModeC
 
                             {/* Textarea section */}
                             <div className="flex-1">
-                                {/* Document status chip â€” color changes to show upload progress */}
-                                {uploadedDoc && (
+                                {/* File chip - appears instantly when a file is picked.
+                                    Status label updates as the upload progresses.
+                                    Driven by local `attachments` state so it never disappears. */}
+                                {attachments.length > 0 && (
                                     <div className="flex flex-wrap gap-2 px-2 pb-2">
-                                        <span
-                                            className="inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs border"
-                                            style={{
-                                                // gray=uploading, orange=processing, green=ready, red=error
-                                                borderColor: uploadError ? 'rgba(239,68,68,0.4)' : uploadedDoc.ready ? 'rgba(34,197,94,0.4)' : uploadedDoc.status === 'processing' ? 'rgba(251,146,60,0.4)' : 'rgba(156,163,175,0.4)',
-                                                backgroundColor: uploadError ? 'rgba(239,68,68,0.08)' : uploadedDoc.ready ? 'rgba(34,197,94,0.08)' : uploadedDoc.status === 'processing' ? 'rgba(251,146,60,0.08)' : 'rgba(156,163,175,0.08)',
-                                            }}
-                                        >
-                                            <AttachFile sx={{ fontSize: 14 }} />
-                                            <span>
-                                                {uploadedDoc.filename}
-                                                <span style={{ marginLeft: '6px', opacity: 0.7 }}>
-                                                    {uploadError ? 'â€” failed' : uploadedDoc.ready ? 'â€” ready âœ“' : uploadedDoc.status === 'processing' ? 'â€” processingâ€¦' : 'â€” uploadingâ€¦'}
+                                        {attachments.map((a) => {
+                                            // Figure out what status label to show for this file
+                                            const isError = !!uploadError;
+                                            const isReady = uploadedDoc?.ready;
+                                            const isProcessing = uploadedDoc?.status === 'processing';
+                                            const isUploading = uploadedDoc?.status === 'uploading';
+
+                                            // Pick border + background color based on current state
+                                            const chipBorder = isError
+                                                ? 'rgba(239,68,68,0.4)'
+                                                : isReady
+                                                ? 'rgba(34,197,94,0.4)'
+                                                : isProcessing
+                                                ? 'rgba(251,146,60,0.4)'
+                                                : 'rgba(156,163,175,0.4)';
+                                            const chipBg = isError
+                                                ? 'rgba(239,68,68,0.08)'                                                : isReady
+                                                ? 'rgba(34,197,94,0.08)'
+                                                : isProcessing
+                                                ? 'rgba(251,146,60,0.08)'
+                                                : 'rgba(156,163,175,0.08)';
+
+                                            // Plain ASCII status label - no special chars to avoid encoding issues
+                                            const statusLabel = isError
+                                                ? ' (failed)'
+                                                : isReady
+                                                ? ' (ready)'
+                                                : isProcessing
+                                                ? ' (processing...)'
+                                                : isUploading
+                                                ? ' (uploading...)'
+                                                : '';
+
+                                            return (
+                                                <span
+                                                    key={a.id}
+                                                    className="inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs border"
+                                                    style={{ borderColor: chipBorder, backgroundColor: chipBg }}
+                                                >
+                                                    <AttachFile sx={{ fontSize: 14 }} />
+                                                    <span>
+                                                        {a.name}
+                                                        <span style={{ opacity: 0.6 }}>{statusLabel}</span>
+                                                    </span>
+                                                    <button
+                                                        onClick={() => { removeAttachment(a.id); }}
+                                                        className="flex items-center justify-center transition-colors"
+                                                        style={S.closeChip}
+                                                        title="Remove file"
+                                                    >
+                                                        <Close sx={{ fontSize: 14 }} />
+                                                    </button>
                                                 </span>
-                                            </span>
-                                            <button onClick={clearDocument} className="flex items-center justify-center transition-colors" style={S.closeChip}>
-                                                <Close sx={{ fontSize: 14 }} />
-                                            </button>
-                                        </span>
+                                            );
+                                        })}
                                     </div>
                                 )}
 
