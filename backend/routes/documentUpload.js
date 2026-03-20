@@ -126,8 +126,11 @@ router.post(
       // Direct dispatch to Python worker (Bypassing Redis queue for reliability)
       console.log(`📡 [documentUpload] Dispatching directly to Python worker...`);
       
+      const protocol = req.headers['x-forwarded-proto'] || req.protocol;
+      const host = req.get('host');
+      const baseUrl = process.env.PUBLIC_API_URL || `${protocol}://${host}`;
       const pythonWorkerUrl = process.env.PYTHON_WORKER_URL || 'http://localhost:8001/extract';
-      const webhookUrl = `${process.env.PUBLIC_API_URL || 'http://localhost:5000'}/api/v1/documents/webhook/python-extract`;
+      const webhookUrl = `${baseUrl}/api/v1/documents/webhook/python-extract`;
 
       // We don't 'await' this if we want to return immediately, 
       // but for "working condition now" we'll fire and forget the hit.
