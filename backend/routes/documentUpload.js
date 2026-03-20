@@ -133,9 +133,6 @@ router.post(
       const webhookUrl = `${baseUrl}/api/v1/documents/webhook/python-extract`;
 
       // Read file into Buffer and convert to Blob for Node.js FormData compatibility
-      fs.promises.readFile(localPath).then(fileBuffer => {
-        const workerForm = new FormData();
-        const blob = new Blob([fileBuffer], { type: req.file.mimetype });
       const fileBuffer = await fs.promises.readFile(localPath);
       const workerForm = new FormData();
       const blob = new Blob([fileBuffer], { type: req.file.mimetype });
@@ -147,15 +144,11 @@ router.post(
 
       // We 'await' this to ensure the worker is actually reachable
       await axios.post(pythonWorkerUrl, workerForm, {
-        headers: {
-          ...workerForm.getHeaders()
-        },
         maxContentLength: Infinity,
         maxBodyLength: Infinity
       });
       
       console.log(`✅ [documentUpload] File successfully piped to ${pythonWorkerUrl}`);
-
       console.log(`✅ [documentUpload] Dispatch signal sent to ${pythonWorkerUrl}`);
 
       // Save the job record for audit
