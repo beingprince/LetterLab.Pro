@@ -17,6 +17,7 @@ import CheckCircleRoundedIcon from '@mui/icons-material/CheckCircleRounded';
 import CancelRoundedIcon from '@mui/icons-material/CancelRounded';
 import OutlookIcon from '../../assets/Microsoft-outlook-icon.svg.png';
 import { motion, useReducedMotion } from "framer-motion";
+import { useAuth } from "../../context/AuthContext";
 
 /**
  * SplitRevealHero.jsx
@@ -274,10 +275,11 @@ export default function SplitRevealHero({
     const theme = useTheme();
     const shouldReduce = useReducedMotion();
 
+    const { isAuthenticated } = useAuth();
     const [userStats, setUserStats] = useState({ count: 12, initials: ['A', 'P', 'J', 'S'] });
 
     // ✅ Track if user is already "in" the app flow
-    const isReturning = !!localStorage.getItem('letterlab_user') || localStorage.getItem('llp_chat_active') === 'true';
+    const isReturning = isAuthenticated() || !!localStorage.getItem('letterlab_user') || localStorage.getItem('llp_chat_active') === 'true';
 
     useEffect(() => {
         const fetchStats = async () => {

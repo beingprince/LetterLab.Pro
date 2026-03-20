@@ -63,27 +63,18 @@ const ALLOWED_ORIGINS = Array.from(new Set([...HARDCODED_ORIGINS, ...ENV_ORIGINS
 const app = express();
 
 // ───────────────────────────────────────────────────────────────────────────────
-// 2) Security + CORS + body limits (BEFORE routes)
+// 2) Security + CORS + Body Parsing
 app.use(helmet());
 
-// Serve robots.txt immediately to prevent indexing of Render wakeup page
-app.get("/robots.txt", (req, res) => {
-  res.type("text/plain");
-  res.send("User-agent: *\nDisallow: /");
-});
-
-// ⭐ UPDATED: robust CORS (handles preflight + Vercel previews)
+// ⭐ CORS: must be BEFORE routes
 app.use(cors({
   origin(origin, cb) {
-    if (!origin) return cb(null, true);        // server-to-server/health
+    if (!origin) return cb(null, true);
     if (ALLOWED_ORIGINS.includes(origin)) return cb(null, true);
-
-    // allow any vercel preview domain
     try {
       const host = new URL(origin).hostname;
       if (host.endsWith(".vercel.app")) return cb(null, true);
     } catch { }
-
     return cb(new Error("Not allowed by CORS"));
   },
   methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
@@ -92,10 +83,12 @@ app.use(cors({
   maxAge: 86400,
 }));
 app.options("*", cors());
-app.use(cookieParser()); // Required for req.cookies in OAuth state validation
 
+// ✅ PERFORMANCE: Critical Upload & Webhook Routes (Must be BEFORE global body-parsers)
+app.use("/v1/documents", documentUploadRouter); 
+app.use("/api/v1/documents/webhook", documentWebhookRouter); 
 
-// Tighter body size limits to control cost (increased to 10mb for email threads)
+app.use(cookieParser());
 app.use(express.json({ limit: "10mb" }));
 app.use(express.text({ type: ["text/plain", "text/*"], limit: "10mb" }));
 app.use(express.urlencoded({ extended: true, limit: "10mb" }));
@@ -269,8 +262,6 @@ app.post('/api/analyze-thread', auth, async (req, res) => {
 
 app.use("/api", apiRoutes);
 app.use("/api/v1/documents", documentRoutes);
-app.use("/api/v1/documents", documentUploadRouter); // handles /upload-and-process and /:id/status
-app.use("/api/v1/documents/webhook", documentWebhookRouter); // Internal endpoint for Python worker
 
 console.log("✅ Mounted /api routes (Analysis, One-time pull)");
 app.use("/api/gmail", gmailRoutes);
