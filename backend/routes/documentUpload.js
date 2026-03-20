@@ -20,6 +20,8 @@ import Document from '../models/Document.js';
 import DocumentJob from '../models/DocumentJob.js';
 import { auth } from '../middleware/auth.js';
 import { addExtractJob } from '../services/queueService.js';
+import fs from 'fs';
+import path from 'path';
 
 const router = express.Router();
 
@@ -67,14 +69,22 @@ router.post(
       const documentId = new mongoose.Types.ObjectId();
       const userId = req.user.id;
 
-      // Right now we upload the buffer to S3 (or we can skip S3 in dev and just store inline).
-      // For simplicity in dev: store the raw file buffer as base64 right in the DB temporarily.
-      // ⚠️ In production this MUST be replaced with real S3 upload before calling addExtractJob.
-      // The Python service needs an S3 URI to pull the file from.
-      const s3_raw_upload_uri = `local://pending/${documentId}`; // placeholder until S3 is wired
+      // ── Local Storage Fallback ──
+      // In development, we save the file to a local 'uploads' folder so the worker can find it.
+      const uploadsDir = path.join(process.cwd(), 'uploads');
+      if (!fs.existsSync(uploadsDir)) {
+        fs.mkdirSync(uploadsDir, { recursive: true });
+      }
 
-      // Create the document tracking record
-      // status = "processing" means we received the file but haven't extracted it yet
+      const safeFilename = req.file.originalname.replace(/[^a-zA-Z0-9.-]/g, '_');
+      const localPath = path.join(uploadsDir, `${documentId}-${safeFilename}`);
+      
+      // Save buffer to disk
+      fs.writeFileSync(localPath, req.file.buffer);
+      console.log(`[documentUpload] Saved raw file to: ${localPath}`);
+
+      const s3_raw_upload_uri = `file://${localPath}`; 
+      
       const newDoc = await Document.create({
         _id: documentId,
         user_id: userId,

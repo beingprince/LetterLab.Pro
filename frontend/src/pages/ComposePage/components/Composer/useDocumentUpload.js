@@ -20,7 +20,7 @@
 
 import { useState, useRef, useCallback } from 'react';
 
-const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
 export function useDocumentUpload({ jwtToken }) {
   // The current document that's been uploaded (or being processed)

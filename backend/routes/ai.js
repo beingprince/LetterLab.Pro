@@ -8,6 +8,7 @@ import User from '../models/User.js';
 import { logAnalyticEvent } from '../utils/analyticEvents.js';
 import { generateText, generateTextAsJson } from '../services/aiGateway.js';
 import Conversation from '../models/Conversation.js';
+import DocumentBlock from '../models/DocumentBlock.js';
 import { checkTokens, deductTokens, TOKEN_COSTS, calculateResetTime } from '../middleware/tokenMiddleware.js';
 
 const router = express.Router();
@@ -26,7 +27,7 @@ const safeLog = async (opts) => {
  */
 router.post('/chat', auth, async (req, res) => {
     try {
-        const { messages, conversation_id: conversationId, mode = 'chat' } = req.body;
+        const { messages, conversation_id: conversationId, mode = 'chat', document_id: documentId } = req.body;
 
         if (!messages || !Array.isArray(messages)) {
             return res.status(400).json({ error: 'Invalid messages format' });
@@ -80,7 +81,25 @@ router.post('/chat', auth, async (req, res) => {
         const professorName = conv.professorName || '';
         const recipientEmail = conv.recipientEmail || '';
 
+        // ── RAG: Optional Document Context ──
+        let documentContext = '';
+        if (documentId && mongoose.Types.ObjectId.isValid(documentId)) {
+            const blocks = await DocumentBlock.find({ document_id: documentId })
+                .sort({ block_index_global: 1 })
+                .lean();
+            
+            if (blocks.length > 0) {
+                documentContext = blocks
+                    .map(b => `[Page ${b.page_number}] ${b.text}`)
+                    .join('\n');
+                console.log(`[RAG] Injected ${blocks.length} blocks from document: ${documentId}`);
+            }
+        }
+
         let systemInstruction = `You are LetterLab, an expert academic communication assistant. Be helpful and conversational.`;
+        if (documentContext) {
+            systemInstruction += `\n\nREFERENCE DOCUMENT CONTEXT:\n${documentContext}\n\nUse the information above to answer the student's questions if relevant. If the answer is not in the context, use your general knowledge but prioritize the document.`;
+        }
         if (professorName) {
             const lastName = professorName.split(/\s+/).pop() || professorName;
             const isDr = /^dr\.?\s/i.test(professorName);

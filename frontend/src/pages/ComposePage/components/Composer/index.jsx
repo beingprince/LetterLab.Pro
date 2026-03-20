@@ -365,7 +365,7 @@ const Composer = ({ onGenerate, isLoading = false, currentMode = 'chat', onModeC
 
                                             // Plain ASCII status label - no special chars to avoid encoding issues
                                             const statusLabel = isError
-                                                ? ' (failed)'
+                                                ? ` (failed: ${uploadError})`
                                                 : isReady
                                                 ? ' (ready)'
                                                 : isProcessing
