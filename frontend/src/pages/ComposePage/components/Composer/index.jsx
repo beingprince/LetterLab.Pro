@@ -10,7 +10,6 @@ import {
     ExpandMore,
     Check,
     ChatBubbleOutline,
-    InsertDriveFile,
 } from '@mui/icons-material';
 import ProfessorSelectorModal from '../ProfessorSelectorModal';
 
@@ -293,12 +292,21 @@ const Composer = ({ onGenerate, isLoading = false, currentMode = 'chat', onModeC
                     {/* ── Composer container ── */}
                     <div className="rounded-3xl border border-gray-300 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-sm">
                         <div className="flex items-center gap-2 px-3 py-2.5">
-                            {/* + Tools button */}
+                            {/* + Upload button */}
+                                <input
+                                    ref={fileInputRef}
+                                    type="file"
+                                    multiple
+                                    accept=".pdf,.docx,.xlsx,.pptx,.jpg,.jpeg,.png,.heic,.txt,.csv,.eml,.zip"
+                                    style={{ display: 'none' }}
+                                    onChange={handleFileChange}
+                                />
                             <button
                                 ref={toolsBtnRef}
-                                onClick={() => { setToolsOpen((v) => !v); }}
+                                onClick={() => fileInputRef.current?.click()}
                                 className="flex items-center justify-center transition-colors"
                                 style={S.iconBtn}
+                                title="Upload a document"
                             >
                                 <Add sx={{ fontSize: 22 }} />
                             </button>
@@ -347,24 +355,6 @@ const Composer = ({ onGenerate, isLoading = false, currentMode = 'chat', onModeC
 
                             {/* Right actions */}
                             <div className="flex items-center gap-1 pb-1">
-                                {/* Hidden file input */}
-                                <input
-                                    ref={fileInputRef}
-                                    type="file"
-                                    multiple
-                                    accept=".pdf,.docx,.xlsx,.pptx,.jpg,.jpeg,.png,.heic,.txt,.csv,.eml,.zip"
-                                    style={{ display: 'none' }}
-                                    onChange={handleFileChange}
-                                />
-                                {/* Document upload icon */}
-                                <button
-                                    onClick={() => fileInputRef.current?.click()}
-                                    className="flex items-center justify-center transition-colors"
-                                    style={S.iconBtn}
-                                    title="Upload a document"
-                                >
-                                    <InsertDriveFile sx={{ fontSize: 20 }} />
-                                </button>
                                 <button
                                     onClick={send}
                                     disabled={!canSend}
