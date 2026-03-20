@@ -34,6 +34,7 @@ import statusRouter from "./routes/status.js";
 import contactRouter from "./routes/contact.js";
 import reviewsRouter from "./routes/reviews.js";
 import documentRoutes from "./routes/documentRoutes.js";
+import documentUploadRouter from "./routes/documentUpload.js";
 
 // 0) Path aliases for ESM
 const __filename = fileURLToPath(import.meta.url);
@@ -267,6 +268,7 @@ app.post('/api/analyze-thread', auth, async (req, res) => {
 
 app.use("/api", apiRoutes);
 app.use("/api/v1/documents", documentRoutes);
+app.use("/api/v1/documents", documentUploadRouter); // handles /upload-and-process and /:id/status
 
 console.log("✅ Mounted /api routes (Analysis, One-time pull)");
 app.use("/api/gmail", gmailRoutes);

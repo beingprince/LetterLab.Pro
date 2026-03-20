@@ -112,7 +112,8 @@ const ChatInterface = ({ onDraftEmail, onModeChange, onProfessorSelect, jwtToken
                 onModeChange={onModeChange}
                 onProfessorSelect={onProfessorSelect}
                 disabled={isLocked}
-                layoutMode="relative" // ✅ Crucial for mobile keyboard float
+                layoutMode="relative"
+                jwtToken={jwtToken}
             />
 
             <DraftReviewModal

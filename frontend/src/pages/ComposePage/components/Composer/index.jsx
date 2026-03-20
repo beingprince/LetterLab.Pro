@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+﻿import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useTheme } from '@mui/material/styles';
 import {
     Add,
@@ -12,17 +12,18 @@ import {
     ChatBubbleOutline,
 } from '@mui/icons-material';
 import ProfessorSelectorModal from '../ProfessorSelectorModal';
+import { useDocumentUpload } from './useDocumentUpload';
 
 /**
- * Composer – ChatGPT-style prompt box
+ * Composer â€“ ChatGPT-style prompt box
  * Pure gray palette, no blue.
  */
 
-/* ──────────── helpers ──────────── */
+/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 const clamp = (n, min, max) => Math.max(min, Math.min(max, n));
 const cx = (...c) => c.filter(Boolean).join(' ');
 
-/* inline style object — glass chip spec, no black */
+/* inline style object â€” glass chip spec, no black */
 const glassBase = {
     padding: '4px 12px',
     borderRadius: '9999px',
@@ -59,7 +60,7 @@ const MODE_DEFS = [
     { id: 'subject', label: 'Subject', icon: Subject, hint: 'Generate subject lines.' },
 ];
 
-/* ──────────── hooks ──────────── */
+/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ hooks â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 function useOutsideClick(ref, handler, enabled = true) {
     useEffect(() => {
         if (!enabled) return;
@@ -69,7 +70,7 @@ function useOutsideClick(ref, handler, enabled = true) {
     }, [ref, handler, enabled]);
 }
 
-/* ──────────── sub-components ──────────── */
+/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ sub-components â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 function AutosizeTextarea({ value, onChange, onKeyDown, placeholder, minRows = 1, maxRows = 7, className }) {
     const ref = useRef(null);
     const resize = () => {
@@ -117,8 +118,8 @@ function GrayMenu({ open, anchorRef, children }) {
     );
 }
 
-/* ──────────── main component ──────────── */
-const Composer = ({ onGenerate, isLoading = false, currentMode = 'chat', onModeChange, onProfessorSelect, promptOverride, onTextChange, initialBody = '', initialSubject = '', disabled = false, layoutMode = 'fixed' }) => {
+/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ main component â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+const Composer = ({ onGenerate, isLoading = false, currentMode = 'chat', onModeChange, onProfessorSelect, promptOverride, onTextChange, initialBody = '', initialSubject = '', disabled = false, layoutMode = 'fixed', jwtToken = null }) => {
     const theme = useTheme();
     const isDark = theme.palette.mode === 'dark';
     const barBg = isDark ? 'rgba(17,24,39,0.9)' : 'rgba(255,255,255,0.92)';
@@ -130,16 +131,28 @@ const Composer = ({ onGenerate, isLoading = false, currentMode = 'chat', onModeC
     const [attachments, setAttachments] = useState([]);
     const fileInputRef = useRef(null);
 
-    const handleFileChange = (e) => {
+    // Document upload hook â€” handles upload to backend, status polling, ready flag
+    const { uploadedDoc, uploadError, uploadDocument, clearDocument } = useDocumentUpload({ jwtToken });
+
+    // When user picks a file from the picker, upload it immediately.
+    // We don't wait for them to hit Send â€” by the time they type a question,
+    // the document extraction may already be done.
+    const handleFileChange = async (e) => {
         const files = Array.from(e.target.files || []);
         if (!files.length) return;
-        const newAttachments = files.map((f) => ({
-            id: `${f.name}-${Date.now()}`,
-            name: f.name,
-            file: f,
-        }));
-        setAttachments((prev) => [...prev, ...newAttachments]);
-        // Reset input so same file can be re-selected
+
+        // One document at a time â€” keeps the UX simple
+        const file = files[0];
+
+        // Show the file as a chip right away (optimistic UI)
+        setAttachments([{ id: `${file.name}-${Date.now()}`, name: file.name, file }]);
+
+        // Actually upload it to the backend if we have a token
+        if (jwtToken) {
+            await uploadDocument(file);
+        }
+
+        // Reset so same file can be picked again if needed
         e.target.value = '';
     };
 
@@ -161,14 +174,24 @@ const Composer = ({ onGenerate, isLoading = false, currentMode = 'chat', onModeC
     const selectedMode = useMemo(() => MODE_DEFS.find((m) => m.id === currentMode) || MODE_DEFS[0], [currentMode]);
     const canSend = text.trim().length > 0 && !isLoading && !disabled;
 
-    const removeAttachment = (id) => setAttachments((prev) => prev.filter((a) => a.id !== id));
+    const removeAttachment = (id) => {
+        setAttachments((prev) => prev.filter((a) => a.id !== id));
+        // Also clear the uploaded doc tracking if user removes the file
+        clearDocument();
+    };
 
     const send = () => {
         const content = text.trim();
         if (!content || isLoading) return;
-        onGenerate?.(content);
+
+        // If a document was uploaded and is ready for Q&A, pass the document_id 
+        // along with the message so the backend knows to search inside that document
+        const documentContext = uploadedDoc?.ready ? { document_id: uploadedDoc.document_id } : null;
+
+        onGenerate?.(content, documentContext);
         setText('');
         setAttachments([]);
+        // Note: we don't clear the document here â€” user may want to ask multiple questions
     };
 
     const onKeyDown = (e) => {
@@ -253,19 +276,19 @@ const Composer = ({ onGenerate, isLoading = false, currentMode = 'chat', onModeC
                         flexShrink: 0,
                         marginTop: 'auto',
                     }),
-                    zIndex: 1000, // ✅ Higher z-index to stay above message list
+                    zIndex: 1000, // âœ… Higher z-index to stay above message list
                     background: barBg,
                     backdropFilter: 'blur(16px)',
                     WebkitBackdropFilter: 'blur(16px)',
                     borderTop: `1px solid ${barBorder}`,
-                    touchAction: 'none', // ✅ Prevent elastic bounce on the pill area
+                    touchAction: 'none', // âœ… Prevent elastic bounce on the pill area
                 }}
             >
                 <div className="max-w-3xl mx-auto px-4 py-4">
-                    {/* ── Mode pills row ── */}
+                    {/* â”€â”€ Mode pills row â”€â”€ */}
                     <div className="flex items-center justify-between gap-3 mb-2">
                         <div className="flex items-center gap-2">
-                            {/* Mode Pill — click to reopen menu */}
+                            {/* Mode Pill â€” click to reopen menu */}
                             <div
                                 role="button"
                                 tabIndex={0}
@@ -289,7 +312,7 @@ const Composer = ({ onGenerate, isLoading = false, currentMode = 'chat', onModeC
                         </div>
                     </div>
 
-                    {/* ── Composer container ── */}
+                    {/* â”€â”€ Composer container â”€â”€ */}
                     <div className="rounded-3xl border border-gray-300 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-sm">
                         <div className="flex items-center gap-2 px-3 py-2.5">
                             {/* + Upload button */}
@@ -313,24 +336,28 @@ const Composer = ({ onGenerate, isLoading = false, currentMode = 'chat', onModeC
 
                             {/* Textarea section */}
                             <div className="flex-1">
-                                {attachments.length > 0 && (
+                                {/* Document status chip â€” color changes to show upload progress */}
+                                {uploadedDoc && (
                                     <div className="flex flex-wrap gap-2 px-2 pb-2">
-                                        {attachments.map((a) => (
-                                            <span
-                                                key={a.id}
-                                                className="inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950"
-                                            >
-                                                <AttachFile sx={{ fontSize: 16 }} />
-                                                {a.name}
-                                                <button
-                                                    onClick={() => removeAttachment(a.id)}
-                                                    className="flex items-center justify-center transition-colors"
-                                                    style={S.closeChip}
-                                                >
-                                                    <Close sx={{ fontSize: 14 }} />
-                                                </button>
+                                        <span
+                                            className="inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs border"
+                                            style={{
+                                                // gray=uploading, orange=processing, green=ready, red=error
+                                                borderColor: uploadError ? 'rgba(239,68,68,0.4)' : uploadedDoc.ready ? 'rgba(34,197,94,0.4)' : uploadedDoc.status === 'processing' ? 'rgba(251,146,60,0.4)' : 'rgba(156,163,175,0.4)',
+                                                backgroundColor: uploadError ? 'rgba(239,68,68,0.08)' : uploadedDoc.ready ? 'rgba(34,197,94,0.08)' : uploadedDoc.status === 'processing' ? 'rgba(251,146,60,0.08)' : 'rgba(156,163,175,0.08)',
+                                            }}
+                                        >
+                                            <AttachFile sx={{ fontSize: 14 }} />
+                                            <span>
+                                                {uploadedDoc.filename}
+                                                <span style={{ marginLeft: '6px', opacity: 0.7 }}>
+                                                    {uploadError ? 'â€” failed' : uploadedDoc.ready ? 'â€” ready âœ“' : uploadedDoc.status === 'processing' ? 'â€” processingâ€¦' : 'â€” uploadingâ€¦'}
+                                                </span>
                                             </span>
-                                        ))}
+                                            <button onClick={clearDocument} className="flex items-center justify-center transition-colors" style={S.closeChip}>
+                                                <Close sx={{ fontSize: 14 }} />
+                                            </button>
+                                        </span>
                                     </div>
                                 )}
 
@@ -346,7 +373,7 @@ const Composer = ({ onGenerate, isLoading = false, currentMode = 'chat', onModeC
                                     maxRows={7}
                                     className={cx(
                                         'w-full bg-transparent outline-none border-0',
-                                        'text-base leading-6', // ✅ 16px minimum prevents iOS zoom
+                                        'text-base leading-6', // âœ… 16px minimum prevents iOS zoom
                                         'px-2 py-2',
                                         'placeholder-gray-500 dark:placeholder-gray-400'
                                     )}
@@ -367,7 +394,7 @@ const Composer = ({ onGenerate, isLoading = false, currentMode = 'chat', onModeC
                         </div>
                     </div>
 
-                    {/* ── Tools Menu popup ── */}
+                    {/* â”€â”€ Tools Menu popup â”€â”€ */}
                     <GrayMenu open={toolsOpen} anchorRef={toolsBtnRef}>
                         <div
                             ref={toolsMenuRef}
