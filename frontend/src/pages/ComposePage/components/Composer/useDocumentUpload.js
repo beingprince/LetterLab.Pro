@@ -119,7 +119,14 @@ export function useDocumentUpload({ jwtToken }) {
           if (xhr.status >= 200 && xhr.status < 300) {
             resolve(JSON.parse(xhr.response));
           } else {
-            reject(new Error('Upload failed.'));
+            let errorMsg = 'Upload failed.';
+            try {
+              const errorData = JSON.parse(xhr.response);
+              errorMsg = errorData.message || errorData.debug || errorMsg;
+            } catch (e) {
+              console.error('Could not parse error response:', xhr.response);
+            }
+            reject(new Error(errorMsg));
           }
         };
         xhr.onerror = () => reject(new Error('Network error.'));
