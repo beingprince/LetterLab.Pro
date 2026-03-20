@@ -5,7 +5,7 @@ import Document from '../models/Document.js';
 import DocumentJob from '../models/DocumentJob.js';
 import { generatePresignedUploadUrl } from '../utils/s3.js';
 import { addExtractJob } from '../services/queueService.js';
-import { verifyToken } from '../middleware/auth.js'; 
+import { auth } from '../middleware/auth.js'; 
 
 const router = express.Router();
 
@@ -18,7 +18,7 @@ const catchAsync = (fn) => (req, res, next) => {
  * @route POST /api/v1/documents/upload
  * @desc Phase 1: Generates S3 presigned URL and creates Document record
  */
-router.post('/upload', verifyToken, catchAsync(async (req, res) => {
+router.post('/upload', auth, catchAsync(async (req, res) => {
   const { filename, mime_type, file_size_bytes } = req.body;
 
   if (!filename) {
@@ -80,7 +80,7 @@ router.post('/upload', verifyToken, catchAsync(async (req, res) => {
  * @route POST /api/v1/documents/process
  * @desc Phase 2: Called by client after S3 upload succeeds. Pushes document to 'extract' queue.
  */
-router.post('/process', verifyToken, catchAsync(async (req, res) => {
+router.post('/process', auth, catchAsync(async (req, res) => {
   const { document_id } = req.body;
 
   if (!document_id) {

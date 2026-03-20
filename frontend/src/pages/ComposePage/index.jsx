@@ -101,18 +101,16 @@ const ComposePage = ({ jwtToken, outlookAccessToken, authProvider, navigate }) =
         }
     };
 
-    // ✅ Relaxed scroll locking for mobile chat (fixes keyboard white layer bug)
+    // ✅ Scroll locking for mobile chat
     useEffect(() => {
         if (mode === 'chat') {
             document.body.style.overflow = 'hidden';
-            document.documentElement.style.overflow = 'hidden';
+            // We avoid documentElement locking here as it's often too "sticky" on iOS
         } else {
             document.body.style.overflow = '';
-            document.documentElement.style.overflow = '';
         }
         return () => {
             document.body.style.overflow = '';
-            document.documentElement.style.overflow = '';
         };
     }, [mode]);
 

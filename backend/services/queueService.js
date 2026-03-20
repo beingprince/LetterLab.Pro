@@ -13,6 +13,15 @@ const redisOptions = {
 
 export const connection = new Redis(redisOptions);
 
+connection.on('error', (err) => {
+  console.warn('⚠️ [Redis] Connection refused or lost. Document processing will be paused until Redis is started.');
+  console.warn(`[Redis Error Details]: ${err.message}`);
+});
+
+connection.on('connect', () => {
+  console.log('✅ [Redis] Connected successfully. Queue system is ready.');
+});
+
 // Define 5 Main Queues
 export const extractQueue = new Queue('extract', { connection });
 export const normalizeQueue = new Queue('normalize', { connection });

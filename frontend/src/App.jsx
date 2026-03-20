@@ -158,6 +158,17 @@ function App() {
     return () => window.removeEventListener('popstate', onPop);
   }, []);
 
+  // ✅ Global Scroll-Lock Fail-safe (Major Fix for Mobile)
+  // Ensures that whenever we leave the chat page, the scroll lock is explicitly released.
+  useEffect(() => {
+    if (path !== '/chat') {
+      document.body.style.overflow = '';
+      document.documentElement.style.overflow = '';
+      // Force repaint/re-layout on mobile if needed
+      window.dispatchEvent(new Event('resize'));
+    }
+  }, [path]);
+
   // navigate helper
   const navigate = (to) => {
     if (window.location.pathname === to) return;

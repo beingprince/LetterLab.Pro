@@ -276,6 +276,9 @@ export default function SplitRevealHero({
 
     const [userStats, setUserStats] = useState({ count: 12, initials: ['A', 'P', 'J', 'S'] });
 
+    // ✅ Track if user is already "in" the app flow
+    const isReturning = !!localStorage.getItem('letterlab_user') || localStorage.getItem('llp_chat_active') === 'true';
+
     useEffect(() => {
         const fetchStats = async () => {
             try {
@@ -384,7 +387,7 @@ export default function SplitRevealHero({
                                     width: { xs: "100%", sm: "auto" },
                                 }}
                             >
-                                Draft My First Email
+                                {isReturning ? "Compose New Email" : "Draft My First Email"}
                             </MotionButton>
 
                             <MotionButton
