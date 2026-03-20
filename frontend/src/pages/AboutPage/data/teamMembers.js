@@ -29,10 +29,10 @@ export const TEAM_MEMBERS = [
     ],
   },
   {
-    name: 'Solida Heng',
+    name: "Solida Tan",
     role: 'Project Support (ACM Outreach)',
     location: 'McNeese State University • Louisiana, USA',
-    initials: 'SH',
+    initials: 'ST',
     image: '/images/Solida Tan.webp',
     bioParagraphs: [
       'Acted as project narrator, structuring the demo presentation and writing the script. She worked to test the platform workflows and clearly communicate LetterLab’s core value to the student community.'

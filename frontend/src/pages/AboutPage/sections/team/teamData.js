@@ -28,9 +28,9 @@ export const TEAM_MEMBERS = [
     links: [],
   },
   {
-    name: 'Solida Heng',
+    name: 'Solida Tan',
     role: 'Project Support (ACM Outreach)',
-    initials: 'SH',
+    initials: 'ST',
     image: '',
     bio: "Acted as project narrator, structuring the demo presentation and writing the script. She worked to test the platform workflows and clearly communicate LetterLab’s core value to the student community.",
     contributions: [
