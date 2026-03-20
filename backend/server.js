@@ -92,6 +92,11 @@ app.use(cors({
   maxAge: 86400,
 }));
 app.options("*", cors());
+
+// ✅ PERFORMANCE: Critical Upload & Webhook Routes (Must be BEFORE global body-parsers)
+app.use("/v1/documents", documentUploadRouter); 
+app.use("/api/v1/documents/webhook", documentWebhookRouter); 
+
 app.use(cookieParser()); // Required for req.cookies in OAuth state validation
 
 

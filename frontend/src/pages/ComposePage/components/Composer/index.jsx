@@ -184,9 +184,9 @@ const Composer = ({ onGenerate, isLoading = false, currentMode = 'chat', onModeC
         const content = text.trim();
         if (!content || isLoading) return;
 
-        // If a document was uploaded and is ready for Q&A, pass the document_id 
-        // along with the message so the backend knows to search inside that document
-        const documentContext = uploadedDoc?.ready ? { document_id: uploadedDoc.document_id } : null;
+        // Pass document_id even if it's still processing to enable early RAG
+        const isProcessable = uploadedDoc?.ready || (uploadedDoc?.status === 'processing' && uploadedDoc?.document_id);
+        const documentContext = isProcessable ? { document_id: uploadedDoc.document_id } : null;
 
         onGenerate?.(content, documentContext);
         setText('');
