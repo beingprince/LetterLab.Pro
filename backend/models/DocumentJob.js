@@ -11,7 +11,7 @@ const DocumentJobSchema = new mongoose.Schema(
     },
     status: { 
       type: String, 
-      enum: ["queued", "active", "completed", "failed"],
+      enum: ["queued", "active", "dispatched", "completed", "failed"],
       default: "queued"
     },
     processor_version: { type: String, required: true },
