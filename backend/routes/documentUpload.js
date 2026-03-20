@@ -123,8 +123,8 @@ router.post(
       );
       console.log(`✅ [documentUpload] Document record created: ${documentId}`);
 
-      // Direct dispatch to Python worker (Bypassing Redis queue for reliability)
-      console.log(`📡 [documentUpload] Dispatching directly to Python worker...`);
+      // Direct data piping to Python worker (Bypasses Redis queue AND Filesystem isolation)
+      console.log(`📡 [documentUpload] Piping data directly to Python worker...`);
       
       const protocol = req.headers['x-forwarded-proto'] || req.protocol;
       const host = req.get('host');
@@ -132,15 +132,27 @@ router.post(
       const pythonWorkerUrl = process.env.PYTHON_WORKER_URL || 'http://localhost:8001/extract';
       const webhookUrl = `${baseUrl}/api/v1/documents/webhook/python-extract`;
 
-      // We don't 'await' this if we want to return immediately, 
-      // but for "working condition now" we'll fire and forget the hit.
-      axios.post(pythonWorkerUrl, {
-        document_id: documentId.toString(),
-        s3_uri: s3_raw_upload_uri,
-        tenant_id: userId.toString(),
-        reply_webhook_url: webhookUrl
+      // Construct Multipart Form Data for the Python Worker
+      const workerForm = new FormData();
+      workerForm.append('file', fs.createReadStream(localPath), {
+        filename: req.file.originalname,
+        contentType: req.file.mimetype
+      });
+      workerForm.append('document_id', documentId.toString());
+      workerForm.append('reply_webhook_url', webhookUrl);
+      workerForm.append('tenant_id', userId.toString());
+
+      // We don't 'await' this if we want to return immediately
+      axios.post(pythonWorkerUrl, workerForm, {
+        headers: {
+          ...workerForm.getHeaders()
+        },
+        maxContentLength: Infinity,
+        maxBodyLength: Infinity
+      }).then(() => {
+        console.log(`✅ [documentUpload] File successfully piped to ${pythonWorkerUrl}`);
       }).catch(err => {
-        console.error(`❌ [documentUpload] Failed to trigger Python worker: ${err.message}`);
+        console.error(`❌ [documentUpload] Failed to pipe to Python worker: ${err.message}`);
       });
 
       console.log(`✅ [documentUpload] Dispatch signal sent to ${pythonWorkerUrl}`);

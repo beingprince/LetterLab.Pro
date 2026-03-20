@@ -109,20 +109,36 @@ def run_extraction_pipeline(request: ExtractionRequest):
 
 # ── API Endpoints ──
 
+from fastapi import File, UploadFile, Form
+import os
+
 @app.post("/extract")
-async def extract_document(request: ExtractionRequest, background_tasks: BackgroundTasks):
+async def extract_document(
+    background_tasks: BackgroundTasks,
+    file: UploadFile = File(...),
+    document_id: str = Form(...),
+    reply_webhook_url: str = Form(...),
+    tenant_id: str = Form(...)
+):
     """
     Main entry point for extraction requests.
-    This works as a "fire-and-forget" endpoint: it validates the request
-    and starts the heavy processing in a background task.
+    Now receives the file DIRECTLY via piping.
     """
-    # In production, we'd check if the S3 file actually exists first.
+    # 1. Reconstruct the request object for the pipeline
+    request = ExtractionRequest(
+        document_id=document_id,
+        s3_uri=f"piped://{file.filename}", # Noted as piped
+        reply_webhook_url=reply_webhook_url,
+        tenant_id=tenant_id
+    )
+    
+    # 2. Add to background tasks
     background_tasks.add_task(run_extraction_pipeline, request)
     
     return {
         "success": True,
-        "message": "Extraction job accepted and running in background.",
-        "job_id": request.document_id
+        "message": "File received and extraction running in background.",
+        "document_id": document_id
     }
 
 @app.get("/health")
