@@ -23,6 +23,14 @@ import { addExtractJob } from '../services/queueService.js';
 import fs from 'fs';
 import path from 'path';
 
+// Helper to wrap promises with a timeout
+const withTimeout = (promise, ms, label) => {
+  const timeout = new Promise((_, reject) => 
+    setTimeout(() => reject(new Error(`${label} timed out after ${ms}ms`)), ms)
+  );
+  return Promise.race([promise, timeout]);
+};
+
 const router = express.Router();
 
 // ── Multer setup ──
@@ -85,37 +93,43 @@ router.post(
 
       const s3_raw_upload_uri = `file://${localPath}`; 
       
-      const newDoc = await Document.create({
-        _id: documentId,
-        user_id: userId,
-        filename: req.file.originalname,
-        s3_raw_upload_uri,
-        status: 'processing',
-        metadata: {
-          mime_type: req.file.mimetype,
-          file_size_bytes: req.file.size,
-        },
-        source_container_type: 'upload',
-      });
+      const newDoc = await withTimeout(
+        Document.create({
+          _id: documentId,
+          user_id: userId,
+          filename: req.file.originalname,
+          s3_raw_upload_uri,
+          status: 'processing',
+          metadata: {
+            mime_type: req.file.mimetype,
+            file_size_bytes: req.file.size,
+          },
+          source_container_type: 'upload',
+        }),
+        10000,
+        'Document.create'
+      );
 
       // Queue the extraction job.
-      // This is fire-and-forget — we don't wait for Python to finish.
-      // The frontend will poll /status to know when it's done.
       const jobId = await addExtractJob({
         document_id: documentId.toString(),
         s3_uri: s3_raw_upload_uri,
-        tenant_id: userId, // using userId as tenant for now
+        tenant_id: userId, 
       });
 
       // Save the job record so we have a full audit trail
-      await DocumentJob.create({
-        document_id: documentId,
-        job_id: jobId,
-        stage: 'extract',
-        status: 'queued',
-        processor_version: 'v1.0.0',
-        started_at: new Date(),
-      });
+      await withTimeout(
+        DocumentJob.create({
+          document_id: documentId,
+          job_id: jobId,
+          stage: 'extract',
+          status: 'queued',
+          processor_version: 'v1.0.0',
+          started_at: new Date(),
+        }),
+        10000,
+        'DocumentJob.create'
+      );
 
       // Return the document_id to the frontend immediately.
       // The file is in the queue — processing begins in background.
