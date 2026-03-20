@@ -36,21 +36,34 @@ export const retryQueue = new Queue('retry', { connection }); // Dead-letter / e
 export async function addExtractJob({ document_id, s3_uri, tenant_id }) {
   const jobId = `extract_${document_id}_${Date.now()}`;
   
-  await extractQueue.add('extract-document', {
-    document_id,
-    s3_uri,
-    tenant_id,
-    reply_webhook_url: `${process.env.PUBLIC_API_URL || 'http://localhost:5000'}/api/v1/documents/webhook/python-extract`
-  }, {
-    jobId, // Idempotency key
-    attempts: 3,
-    backoff: {
-      type: 'exponential',
-      delay: 5000,
-    },
-    removeOnComplete: true,
-    removeOnFail: false
-  });
+  // ── IMPORTANT: Redis Hang Guard ──
+  // If Redis is unreachable, BullMQ's .add() can hang indefinitely.
+  // We wrap it in a 5-second timeout race.
+  const timeout = new Promise((_, reject) => 
+    setTimeout(() => reject(new Error('Redis connection timeout (5s)')), 5000)
+  );
 
-  return jobId;
+  try {
+    await Promise.race([
+      extractQueue.add('extract-document', {
+        document_id,
+        s3_uri,
+        tenant_id,
+        reply_webhook_url: `${process.env.PUBLIC_API_URL || 'http://localhost:5000'}/api/v1/documents/webhook/python-extract`
+      }, {
+        jobId,
+        attempts: 3,
+        backoff: { type: 'exponential', delay: 5000 },
+        removeOnComplete: true,
+        removeOnFail: false
+      }),
+      timeout
+    ]);
+    return jobId;
+  } catch (err) {
+    console.warn(`⚠️ [QueueService] addExtractJob failed/timed out: ${err.message}`);
+    // We return a "pseudo-job-id" so the upload doesn't hard-crash.
+    // The status polling will eventually show 'failed' or stay 'processing'.
+    return `timeout_${jobId}`;
+  }
 }

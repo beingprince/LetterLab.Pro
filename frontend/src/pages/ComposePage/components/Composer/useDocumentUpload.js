@@ -98,6 +98,9 @@ export function useDocumentUpload({ jwtToken }) {
       formData.append('document', file); // 'document' must match the field name in multer on backend
 
       // Send file to our backend
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 20000); // 20s timeout
+
       const res = await fetch(`${API_BASE}/api/v1/documents/upload-and-process`, {
         method: 'POST',
         headers: {
@@ -105,7 +108,10 @@ export function useDocumentUpload({ jwtToken }) {
           Authorization: `Bearer ${jwtToken}`,
         },
         body: formData,
+        signal: controller.signal,
       });
+
+      clearTimeout(timeoutId);
 
       const json = await res.json();
 
@@ -123,10 +129,14 @@ export function useDocumentUpload({ jwtToken }) {
 
       return document_id; // caller uses this to include document context in the chat message
     } catch (err) {
-      console.error('[useDocumentUpload] Upload failed:', err.message);
-      setUploadError(err.message || 'Upload failed. Please try again.');
-      setUploadedDoc(null);
+      console.error('[useDocumentUpload] Upload failed:', err);
+      const isTimeout = err.name === 'AbortError';
+      const msg = isTimeout ? 'Upload timed out (20s). Check your connection.' : err.message;
+      setUploadError(msg);
+      setUploadedDoc((prev) => (prev ? { ...prev, status: 'failed' } : null));
       return null;
+    } finally {
+      setIsUploading(false);
     }
   }, [jwtToken, startPolling]);
 
