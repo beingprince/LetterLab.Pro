@@ -93,11 +93,14 @@ app.use(cors({
 }));
 app.options("*", cors());
 
-// ✅ PERFORMANCE: Critical Upload & Webhook Routes (Must be BEFORE global body-parsers)
-app.use("/v1/documents", documentUploadRouter); 
-app.use("/api/v1/documents/webhook", documentWebhookRouter); 
-
 app.use(cookieParser()); // Required for req.cookies in OAuth state validation
+
+// ✅ PERFORMANCE: Critical Upload & Webhook Routes 
+// 1. Above rate limiter to bypass 429 errors
+// 2. Above JSON parsers so Multer gets the raw stream
+app.use("/api/v1/documents/upload-and-process", documentUploadRouter); 
+app.use("/api/v1/documents/webhook", documentWebhookRouter); 
+app.use("/api/v1/documents/:id/status", documentRoutes); // Poll status without limit
 
 
 // Tighter body size limits to control cost (increased to 10mb for email threads)
