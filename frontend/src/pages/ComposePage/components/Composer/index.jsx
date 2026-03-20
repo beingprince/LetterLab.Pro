@@ -10,6 +10,7 @@ import {
     ExpandMore,
     Check,
     ChatBubbleOutline,
+    InsertDriveFile,
 } from '@mui/icons-material';
 import ProfessorSelectorModal from '../ProfessorSelectorModal';
 
@@ -128,6 +129,20 @@ const Composer = ({ onGenerate, isLoading = false, currentMode = 'chat', onModeC
     const [toolsOpen, setToolsOpen] = useState(false);
     const [profModalOpen, setProfModalOpen] = useState(false);
     const [attachments, setAttachments] = useState([]);
+    const fileInputRef = useRef(null);
+
+    const handleFileChange = (e) => {
+        const files = Array.from(e.target.files || []);
+        if (!files.length) return;
+        const newAttachments = files.map((f) => ({
+            id: `${f.name}-${Date.now()}`,
+            name: f.name,
+            file: f,
+        }));
+        setAttachments((prev) => [...prev, ...newAttachments]);
+        // Reset input so same file can be re-selected
+        e.target.value = '';
+    };
 
     // Handle external prompt updates
     useEffect(() => {
@@ -332,6 +347,24 @@ const Composer = ({ onGenerate, isLoading = false, currentMode = 'chat', onModeC
 
                             {/* Right actions */}
                             <div className="flex items-center gap-1 pb-1">
+                                {/* Hidden file input */}
+                                <input
+                                    ref={fileInputRef}
+                                    type="file"
+                                    multiple
+                                    accept=".pdf,.docx,.xlsx,.pptx,.jpg,.jpeg,.png,.heic,.txt,.csv,.eml,.zip"
+                                    style={{ display: 'none' }}
+                                    onChange={handleFileChange}
+                                />
+                                {/* Document upload icon */}
+                                <button
+                                    onClick={() => fileInputRef.current?.click()}
+                                    className="flex items-center justify-center transition-colors"
+                                    style={S.iconBtn}
+                                    title="Upload a document"
+                                >
+                                    <InsertDriveFile sx={{ fontSize: 20 }} />
+                                </button>
                                 <button
                                     onClick={send}
                                     disabled={!canSend}
