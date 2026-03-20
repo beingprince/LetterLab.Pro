@@ -169,8 +169,13 @@ router.post(
         },
       });
     } catch (err) {
-      console.error('[documentUpload] Failed:', err.message);
-      return res.status(500).json({ success: false, message: 'Upload failed. Please try again.' });
+      console.error('[documentUpload] Failed:', err);
+      // Surfacing the exact error for production debugging
+      return res.status(500).json({ 
+        success: false, 
+        message: `Upload failed: ${err.message}`,
+        debug: process.env.NODE_ENV === 'production' ? err.message : err.stack 
+      });
     }
   }
 );
