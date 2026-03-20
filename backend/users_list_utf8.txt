@@ -1,0 +1,15 @@
+﻿Connecting...
+
+Found 10 users in the database:
+-----------------------------------------------------
+1. Name: Prince Pudasaini | Email: prince@example.com | Provider: undefined | Created: Sun Oct 19 2025 19:37:16 GMT-0500 (Central Daylight Time)
+2. Name: Prince Pudasaini | Email: prince1@example.com | Provider: undefined | Created: Sun Oct 19 2025 20:10:08 GMT-0500 (Central Daylight Time)
+3. Name: Ram | Email: ram@gmail.com | Provider: undefined | Created: Sun Nov 02 2025 16:53:52 GMT-0600 (Central Standard Time)
+4. Name: Prince Pudasaini | Email: ppudasaini1@outlook.com | Provider: outlook | Created: Sun Nov 02 2025 18:50:05 GMT-0600 (Central Standard Time)
+5. Name: Prince Pudasaini | Email: p.pdsn7@gmail.com | Provider: local | Created: Sun Nov 02 2025 21:36:51 GMT-0600 (Central Standard Time)
+6. Name: Guaranteed User | Email: guarantee_test@letterlab.com | Provider: local | Created: Wed Nov 05 2025 13:43:35 GMT-0600 (Central Standard Time)
+7. Name: Prince Pudasaini | Email: ppudasaini1@mcneese.edu | Provider: outlook | Created: Wed Nov 05 2025 14:28:21 GMT-0600 (Central Standard Time)
+8. Name: Bijay Pudasaini | Email: pudasainibijay94@gmail.com | Provider: outlook | Created: Thu Mar 05 2026 23:12:59 GMT-0600 (Central Standard Time)
+9. Name: Pratik Thapa | Email: pratikthapa166@gmail.com | Provider: local | Created: Sun Mar 08 2026 15:26:06 GMT-0500 (Central Daylight Time)
+10. Name: Dipendra Kandel | Email: dipendrakandel606@gmail.com | Provider: local | Created: Thu Mar 19 2026 11:36:20 GMT-0500 (Central Daylight Time)
+-----------------------------------------------------

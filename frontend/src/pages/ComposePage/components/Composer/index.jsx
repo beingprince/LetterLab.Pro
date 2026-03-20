@@ -369,9 +369,9 @@ const Composer = ({ onGenerate, isLoading = false, currentMode = 'chat', onModeC
                                                 : isReady
                                                 ? ' (ready)'
                                                 : isProcessing
-                                                ? ' (processing...)'
+                                                ? ` (processing: ${uploadedDoc.processingProgress || 0}%)`
                                                 : isUploading
-                                                ? ' (uploading...)'
+                                                ? ` (uploading: ${uploadedDoc.uploadProgress || 0}%)`
                                                 : '';
 
                                             return (

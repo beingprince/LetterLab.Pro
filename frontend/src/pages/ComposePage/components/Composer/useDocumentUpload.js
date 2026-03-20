@@ -57,9 +57,14 @@ export function useDocumentUpload({ jwtToken }) {
         }
 
         const doc = json.data;
-
+        // doc now includes processing_progress from the backend
+        
         // Update the chip display on every poll
-        setUploadedDoc((prev) => ({ ...prev, ...doc }));
+        setUploadedDoc((prev) => ({ 
+          ...prev, 
+          ...doc,
+          processingProgress: doc.processing_progress ?? 0 
+        }));
 
         // If extraction is done (or even partially done), stop polling
         if (doc.status === 'completed' || doc.status === 'partial_success') {
@@ -94,36 +99,43 @@ export function useDocumentUpload({ jwtToken }) {
     });
 
     try {
-      // Build a FormData payload — same as an HTML form with enctype="multipart/form-data"
+      // We use XMLHttpRequest instead of fetch to track upload progress
+      const xhr = new XMLHttpRequest();
+      const url = `${API_BASE}/api/v1/documents/upload-and-process`;
+      
       const formData = new FormData();
-      formData.append('document', file); // 'document' must match the field name in multer on backend
+      formData.append('document', file);
 
-      // Send file to our backend
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 60000); // 60s timeout for file upload
+      // Track Upload Progress
+      xhr.upload.onprogress = (event) => {
+        if (event.lengthComputable) {
+          const percent = Math.round((event.loaded / event.total) * 100);
+          setUploadedDoc((prev) => ({ ...prev, uploadProgress: percent }));
+        }
+      };
 
-      // We keep the /api/v1 prefix for CORS consistency
-      const res = await fetch(`${API_BASE}/api/v1/documents/upload-and-process`, {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${jwtToken}`,
-        },
-        body: formData,
-        signal: controller.signal,
+      const uploadPromise = new Promise((resolve, reject) => {
+        xhr.onload = () => {
+          if (xhr.status >= 200 && xhr.status < 300) {
+            resolve(JSON.parse(xhr.response));
+          } else {
+            reject(new Error('Upload failed.'));
+          }
+        };
+        xhr.onerror = () => reject(new Error('Network error.'));
+        xhr.onabort = () => reject(new Error('Upload aborted.'));
       });
 
-      clearTimeout(timeoutId);
+      xhr.open('POST', url);
+      xhr.setRequestHeader('Authorization', `Bearer ${jwtToken}`);
+      xhr.send(formData);
 
-      const json = await res.json();
-
-      if (!res.ok || !json.success) {
-        throw new Error(json.message || 'Upload failed.');
-      }
+      const json = await uploadPromise;
 
       const { document_id, filename, status } = json.data;
 
       // Update display: file received by server, now processing
-      setUploadedDoc({ document_id, filename, status, ready: false });
+      setUploadedDoc({ document_id, filename, status, ready: false, uploadProgress: 100 });
 
       // Start polling to watch for when extraction finishes
       startPolling(document_id);
@@ -131,9 +143,7 @@ export function useDocumentUpload({ jwtToken }) {
       return document_id; 
     } catch (err) {
       console.error('[useDocumentUpload] Upload failed:', err);
-      const isTimeout = err.name === 'AbortError';
-      const msg = isTimeout ? 'Upload timed out (60s). Check your connection.' : err.message;
-      setUploadError(msg);
+      setUploadError(err.message);
       setUploadedDoc((prev) => (prev ? { ...prev, status: 'failed' } : null));
       return null;
     }

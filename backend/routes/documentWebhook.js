@@ -19,10 +19,24 @@ import DocumentBlock from '../models/DocumentBlock.js';
 
 const router = express.Router();
 
-// ── POST /internal/webhooks/python-extract ──
-// This is an internal URL called by our Python service.
-// ⚠️ In production, this should be protected by a shared secret (API key)
-//    to ensure only our workers can post data here.
+// ── Webhook Endpoints ──
+// These are internal URLs called by our Python service.
+
+router.post('/progress', async (req, res) => {
+  const { document_id, progress } = req.body;
+  console.log(`[Webhook] Progress for Doc ${document_id}: ${progress}%`);
+  if (!document_id) return res.status(400).json({ success: false });
+
+  try {
+    await Document.findByIdAndUpdate(document_id, {
+      processing_progress: Math.min(100, Math.max(0, progress))
+    });
+    return res.json({ success: true });
+  } catch (err) {
+    return res.status(500).json({ success: false, error: err.message });
+  }
+});
+
 router.post('/python-extract', async (req, res) => {
   const { document_id, status, pages, error } = req.body;
 

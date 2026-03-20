@@ -1,0 +1,69 @@
+[
+  {
+    "_id": "68f5843ca28fd9fa7abb67b3",
+    "name": "Prince Pudasaini",
+    "email": "prince@example.com",
+    "createdAt": "2025-10-20T00:37:16.463Z"
+  },
+  {
+    "_id": "68f58bf00a77b57777ded4f4",
+    "name": "Prince Pudasaini",
+    "email": "prince1@example.com",
+    "createdAt": "2025-10-20T01:10:08.070Z"
+  },
+  {
+    "_id": "6907e10090b8725a68a36ee2",
+    "name": "Ram",
+    "email": "ram@gmail.com",
+    "createdAt": "2025-11-02T22:53:52.533Z"
+  },
+  {
+    "_id": "6907fc3db8c8131b5be045a8",
+    "name": "Prince Pudasaini",
+    "email": "ppudasaini1@outlook.com",
+    "provider": "outlook",
+    "createdAt": "2025-11-03T00:50:05.695Z"
+  },
+  {
+    "_id": "69082353849364d7b2bb679b",
+    "name": "Prince Pudasaini",
+    "email": "p.pdsn7@gmail.com",
+    "provider": "local",
+    "createdAt": "2025-11-03T03:36:51.891Z"
+  },
+  {
+    "_id": "690ba8e79bba02f06f846dc0",
+    "name": "Guaranteed User",
+    "email": "guarantee_test@letterlab.com",
+    "provider": "local",
+    "createdAt": "2025-11-05T19:43:35.105Z"
+  },
+  {
+    "_id": "690bb365ff7512d8f67e3b62",
+    "name": "Prince Pudasaini",
+    "email": "ppudasaini1@mcneese.edu",
+    "provider": "outlook",
+    "createdAt": "2025-11-05T20:28:21.766Z"
+  },
+  {
+    "_id": "69aa625b8e23e8fb83543efd",
+    "name": "Bijay Pudasaini",
+    "email": "pudasainibijay94@gmail.com",
+    "provider": "outlook",
+    "createdAt": "2026-03-06T05:12:59.464Z"
+  },
+  {
+    "_id": "69addb5e13b7b0192cf00497",
+    "name": "Pratik Thapa",
+    "email": "pratikthapa166@gmail.com",
+    "provider": "local",
+    "createdAt": "2026-03-08T20:26:06.563Z"
+  },
+  {
+    "_id": "69bc26042bd1d7c3136e7298",
+    "name": "Dipendra Kandel",
+    "email": "dipendrakandel606@gmail.com",
+    "provider": "local",
+    "createdAt": "2026-03-19T16:36:20.686Z"
+  }
+]

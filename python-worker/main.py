@@ -56,8 +56,17 @@ def run_extraction_pipeline(request: ExtractionRequest):
     
     start_time = time.time()
     
-    # Simulate work (e.g. 5 seconds)
-    time.sleep(5)
+    # Progress helper
+    def send_progress(p):
+        try:
+            progress_url = request.reply_webhook_url.replace('/python-extract', '/progress')
+            requests.post(progress_url, json={"document_id": request.document_id, "progress": p}, timeout=2)
+        except: pass
+
+    # Simulate work with progress updates
+    for p in [10, 30, 60, 90]:
+        send_progress(p)
+        time.sleep(1.5)
     
     # Mock result matching the expected Node.js webhook format
     payload = {

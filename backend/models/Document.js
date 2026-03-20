@@ -40,6 +40,7 @@ const DocumentSchema = new mongoose.Schema(
     // Operational tracking
     pages_succeeded: { type: Number, default: 0 },
     pages_failed: { type: Number, default: 0 },
+    processing_progress: { type: Number, default: 0, min: 0, max: 100 },
     retrieval_eligible: { type: Boolean, default: false },
     retrieval_ready_at: { type: Date },
     schema_version: { type: String, default: "v2.1" }
