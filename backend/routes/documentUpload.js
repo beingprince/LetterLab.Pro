@@ -34,25 +34,10 @@ const withTimeout = (promise, ms, label) => {
 const router = express.Router();
 
 // ── Multer setup ──
-// We use disk storage now to handle larger files and avoid memory pressure.
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    const uploadsDir = path.join(process.cwd(), 'uploads');
-    if (!fs.existsSync(uploadsDir)) {
-      fs.mkdirSync(uploadsDir, { recursive: true });
-    }
-    cb(null, uploadsDir);
-  },
-  filename: (req, file, cb) => {
-    const documentId = new mongoose.Types.ObjectId();
-    req.tempDocumentId = documentId; // Pass this along to the route handler
-    const safeFilename = file.originalname.replace(/[^a-zA-Z0-9.-]/g, '_');
-    cb(null, `${documentId}-${safeFilename}`);
-  }
-});
-
+// We keep the file in memory as a Buffer instead of saving to disk.
+// Max file size is 50MB — anything bigger gets rejected immediately.
 const upload = multer({
-  storage,
+  storage: multer.memoryStorage(),
   limits: { fileSize: 50 * 1024 * 1024 }, // 50MB
   fileFilter: (_req, file, cb) => {
     // These are the file types our Document Intelligence Engine supports
@@ -83,27 +68,31 @@ router.post(
   auth,
   upload.single('document'), // 'document' must match the field name in FormData
   async (req, res) => {
-    console.log(`🚀 [documentUpload] Starting upload-and-process. User: ${req.user?.id || 'unknown'}`);
-    
     // If no file came through
     if (!req.file) {
-      console.warn('⚠️ [documentUpload] No file provided in request.');
       return res.status(400).json({ success: false, message: 'No file provided.' });
     }
 
-    console.log(`📂 [documentUpload] Received file: ${req.file.originalname} (${req.file.size} bytes)`);
-
     try {
-      const documentId = req.tempDocumentId || new mongoose.Types.ObjectId();
-      const userId = req.user.id || req.user._id; // Cover both id and _id
+      const documentId = new mongoose.Types.ObjectId();
+      const userId = req.user.id;
 
-      // Multer diskStorage already saved the file to req.path
-      const localPath = req.file.path;
-      console.log(`💾 [documentUpload] File persisted at: ${localPath}`);
+      // ── Local Storage Fallback ──
+      // In development, we save the file to a local 'uploads' folder so the worker can find it.
+      const uploadsDir = path.join(process.cwd(), 'uploads');
+      if (!fs.existsSync(uploadsDir)) {
+        fs.mkdirSync(uploadsDir, { recursive: true });
+      }
+
+      const safeFilename = req.file.originalname.replace(/[^a-zA-Z0-9.-]/g, '_');
+      const localPath = path.join(uploadsDir, `${documentId}-${safeFilename}`);
+      
+      // Save buffer to disk
+      fs.writeFileSync(localPath, req.file.buffer);
+      console.log(`[documentUpload] Saved raw file to: ${localPath}`);
 
       const s3_raw_upload_uri = `file://${localPath}`; 
       
-      console.log(`📝 [documentUpload] Creating Document record...`);
       const newDoc = await withTimeout(
         Document.create({
           _id: documentId,
@@ -120,19 +109,15 @@ router.post(
         10000,
         'Document.create'
       );
-      console.log(`✅ [documentUpload] Document record created: ${documentId}`);
 
       // Queue the extraction job.
-      console.log(`📡 [documentUpload] Queuing extraction job...`);
       const jobId = await addExtractJob({
         document_id: documentId.toString(),
         s3_uri: s3_raw_upload_uri,
-        tenant_id: userId.toString(), 
+        tenant_id: userId, 
       });
-      console.log(`✅ [documentUpload] Job queued: ${jobId}`);
 
       // Save the job record so we have a full audit trail
-      console.log(`📝 [documentUpload] Creating DocumentJob record...`);
       await withTimeout(
         DocumentJob.create({
           document_id: documentId,
@@ -145,7 +130,6 @@ router.post(
         10000,
         'DocumentJob.create'
       );
-      console.log(`✅ [documentUpload] DocumentJob record created.`);
 
       // Return the document_id to the frontend immediately.
       // The file is in the queue — processing begins in background.

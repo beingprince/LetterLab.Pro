@@ -184,11 +184,9 @@ const Composer = ({ onGenerate, isLoading = false, currentMode = 'chat', onModeC
         const content = text.trim();
         if (!content || isLoading) return;
 
-        // If a document was uploaded, pass the document_id even if it's still processing.
-        // The AI will use whatever blocks are available in the database at that moment.
-        const isProcessable = uploadedDoc?.status === 'processing' || uploadedDoc?.status === 'completed' || uploadedDoc?.ready;
-        const document_id = (isProcessable && uploadedDoc?.document_id) ? uploadedDoc.document_id : null;
-        const documentContext = document_id ? { document_id } : null;
+        // If a document was uploaded and is ready for Q&A, pass the document_id 
+        // along with the message so the backend knows to search inside that document
+        const documentContext = uploadedDoc?.ready ? { document_id: uploadedDoc.document_id } : null;
 
         onGenerate?.(content, documentContext);
         setText('');

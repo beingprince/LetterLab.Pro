@@ -44,8 +44,7 @@ export function useDocumentUpload({ jwtToken }) {
 
     pollingRef.current = setInterval(async () => {
       try {
-        // Target /v1 instead of /api/v1 to bypass rate limit
-        const res = await fetch(`${API_BASE}/v1/documents/${documentId}/status`, {
+        const res = await fetch(`${API_BASE}/api/v1/documents/${documentId}/status`, {
           headers: { Authorization: `Bearer ${jwtToken}` },
         });
         const json = await res.json();
@@ -102,8 +101,7 @@ export function useDocumentUpload({ jwtToken }) {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 60000); // 60s timeout for file upload
 
-      // Target /v1 instead of /api/v1 to bypass rate limit
-      const res = await fetch(`${API_BASE}/v1/documents/upload-and-process`, {
+      const res = await fetch(`${API_BASE}/api/v1/documents/upload-and-process`, {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${jwtToken}`,
