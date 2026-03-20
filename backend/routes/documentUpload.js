@@ -136,21 +136,25 @@ router.post(
       fs.promises.readFile(localPath).then(fileBuffer => {
         const workerForm = new FormData();
         const blob = new Blob([fileBuffer], { type: req.file.mimetype });
-        
-        workerForm.append('file', blob, req.file.originalname);
-        workerForm.append('document_id', documentId.toString());
-        workerForm.append('reply_webhook_url', webhookUrl);
-        workerForm.append('tenant_id', userId.toString());
+      const fileBuffer = await fs.promises.readFile(localPath);
+      const workerForm = new FormData();
+      const blob = new Blob([fileBuffer], { type: req.file.mimetype });
+      
+      workerForm.append('file', blob, req.file.originalname);
+      workerForm.append('document_id', documentId.toString());
+      workerForm.append('reply_webhook_url', webhookUrl);
+      workerForm.append('tenant_id', userId.toString());
 
-        return axios.post(pythonWorkerUrl, workerForm, {
-          maxContentLength: Infinity,
-          maxBodyLength: Infinity
-        });
-      }).then(() => {
-        console.log(`✅ [documentUpload] File successfully piped to ${pythonWorkerUrl}`);
-      }).catch(err => {
-        console.error(`❌ [documentUpload] Failed to pipe to Python worker: ${err.message}`);
+      // We 'await' this to ensure the worker is actually reachable
+      await axios.post(pythonWorkerUrl, workerForm, {
+        headers: {
+          ...workerForm.getHeaders()
+        },
+        maxContentLength: Infinity,
+        maxBodyLength: Infinity
       });
+      
+      console.log(`✅ [documentUpload] File successfully piped to ${pythonWorkerUrl}`);
 
       console.log(`✅ [documentUpload] Dispatch signal sent to ${pythonWorkerUrl}`);
 

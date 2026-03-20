@@ -58,10 +58,13 @@ def run_extraction_pipeline(request: ExtractionRequest):
     
     # Progress helper
     def send_progress(p):
+        progress_url = request.reply_webhook_url.replace('/python-extract', '/progress')
         try:
-            progress_url = request.reply_webhook_url.replace('/python-extract', '/progress')
-            requests.post(progress_url, json={"document_id": request.document_id, "progress": p}, timeout=2)
-        except: pass
+            print(f"[Worker] Sending {p}% to: {progress_url}")
+            r = requests.post(progress_url, json={"document_id": request.document_id, "progress": p}, timeout=2)
+            r.raise_for_status()
+        except Exception as e:
+            print(f"[Worker] ⚠️ Progress update failed: {str(e)}")
 
     # Simulate work with progress updates
     for p in [10, 30, 60, 90]:
