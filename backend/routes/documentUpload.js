@@ -123,7 +123,7 @@ router.post(
       );
       console.log(`✅ [documentUpload] Document record created: ${documentId}`);
 
-      // Direct data piping to Python worker (Bypasses Redis queue AND Filesystem isolation)
+      // Direct data piping to Python worker (Bypassing Redis queue AND Filesystem isolation)
       console.log(`📡 [documentUpload] Piping data directly to Python worker...`);
       
       const protocol = req.headers['x-forwarded-proto'] || req.protocol;
@@ -132,23 +132,20 @@ router.post(
       const pythonWorkerUrl = process.env.PYTHON_WORKER_URL || 'http://localhost:8001/extract';
       const webhookUrl = `${baseUrl}/api/v1/documents/webhook/python-extract`;
 
-      // Construct Multipart Form Data for the Python Worker
-      const workerForm = new FormData();
-      workerForm.append('file', fs.createReadStream(localPath), {
-        filename: req.file.originalname,
-        contentType: req.file.mimetype
-      });
-      workerForm.append('document_id', documentId.toString());
-      workerForm.append('reply_webhook_url', webhookUrl);
-      workerForm.append('tenant_id', userId.toString());
+      // Read file into Buffer and convert to Blob for Node.js FormData compatibility
+      fs.promises.readFile(localPath).then(fileBuffer => {
+        const workerForm = new FormData();
+        const blob = new Blob([fileBuffer], { type: req.file.mimetype });
+        
+        workerForm.append('file', blob, req.file.originalname);
+        workerForm.append('document_id', documentId.toString());
+        workerForm.append('reply_webhook_url', webhookUrl);
+        workerForm.append('tenant_id', userId.toString());
 
-      // We don't 'await' this if we want to return immediately
-      axios.post(pythonWorkerUrl, workerForm, {
-        headers: {
-          ...workerForm.getHeaders()
-        },
-        maxContentLength: Infinity,
-        maxBodyLength: Infinity
+        return axios.post(pythonWorkerUrl, workerForm, {
+          maxContentLength: Infinity,
+          maxBodyLength: Infinity
+        });
       }).then(() => {
         console.log(`✅ [documentUpload] File successfully piped to ${pythonWorkerUrl}`);
       }).catch(err => {
