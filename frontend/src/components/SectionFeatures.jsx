@@ -87,7 +87,7 @@ export const SectionFeatures = () => {
                     })}
                   >
                     {/* Top-Left: Large Subtle Number */}
-                    <div className="font-heading font-bold text-[5rem] md:text-[6rem] leading-none text-brand-text/5 select-none tracking-tighter mb-16 transition-opacity duration-300 group-hover:text-brand-text/10">
+                    <div className="font-heading font-bold text-[5rem] md:text-[6rem] leading-none text-gray-400/15 select-none tracking-tighter mb-16 transition-opacity duration-300 group-hover:text-gray-400/25">
                       {step.badge}
                     </div>
                     
