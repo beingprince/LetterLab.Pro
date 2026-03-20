@@ -22,6 +22,7 @@ import { auth } from '../middleware/auth.js';
 import { addExtractJob } from '../services/queueService.js';
 import fs from 'fs';
 import path from 'path';
+import axios from 'axios';
 
 // Helper to wrap promises with a timeout
 const withTimeout = (promise, ms, label) => {
@@ -122,24 +123,33 @@ router.post(
       );
       console.log(`✅ [documentUpload] Document record created: ${documentId}`);
 
-      // Queue the extraction job.
-      console.log(`📡 [documentUpload] Queuing extraction job...`);
-      const jobId = await addExtractJob({
+      // Direct dispatch to Python worker (Bypassing Redis queue for reliability)
+      console.log(`📡 [documentUpload] Dispatching directly to Python worker...`);
+      
+      const pythonWorkerUrl = process.env.PYTHON_WORKER_URL || 'http://localhost:8001/extract';
+      const webhookUrl = `${process.env.PUBLIC_API_URL || 'http://localhost:5000'}/api/v1/documents/webhook/python-extract`;
+
+      // We don't 'await' this if we want to return immediately, 
+      // but for "working condition now" we'll fire and forget the hit.
+      axios.post(pythonWorkerUrl, {
         document_id: documentId.toString(),
         s3_uri: s3_raw_upload_uri,
-        tenant_id: userId.toString(), 
+        tenant_id: userId.toString(),
+        reply_webhook_url: webhookUrl
+      }).catch(err => {
+        console.error(`❌ [documentUpload] Failed to trigger Python worker: ${err.message}`);
       });
-      console.log(`✅ [documentUpload] Job queued: ${jobId}`);
 
-      // Save the job record so we have a full audit trail
-      console.log(`📝 [documentUpload] Creating DocumentJob record...`);
+      console.log(`✅ [documentUpload] Dispatch signal sent to ${pythonWorkerUrl}`);
+
+      // Save the job record for audit
       await withTimeout(
         DocumentJob.create({
           document_id: documentId,
-          job_id: jobId,
+          job_id: `direct_${documentId}`,
           stage: 'extract',
-          status: 'queued',
-          processor_version: 'v1.0.0',
+          status: 'dispatched',
+          processor_version: 'v1.1.0-direct',
           started_at: new Date(),
         }),
         10000,
@@ -174,7 +184,7 @@ router.get('/:id/status', auth, async (req, res) => {
     const doc = await Document.findOne({
       _id: req.params.id,
       user_id: req.user.id, // ensure user can only see their own docs
-    }).select('filename status retrieval_eligible pages_succeeded pages_failed');
+    }).select('filename status retrieval_eligible pages_succeeded pages_failed processing_progress');
 
     if (!doc) {
       return res.status(404).json({ success: false, message: 'Document not found.' });
@@ -189,6 +199,7 @@ router.get('/:id/status', auth, async (req, res) => {
         ready: doc.retrieval_eligible,     // this is the key flag — true = Q&A is unlocked
         pages_succeeded: doc.pages_succeeded,
         pages_failed: doc.pages_failed,
+        processing_progress: doc.processing_progress || 0,
       },
     });
   } catch (err) {

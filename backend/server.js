@@ -36,7 +36,7 @@ import reviewsRouter from "./routes/reviews.js";
 import documentRoutes from "./routes/documentRoutes.js";
 import documentUploadRouter from "./routes/documentUpload.js";
 import documentWebhookRouter from "./routes/documentWebhook.js";
-import "./services/extractWorker.js"; // Initialize BullMQ worker bridge
+// import "./services/extractWorker.js"; // Disabled for local bypass
 
 // 0) Path aliases for ESM
 const __filename = fileURLToPath(import.meta.url);
