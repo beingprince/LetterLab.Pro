@@ -80,11 +80,31 @@ router.post(
       const userId = req.user.id || req.user._id;
 
       // 1. URLs for Python Worker
+      const protocol = req.headers['x-forwarded-proto'] || req.protocol;
+      const host = req.get('host');
+      const baseUrl = process.env.PUBLIC_API_URL || `${protocol}://${host}`;
+      const pythonWorkerUrl = process.env.PYTHON_WORKER_URL; 
+      const webhookUrl = `${baseUrl}/api/v1/documents/webhook/python-extract`;
+
+      // 2. Create Document Record
+      await Document.create({
+        _id: documentId,
+        user_id: userId,
+        filename: req.file.originalname,
+        s3_raw_upload_uri: `memory://${req.file.originalname}`,
+        status: 'processing',
+        metadata: {
+          mime_type: req.file.mimetype,
+          file_size_bytes: req.file.size,
+        },
+        source_container_type: 'upload',
+      });
+
       // --- Built-in Simulation Fallback ---
       // If no Python URL is found, we run the simulation INTERNALLY to ensure "working condition now".
       if (!pythonWorkerUrl && process.env.NODE_ENV === 'production') {
         console.log(`⚠️  No Python Worker URL found. Running internal simulation...`);
-        (async () => {
+        process.nextTick(async () => { // Use process.nextTick to run simulation asynchronously without blocking response
           const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
           try {
             for (let p of [10, 30, 60, 90]) {
@@ -102,7 +122,7 @@ router.post(
           } catch (simErr) {
             console.error('[Simulator] Failed:', simErr.message);
           }
-        })();
+        });
       } else {
         // Direct data piping to Python worker (If configured)
         const targetWorkerUrl = pythonWorkerUrl || 'http://localhost:8001/extract';
