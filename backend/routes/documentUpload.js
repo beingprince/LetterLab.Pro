@@ -37,21 +37,7 @@ const router = express.Router();
 
 // ── Multer setup ──
 // We use disk storage now to handle larger files and avoid memory pressure.
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    const uploadsDir = path.join(process.cwd(), 'uploads');
-    if (!existsSync(uploadsDir)) {
-      mkdirSync(uploadsDir, { recursive: true });
-    }
-    cb(null, uploadsDir);
-  },
-  filename: (req, file, cb) => {
-    const documentId = new mongoose.Types.ObjectId();
-    req.tempDocumentId = documentId; // Pass this along to the route handler
-    const safeFilename = file.originalname.replace(/[^a-zA-Z0-9.-]/g, '_');
-    cb(null, `${documentId}-${safeFilename}`);
-  }
-});
+const storage = multer.memoryStorage();
 
 const upload = multer({
   storage,
@@ -69,7 +55,7 @@ const upload = multer({
       'application/zip',
     ];
     if (allowed.includes(file.mimetype)) {
-      cb(null, true); // accept the file
+      cb(null, true);
     } else {
       cb(new Error(`File type "${file.mimetype}" is not supported.`), false);
     }
@@ -78,104 +64,83 @@ const upload = multer({
 
 
 // ── POST /api/v1/documents/upload-and-process ──
-// Client sends the file as FormData.
-// We save a DB record and queue the extraction job in one shot.
 router.post(
   '/upload-and-process',
   auth,
-  upload.single('document'), // 'document' must match the field name in FormData
+  upload.single('document'),
   async (req, res) => {
-    console.log(`🚀 [documentUpload] Starting upload-and-process. User: ${req.user?.id || req.user?._id || 'unknown'}`);
+    console.log(`🚀 [documentUpload] Starting handle. User: ${req.user?._id || req.user?.id}`);
     
-    // If no file came through
     if (!req.file) {
-      console.warn('⚠️ [documentUpload] No file provided in request.');
       return res.status(400).json({ success: false, message: 'No file provided.' });
     }
 
-    console.log(`📂 [documentUpload] Received file: ${req.file.originalname} (${req.file.size} bytes)`);
-
     try {
-      const documentId = req.tempDocumentId || new mongoose.Types.ObjectId();
-      const userId = req.user.id || req.user._id; // Cover both id and _id
+      const documentId = new mongoose.Types.ObjectId();
+      const userId = req.user.id || req.user._id;
 
-      // Multer diskStorage already saved the file to req.path
-      const localPath = req.file.path;
-      console.log(`💾 [documentUpload] File persisted at: ${localPath}`);
-
-      const s3_raw_upload_uri = `file://${localPath}`; 
-      
-      console.log(`📝 [documentUpload] Creating Document record...`);
-      const newDoc = await withTimeout(
-        Document.create({
-          _id: documentId,
-          user_id: userId,
-          filename: req.file.originalname,
-          s3_raw_upload_uri,
-          status: 'processing',
-          metadata: {
-            mime_type: req.file.mimetype,
-            file_size_bytes: req.file.size,
-          },
-          source_container_type: 'upload',
-        }),
-        10000,
-        'Document.create'
-      );
-      console.log(`✅ [documentUpload] Document record created: ${documentId}`);
-
-      // Direct data piping to Python worker (Bypassing Redis queue AND Filesystem isolation)
-      console.log(`📡 [documentUpload] Piping data directly to Python worker...`);
-      
+      // 1. URLs for Python Worker
       const protocol = req.headers['x-forwarded-proto'] || req.protocol;
       const host = req.get('host');
       const baseUrl = process.env.PUBLIC_API_URL || `${protocol}://${host}`;
-      const pythonWorkerUrl = process.env.PYTHON_WORKER_URL || 'http://localhost:8001/extract';
+      const pythonWorkerUrl = process.env.PYTHON_WORKER_URL; // Required in prod!
       const webhookUrl = `${baseUrl}/api/v1/documents/webhook/python-extract`;
 
-      // Read file into Buffer and convert to Blob for Node.js FormData compatibility
-      const fileBuffer = await fs.readFile(localPath);
-      const workerForm = new FormData();
-      const blob = new Blob([fileBuffer], { type: req.file.mimetype });
+      // Production Guard
+      if (process.env.NODE_ENV === 'production' && !pythonWorkerUrl) {
+        throw new Error('PYTHON_WORKER_URL environment variable is missing on Render. Please configure it to point to your Python service.');
+      }
+
+      const targetWorkerUrl = pythonWorkerUrl || 'http://localhost:8001/extract';
+
+      // 2. Create Document Record
+      await Document.create({
+        _id: documentId,
+        user_id: userId,
+        filename: req.file.originalname,
+        s3_raw_upload_uri: `memory://${req.file.originalname}`, // Memory-bound for now
+        status: 'processing',
+        metadata: {
+          mime_type: req.file.mimetype,
+          file_size_bytes: req.file.size,
+        },
+        source_container_type: 'upload',
+      });
+
+      // 3. Pipe Data Directly to Python
+      console.log(`📡 [documentUpload] Piping memory buffer to ${targetWorkerUrl}...`);
       
+      const workerForm = new FormData();
+      const blob = new Blob([req.file.buffer], { type: req.file.mimetype });
       workerForm.append('file', blob, req.file.originalname);
       workerForm.append('document_id', documentId.toString());
       workerForm.append('reply_webhook_url', webhookUrl);
       workerForm.append('tenant_id', userId.toString());
 
-      // We 'await' this to ensure the worker is actually reachable
-      await axios.post(pythonWorkerUrl, workerForm, {
+      await axios.post(targetWorkerUrl, workerForm, {
         maxContentLength: Infinity,
         maxBodyLength: Infinity
       });
       
-      console.log(`✅ [documentUpload] File successfully piped to ${pythonWorkerUrl}`);
-      console.log(`✅ [documentUpload] Dispatch signal sent to ${pythonWorkerUrl}`);
+      console.log(`✅ [documentUpload] Piped successfully.`);
 
-      // Save the job record for audit
-      await withTimeout(
-        DocumentJob.create({
-          document_id: documentId,
-          job_id: `direct_${documentId}`,
-          stage: 'extract',
-          status: 'dispatched',
-          processor_version: 'v1.1.0-direct',
-          started_at: new Date(),
-        }),
-        10000,
-        'DocumentJob.create'
-      );
-      console.log(`✅ [documentUpload] DocumentJob record created.`);
+      // 4. Create Audit Job
+      await DocumentJob.create({
+        document_id: documentId,
+        job_id: `direct_${documentId}`,
+        stage: 'extract',
+        status: 'dispatched',
+        processor_version: 'v1.1.0-memory',
+        started_at: new Date(),
+      });
 
-      // Return the document_id to the frontend immediately.
-      // The file is in the queue — processing begins in background.
       return res.status(201).json({
         success: true,
         data: {
           document_id: documentId,
           filename: req.file.originalname,
           status: 'processing',
-          message: 'Your document is being processed. Ask me anything once it is ready.',
+          message: 'Processing started in memory.',
         },
       });
     } catch (err) {
