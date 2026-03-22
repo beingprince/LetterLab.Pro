@@ -18,8 +18,8 @@ const UnderConstructionPage = () => {
       }}
     >
       <Container maxWidth="md" sx={{ textAlign: 'center' }}>
-        {/* Brand Logo */}
-        <Box sx={{ mb: 8 }}>
+        {/* Brand Logo - Centered */}
+        <Box sx={{ mb: 8, display: 'flex', justifyContent: 'center' }}>
           <img 
             src="/brand/letterlab-logo.svg" 
             alt="LetterLab Pro Logo" 
@@ -52,7 +52,32 @@ const UnderConstructionPage = () => {
           }}
         >
           We are currently enhancing the <strong>compose page architecture</strong> and streamlining the 
-          <strong> form transfer layers</strong> to ensure a more robust and secure environment for our users.
+          <strong> form transfer layers</strong> to ensure a more robust and secure environment for our users. 
+          For that reason, we are under construction; we will be back as soon as possible.
+        </Typography>
+
+        <Box 
+          sx={{ 
+            height: '1px', 
+            width: '60px', 
+            backgroundColor: '#E5E7EB', 
+            margin: '0 auto 40px' 
+          }} 
+        />
+
+        {/* Connect Section */}
+        <Typography 
+          variant="h6" 
+          sx={{ 
+            mb: 3, 
+            fontWeight: 800, 
+            color: '#111827', 
+            fontSize: '1.1rem',
+            textTransform: 'uppercase',
+            letterSpacing: '0.05em'
+          }}
+        >
+          Connect with founder
         </Typography>
 
         <Stack 
@@ -108,12 +133,12 @@ const UnderConstructionPage = () => {
           sx={{ 
             color: '#9CA3AF', 
             fontWeight: 800, 
-            letterSpacing: '0.2em',
+            letterSpacing: '0.1em',
             textTransform: 'uppercase',
             fontSize: '0.75rem'
           }}
         >
-          LetterLab Pro • Building the future of professional communication
+          copyright letterlab.pro 2025-26
         </Typography>
       </Container>
     </Box>
