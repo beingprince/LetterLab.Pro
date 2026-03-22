@@ -64,7 +64,7 @@ const AccountSection = ({ data, loading, refetch }) => {
   return (
     <Box>
       <Typography variant="h4" sx={{ fontSize: '24px', fontWeight: 600, mb: 1 }}>
-        Profile
+        Account
       </Typography>
       <Typography variant="body2" sx={{ color: 'text.secondary', mb: 4, opacity: 0.8 }}>
         Manage your personal information.

@@ -361,23 +361,17 @@ const Header = ({
                         <Divider />
 
                         {authedUser ? [
-                            <MenuItem key="profile" onClick={() => navigate('/profile')}>
+                            <MenuItem key="settings" onClick={() => navigate('/settings')}>
                                 <ListItemIcon>
                                     <PersonOutlineIcon fontSize="small" />
                                 </ListItemIcon>
-                                Profile
+                                Profile & Settings
                             </MenuItem>,
-                            <MenuItem key="billing" onClick={() => navigate('/account')}>
+                            <MenuItem key="billing" onClick={() => navigate('/billing')}>
                                 <ListItemIcon>
                                     <CreditCardOutlinedIcon fontSize="small" />
                                 </ListItemIcon>
                                 Billing & Plans
-                            </MenuItem>,
-                            <MenuItem key="settings" onClick={() => navigate('/settings')}>
-                                <ListItemIcon>
-                                    <SettingsOutlinedIcon fontSize="small" />
-                                </ListItemIcon>
-                                Settings
                             </MenuItem>,
                             <Divider key="div2" />,
                             <MenuItem key="logout" onClick={handleLogout} sx={{ color: 'error.main' }}>

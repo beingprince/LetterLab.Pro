@@ -6,6 +6,7 @@ import AccountSection from './sections/AccountSection';
 import SecuritySection from './sections/SecuritySection';
 import UsageSection from './sections/UsageSection';
 import IntegrationsSection from './sections/IntegrationsSection';
+import PreferencesSection from './sections/PreferencesSection'; // ✅ NEW
 import { useAccountMe } from './hooks/useAccountMe';
 
 const CARD_GAP = 2;
@@ -33,6 +34,7 @@ const UserProfileLayout = () => {
   const renderContent = () => {
     switch (activeSection) {
       case 'account': return <AccountSection data={data} loading={loading} refetch={refetch} />;
+      case 'preferences': return <PreferencesSection />;
       case 'integrations': return <IntegrationsSection data={data} loading={loading} />;
       case 'usage': return <UsageSection data={data} loading={loading} />;
       case 'security': return <SecuritySection />;

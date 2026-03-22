@@ -11,9 +11,9 @@
 /* TAILWIND BASE LAYERS        */
 /* --------------------------- */
 
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss/base";
+@import "tailwindcss/components";
+@import "tailwindcss/utilities";
 
 /* =======================================
    🌈 GLOBAL ROOT VARIABLES

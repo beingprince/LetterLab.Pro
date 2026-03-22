@@ -2,7 +2,8 @@ import React from 'react';
 import { Box, Typography, useTheme } from '@mui/material';
 
 const NAV_ITEMS = [
-  { id: 'account', label: 'Profile' },
+  { id: 'account', label: 'Account' },
+  { id: 'preferences', label: 'Preferences' },
   { id: 'integrations', label: 'Connected Accounts' },
   { id: 'usage', label: 'Usage & Limits' },
   { id: 'security', label: 'Security' },

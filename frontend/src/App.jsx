@@ -34,7 +34,8 @@ import AuthPage from './AuthPage';
 import AboutPage from "./pages/AboutPage";
 import OAuthSuccess from "./pages/OAuthSuccess.jsx";
 import AddProfessor from './pages/AddProfessor.jsx';
-import UserProfilePage from './pages/UserProfile/UserProfileLayout'; // ✅ MODULAR IMPORT
+import SettingsPage from './pages/UserProfile/UserProfileLayout'; // ✅ RENAMED FROM UserProfilePage
+import BillingPage from './pages/BillingPage.jsx'; // ✅ NEW
 
 import ComposePage from './pages/ComposePage/index.jsx';
 import ErrorPage from './pages/ErrorPage.jsx';
@@ -371,9 +372,14 @@ function App() {
       return <AuthPage />;
     }
 
-    // ✅ NEW: Profile route
-    if (path === '/profile') {
-      return <UserProfilePage />;
+    // ✅ NEW: Settings route (consolidated)
+    if (path === '/settings' || path === '/profile') {
+      return <SettingsPage navigate={navigate} />;
+    }
+
+    // ✅ NEW: Billing route
+    if (path === '/billing') {
+      return <BillingPage navigate={navigate} />;
     }
 
     // ✅ Homepage is public - allow unauthenticated access

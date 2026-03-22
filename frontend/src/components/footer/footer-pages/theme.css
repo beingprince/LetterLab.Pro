@@ -45,6 +45,7 @@
 .footer-pages h2,
 .footer-pages h3 {
   background: none !important;
+  background-clip: initial !important;
   -webkit-background-clip: initial !important;
   -webkit-text-fill-color: inherit !important;
   color: var(--fp-text);

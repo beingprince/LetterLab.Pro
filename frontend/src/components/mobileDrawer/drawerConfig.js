@@ -4,6 +4,7 @@ import DescriptionIcon from "@mui/icons-material/Description";
 import AnalyticsIcon from "@mui/icons-material/Analytics";
 import PeopleIcon from "@mui/icons-material/People";
 import PersonIcon from "@mui/icons-material/Person";
+import CreditCardOutlinedIcon from '@mui/icons-material/CreditCardOutlined';
 
 export const DRAWER_NAV_ITEMS = [
   { label: "Home", path: "/", icon: HomeIcon },
@@ -11,5 +12,6 @@ export const DRAWER_NAV_ITEMS = [
   { label: "Docs", path: "/docs", icon: DescriptionIcon },
   { label: "Analytics", path: "/analytics", icon: AnalyticsIcon },
   { label: "Professors", path: "/add-professor", icon: PeopleIcon },
-  { label: "Profile", path: "/profile", icon: PersonIcon },
+  { label: "Settings", path: "/settings", icon: PersonIcon },
+  { label: "Billing & Plans", path: "/billing", icon: CreditCardOutlinedIcon },
 ];
