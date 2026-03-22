@@ -15,13 +15,13 @@ router.get('/me', auth, async (req, res) => {
     if (!user) return res.status(404).json({ error: 'User not found' });
 
     // Ensure user has initial values if somehow missing
-    const chatUsed = (user.chatTokensLimit || 50000) - (user.chatTokensRemaining || 0);
+    const chatUsed = (user.chatTokensLimit || 5000) - (user.chatTokensRemaining || 0);
     const emailsUsed = (user.emailsLimitDaily || 10) - (user.emailsRemainingToday || 0);
 
     res.json({
       chatTokensUsed: chatUsed,
       chatTokensRemaining: user.chatTokensRemaining || 0,
-      chatTokensLimit: user.chatTokensLimit || 50000,
+      chatTokensLimit: user.chatTokensLimit || 5000,
       emailsUsedToday: emailsUsed,
       emailsRemainingToday: user.emailsRemainingToday || 0,
       emailsLimitDaily: user.emailsLimitDaily || 10,

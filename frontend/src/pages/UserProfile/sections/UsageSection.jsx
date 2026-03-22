@@ -5,13 +5,14 @@ const UsageSection = ({ data, loading }) => {
   if (loading || !data?.quota) return null;
 
   const q = data.quota;
-  const chatRem = q.chatTokensRemaining ?? 0;
-  const chatTotal = q.chatTokensLimit ?? 50000;
-  const chatPct = chatTotal > 0 ? Math.round((chatRem / chatTotal) * 100) : 100;
+  // Use "Used" values for progress calculation to show filling bar
+  const chatUsed = q.chatTokensUsed ?? 0;
+  const chatLimit = q.chatTokensLimit ?? 5000;
+  const chatPct = chatLimit > 0 ? Math.round((chatUsed / chatLimit) * 100) : 0;
 
-  const emailRem = q.emailsRemainingToday ?? 0;
-  const emailTotal = q.emailsLimitDaily ?? 10;
-  const emailPct = emailTotal > 0 ? Math.round((emailRem / emailTotal) * 100) : 100;
+  const emailUsed = q.emailsUsedToday ?? 0;
+  const emailLimit = q.emailsLimitDaily ?? 10;
+  const emailPct = emailLimit > 0 ? Math.round((emailUsed / emailLimit) * 100) : 0;
 
   const nextReset = q.nextResetAtUTC
     ? new Date(q.nextResetAtUTC).toLocaleString('en-US', { timeZone: 'UTC', dateStyle: 'medium', timeStyle: 'short' })
@@ -29,7 +30,7 @@ const UsageSection = ({ data, loading }) => {
           <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
             <Typography variant="body2" fontWeight={500}>Chat tokens</Typography>
             <Typography variant="body2" color="text.secondary">
-              {chatRem.toLocaleString()} / {chatTotal.toLocaleString()}
+              {chatUsed.toLocaleString()} / {chatLimit.toLocaleString()}
             </Typography>
           </Box>
           <LinearProgress
@@ -41,7 +42,7 @@ const UsageSection = ({ data, loading }) => {
               bgcolor: (t) => t.palette.mode === 'dark' ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.08)',
               '& .MuiLinearProgress-bar': {
                 borderRadius: 4,
-                bgcolor: chatPct > 20 ? 'primary.main' : 'warning.main',
+                bgcolor: chatPct < 85 ? 'primary.main' : 'warning.main',
               },
             }}
           />
@@ -52,7 +53,7 @@ const UsageSection = ({ data, loading }) => {
           <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
             <Typography variant="body2" fontWeight={500}>Emails today</Typography>
             <Typography variant="body2" color="text.secondary">
-              {emailRem.toLocaleString()} / {emailTotal.toLocaleString()}
+              {emailUsed.toLocaleString()} / {emailLimit.toLocaleString()}
             </Typography>
           </Box>
           <LinearProgress
@@ -64,7 +65,7 @@ const UsageSection = ({ data, loading }) => {
               bgcolor: (t) => t.palette.mode === 'dark' ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.08)',
               '& .MuiLinearProgress-bar': {
                 borderRadius: 4,
-                bgcolor: emailPct > 20 ? 'primary.main' : 'warning.main',
+                bgcolor: emailPct < 85 ? 'primary.main' : 'warning.main',
               },
             }}
           />
