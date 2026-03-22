@@ -18,12 +18,31 @@ const UnderConstructionPage = () => {
       }}
     >
       <Container maxWidth="md" sx={{ textAlign: 'center' }}>
-        {/* Brand Logo - Centered */}
+        {/* Brand Logo - Responsive Swap */}
         <Box sx={{ mb: 8, display: 'flex', justifyContent: 'center' }}>
-          <img 
-            src="/brand/letterlab-logo.svg" 
-            alt="LetterLab Pro Logo" 
-            style={{ height: '60px', width: 'auto', filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.05))' }} 
+          {/* Favicon for Mobile */}
+          <Box
+            component="img"
+            src="/brand/letterlab-favicon.svg"
+            alt="LetterLab Pro Favicon"
+            sx={{
+              display: { xs: 'block', md: 'none' },
+              height: '48px',
+              width: 'auto',
+              filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.05))'
+            }}
+          />
+          {/* Full Logo for Desktop */}
+          <Box
+            component="img"
+            src="/brand/letterlab-logo.svg"
+            alt="LetterLab Pro Logo"
+            sx={{
+              display: { xs: 'none', md: 'block' },
+              height: '64px',
+              width: 'auto',
+              filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.05))'
+            }}
           />
         </Box>
 
