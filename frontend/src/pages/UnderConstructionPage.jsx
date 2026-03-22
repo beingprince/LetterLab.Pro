@@ -1,6 +1,6 @@
 import React from 'react';
-import { Box, Typography, Container, Paper, alpha } from '@mui/material';
-import { motion } from 'framer-motion';
+import { Box, Typography, Container, Paper, alpha, Link, Stack } from '@mui/material';
+import { Linkedin, Mail } from 'lucide-react';
 
 const UnderConstructionPage = () => {
   return (
@@ -11,151 +11,129 @@ const UnderConstructionPage = () => {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        background: 'linear-gradient(135deg, #F7FAFF 0%, #E0E7FF 100%)',
-        overflow: 'hidden',
+        background: '#F9FAFB', // Clean light gray background
         position: 'relative',
+        p: 2,
       }}
     >
-      {/* Background Animated Shapes */}
-      <motion.div
-        animate={{
-          scale: [1, 1.2, 1],
-          rotate: [0, 90, 0],
-          x: [0, 50, 0],
-          y: [0, -30, 0],
-        }}
-        transition={{
-          duration: 20,
-          repeat: Infinity,
-          ease: "linear"
-        }}
-        style={{
-          position: 'absolute',
-          top: '-10%',
-          right: '-10%',
-          width: '40vw',
-          height: '40vw',
-          background: 'radial-gradient(circle, rgba(37, 99, 235, 0.1) 0%, transparent 70%)',
-          borderRadius: '50%',
-          zIndex: 0,
-        }}
-      />
-      <motion.div
-        animate={{
-          scale: [1, 1.3, 1],
-          rotate: [0, -120, 0],
-          x: [0, -40, 0],
-          y: [0, 60, 0],
-        }}
-        transition={{
-          duration: 25,
-          repeat: Infinity,
-          ease: "linear"
-        }}
-        style={{
-          position: 'absolute',
-          bottom: '-15%',
-          left: '-5%',
-          width: '50vw',
-          height: '50vw',
-          background: 'radial-gradient(circle, rgba(14, 165, 233, 0.08) 0%, transparent 70%)',
-          borderRadius: '50%',
-          zIndex: 0,
-        }}
-      />
-
-      <Container maxWidth="sm" sx={{ position: 'relative', zIndex: 1 }}>
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, ease: "easeOut" }}
+      <Container maxWidth="sm">
+        <Paper
+          elevation={0}
+          sx={{
+            p: { xs: 4, md: 8 },
+            textAlign: 'center',
+            backgroundColor: '#FFFFFF',
+            borderRadius: 6,
+            boxShadow: '0 10px 30px rgba(0, 0, 0, 0.04)',
+            border: '1px solid rgba(0,0,0,0.05)',
+          }}
         >
-          <Paper
-            elevation={0}
+          {/* Brand Logo */}
+          <Box sx={{ mb: 6 }}>
+            <img 
+              src="/brand/letterlab-logo.svg" 
+              alt="LetterLab Pro Logo" 
+              style={{ height: '50px', width: 'auto' }} 
+            />
+          </Box>
+
+          <Typography
+            variant="h3"
+            gutterBottom
             sx={{
-              p: { xs: 4, md: 6 },
-              textAlign: 'center',
-              backgroundColor: alpha('#FFFFFF', 0.6),
-              backdropFilter: 'blur(20px)',
-              border: '1px solid rgba(255, 255, 255, 0.4)',
-              borderRadius: 4,
-              boxShadow: '0 20px 40px rgba(0, 0, 0, 0.05)',
+              fontWeight: 800,
+              color: '#111827',
+              mb: 3,
+              fontSize: { xs: '2rem', md: '2.5rem' }
             }}
           >
-            {/* Logo/Icon Animation */}
-            <motion.div
-              animate={{ rotate: 360 }}
-              transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
-              style={{
-                width: 80,
-                height: 80,
-                margin: '0 auto 24px',
+            Under Construction
+          </Typography>
+
+          <Typography
+            variant="body1"
+            sx={{ 
+              mb: 4, 
+              color: '#4B5563', 
+              fontSize: '1.1rem', 
+              lineHeight: 1.8,
+              textAlign: 'center'
+            }}
+          >
+            We are fixing the **compose page direct access**, considering the closed environment and **form transfer** optimizations. 
+            These upgrades are essential for the production phase.
+          </Typography>
+
+          <Box 
+            sx={{ 
+              height: '1px', 
+              width: '60px', 
+              backgroundColor: '#E5E7EB', 
+              margin: '0 auto 40px' 
+            }} 
+          />
+
+          <Stack 
+            direction={{ xs: 'column', sm: 'row' }} 
+            spacing={3} 
+            justifyContent="center" 
+            alignItems="center"
+          >
+            {/* Contact Email */}
+            <Link 
+              href="mailto:princepdsn@gmail.com"
+              sx={{
                 display: 'flex',
                 alignItems: 'center',
-                justifyContent: 'center',
-                background: 'linear-gradient(135deg, #2563EB 0%, #0EA5E9 100%)',
-                borderRadius: '22px',
-                boxShadow: '0 8px 16px rgba(37, 99, 235, 0.2)',
+                gap: 1.5,
+                color: '#6B7280',
+                textDecoration: 'none',
+                fontWeight: 600,
+                fontSize: '0.95rem',
+                transition: 'color 0.2s',
+                '&:hover': { color: '#2563EB' }
               }}
             >
-              <Typography variant="h3" sx={{ color: '#fff', fontWeight: 800, mt: -0.5 }}>
-                L
-              </Typography>
-            </motion.div>
+              <Mail size={20} strokeWidth={2.5} />
+              Contact Founder
+            </Link>
 
-            <Typography
-              variant="h2"
-              gutterBottom
+            {/* LinkedIn */}
+            <Link 
+              href="https://www.linkedin.com/in/prince-pudasaini/"
+              target="_blank"
+              rel="noopener noreferrer"
               sx={{
-                fontWeight: 800,
-                background: 'linear-gradient(90deg, #111827 0%, #2563EB 100%)',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-                mb: 2,
+                display: 'flex',
+                alignItems: 'center',
+                gap: 1.5,
+                color: '#6B7280',
+                textDecoration: 'none',
+                fontWeight: 600,
+                fontSize: '0.95rem',
+                transition: 'color 0.2s',
+                '&:hover': { color: '#0077B5' }
               }}
             >
-              Under Construction
-            </Typography>
+              <Linkedin size={20} strokeWidth={2.5} fill="currentColor" />
+              Connect on LinkedIn
+            </Link>
+          </Stack>
 
-            <Typography
-              variant="body1"
-              color="text.secondary"
-              sx={{ mb: 4, fontSize: '1.1rem', fontWeight: 500 }}
-            >
-              We are currently working on optimizing our system hierarchy to provide you with a better experience.
-            </Typography>
-
-            <Box sx={{ display: 'flex', justifyContent: 'center', gap: 1 }}>
-              {[0, 1, 2].map((i) => (
-                <motion.div
-                  key={i}
-                  animate={{
-                    scale: [1, 1.5, 1],
-                    opacity: [0.3, 1, 0.3],
-                  }}
-                  transition={{
-                    duration: 1.5,
-                    repeat: Infinity,
-                    delay: i * 0.2,
-                  }}
-                  style={{
-                    width: 8,
-                    height: 8,
-                    borderRadius: '50%',
-                    backgroundColor: '#2563EB',
-                  }}
-                />
-              ))}
-            </Box>
-
-            <Typography
-              variant="caption"
-              sx={{ mt: 4, display: 'block', color: alpha('#111827', 0.4), fontWeight: 600, letterSpacing: 1 }}
-            >
-              LETTERLAB PRO • COMING SOON
-            </Typography>
-          </Paper>
-        </motion.div>
+          <Typography
+            variant="caption"
+            sx={{ 
+              mt: 8, 
+              display: 'block', 
+              color: '#9CA3AF', 
+              fontWeight: 700, 
+              letterSpacing: '0.1em',
+              textTransform: 'uppercase'
+            }}
+          >
+            LetterLab Pro • Coming Soon
+          </Typography>
+        </Paper>
       </Container>
     </Box>
   );
