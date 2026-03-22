@@ -34,7 +34,7 @@ const UserProfileLayout = () => {
   const renderContent = () => {
     switch (activeSection) {
       case 'account': return <AccountSection data={data} loading={loading} refetch={refetch} />;
-      case 'preferences': return <PreferencesSection />;
+      case 'preferences': return <PreferencesSection data={data} loading={loading} refetch={refetch} />;
       case 'integrations': return <IntegrationsSection data={data} loading={loading} />;
       case 'usage': return <UsageSection data={data} loading={loading} />;
       case 'security': return <SecuritySection />;

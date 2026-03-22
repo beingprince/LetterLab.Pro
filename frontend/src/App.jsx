@@ -47,7 +47,7 @@ import TermsPage from './pages/TermsPage.jsx';
 import ContactPage from './pages/ContactPage.jsx';
 import FooterPage from './pages/footer/FooterPage.jsx';
 import FeaturesPage from './pages/footer/product/features/index.jsx';
-import StatusPage from './pages/footer/StatusPage.jsx';
+import UnderConstructionPage from './pages/UnderConstructionPage.jsx';
 // import MobileBottomNav from './components/nav/MobileBottomNav.jsx'; // ❌ Removed mobile nav
 
 // ────────────────────────────────────────────────────────────────────────────
@@ -82,6 +82,19 @@ function initialsFromName(name) {
 function App() {
   // Always use light theme
   const theme = lightTheme;
+
+  // ────────────────────────────────────────────────────────────────────────────
+  // ⚠️ MAINTENANCE MODE (PRODUCTION ONLY)
+  // ────────────────────────────────────────────────────────────────────────────
+  const IS_MAINTENANCE = import.meta.env.PROD;
+  if (IS_MAINTENANCE) {
+    return (
+      <ThemeProvider theme={theme}>
+        <CssBaseline />
+        <UnderConstructionPage />
+      </ThemeProvider>
+    );
+  }
 
   // menus / drawer anchors
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);

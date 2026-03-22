@@ -36,7 +36,7 @@ router.post('/chat', auth, async (req, res) => {
         const userId = req.user?.id;
         if (!userId) return res.status(401).json({ error: 'Unauthorized' });
 
-        const user = await User.findById(userId).select('+chatTokensLimit +chatTokensRemaining +emailsRemainingToday +emailsLimitDaily +nextResetAt +plan');
+        const user = await User.findById(userId).select('+chatTokensLimit +chatTokensRemaining +emailsRemainingToday +emailsLimitDaily +nextResetAt +plan +defaultTone +defaultSignature');
 
         // Note: We use in-route checks here because mode (chat vs draft) is dynamic 
         // per request body, but for simple chat we check base cost:
@@ -100,6 +100,11 @@ router.post('/chat', auth, async (req, res) => {
         if (documentContext) {
             systemInstruction += `\n\nREFERENCE DOCUMENT CONTEXT:\n${documentContext}\n\nUse the information above to answer the student's questions if relevant. If the answer is not in the context, use your general knowledge but prioritize the document.`;
         }
+        
+        // Apply user's preferred tone
+        const userTone = user.defaultTone || 'formal';
+        systemInstruction += `\n\nYour writing style should be ${userTone}.`;
+
         if (professorName) {
             const lastName = professorName.split(/\s+/).pop() || professorName;
             const isDr = /^dr\.?\s/i.test(professorName);
@@ -113,7 +118,10 @@ router.post('/chat', auth, async (req, res) => {
         if (isGreeting) {
             prompt += `\n\nRespond with a friendly greeting only. Set draft_email to null.`;
         } else if (isDraftIntent) {
-            prompt += `\n\nUSER WANTS TO DRAFT EMAIL. Generate a professional email draft. Populate draft_email with subject and body. Use professor/recipient from context if available.`;
+            prompt += `\n\nUSER WANTS TO DRAFT EMAIL. Generate an email draft in a ${userTone} tone. Populate draft_email with subject and body. Use professor/recipient from context if available.`;
+            if (user.defaultSignature) {
+                prompt += `\n\nAPPEND THIS SIGNATURE to the end of the email body exactly:\n${user.defaultSignature}`;
+            }
         } else {
             prompt += `\n\nRespond helpfully. If the user provides a professor name or email, extract and return professor_name and recipient_email. Set draft_email to null unless they explicitly ask to write an email.`;
         }
@@ -270,7 +278,7 @@ router.post('/generate-reply', auth, async (req, res) => {
         }
 
         const userId = req.user?.id;
-        const user = await User.findById(userId).select('+emailsRemainingToday +emailsLimitDaily +nextResetAt +plan');
+        const user = await User.findById(userId).select('+emailsRemainingToday +emailsLimitDaily +nextResetAt +plan +defaultTone +defaultSignature');
 
         if (user.emailsRemainingToday < 1 && user.plan !== 'pro') {
             return res.status(429).json({
@@ -299,8 +307,10 @@ Generate a professional, well-structured email that:
 3. Uses appropriate academic email etiquette
 4. Is concise but complete (150-250 words)
 5. Matches the professor's communication style
+6. Follows a ${user.defaultTone || 'formal'} tone
 
-DO NOT include subject line, greeting, or signature - just the email body.`;
+DO NOT include subject line or greeting.
+${user.defaultSignature ? `APPEND THE FOLLOWING SIGNATURE exactly at the end:\n${user.defaultSignature}` : 'DO NOT include a signature.'}`;
 
         const result = await generateText({
             purpose: 'generate-reply',
@@ -351,7 +361,7 @@ router.post('/generate-new', auth, async (req, res) => {
         }
 
         const userId = req.user?.id;
-        const user = await User.findById(userId).select('+emailsRemainingToday +emailsLimitDaily +nextResetAt +plan');
+        const user = await User.findById(userId).select('+emailsRemainingToday +emailsLimitDaily +nextResetAt +plan +defaultTone +defaultSignature');
 
         if (user.emailsRemainingToday < 1 && user.plan !== 'pro') {
             return res.status(429).json({
@@ -379,8 +389,10 @@ Generate a professional, well-structured email that:
 4. Uses proper academic email etiquette
 5. Is concise but complete (150-250 words)
 6. Matches the professor's preferred communication style
+7. Follows a ${user.defaultTone || 'formal'} tone
 
-DO NOT include subject line, greeting, or signature - just the email body.`;
+DO NOT include subject line or greeting.
+${user.defaultSignature ? `APPEND THE FOLLOWING SIGNATURE exactly at the end:\n${user.defaultSignature}` : 'DO NOT include a signature.'}`;
 
         const result = await generateText({
             purpose: 'generate-new',

@@ -137,6 +137,11 @@ router.put('/profile', auth, async (req, res) => {
     if (location !== undefined) user.location = location;
     if (phone !== undefined) user.phone = phone;
 
+    // Preferences
+    if (req.body.defaultTone !== undefined) user.defaultTone = req.body.defaultTone;
+    if (req.body.defaultSignature !== undefined) user.defaultSignature = req.body.defaultSignature;
+    if (req.body.autoSaveDrafts !== undefined) user.autoSaveDrafts = req.body.autoSaveDrafts;
+
     await user.save();
 
     res.json({

@@ -59,6 +59,11 @@ const UserSchema = new mongoose.Schema(
     location: { type: String, default: "" },
     phone: { type: String, default: "" },
 
+    // Preferences
+    defaultTone: { type: String, default: 'formal' },
+    defaultSignature: { type: String, default: 'Best regards,\n[Your Name]' },
+    autoSaveDrafts: { type: Boolean, default: true },
+
     ProfileImage: String,
 
     // 2FA Security

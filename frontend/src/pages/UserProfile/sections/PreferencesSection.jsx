@@ -1,12 +1,58 @@
-import React, { useState } from 'react';
-import { Box, Typography, TextField, MenuItem, Switch, FormControlLabel, Divider, Button, alpha, useTheme } from '@mui/material';
+import React, { useState, useEffect } from 'react';
+import { Box, Typography, TextField, MenuItem, Switch, FormControlLabel, Divider, Button, alpha, useTheme, Snackbar, Alert, CircularProgress } from '@mui/material';
 import SaveOutlinedIcon from '@mui/icons-material/SaveOutlined';
 
-const PreferencesSection = () => {
+const PreferencesSection = ({ data, loading, refetch }) => {
   const theme = useTheme();
   const [tone, setTone] = useState('formal');
   const [autoSave, setAutoSave] = useState(true);
-  const [signature, setSignature] = useState('Best regards,\n[Your Name]');
+  const [signature, setSignature] = useState('');
+  const [isSaving, setIsSaving] = useState(false);
+  const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
+
+  useEffect(() => {
+    if (data?.user) {
+      setTone(data.user.defaultTone || 'formal');
+      setAutoSave(data.user.autoSaveDrafts ?? true);
+      setSignature(data.user.defaultSignature || '');
+    }
+  }, [data]);
+
+  const handleSave = async () => {
+    try {
+      setIsSaving(true);
+      const token = localStorage.getItem('authToken');
+      const apiBase = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+
+      const res = await fetch(`${apiBase}/api/users/profile`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          defaultTone: tone,
+          defaultSignature: signature,
+          autoSaveDrafts: autoSave
+        })
+      });
+
+      if (!res.ok) throw new Error('Failed to update preferences');
+      
+      await refetch();
+      setSnackbar({ open: true, message: 'Preferences saved successfully!', severity: 'success' });
+    } catch (err) {
+      setSnackbar({ open: true, message: err.message, severity: 'error' });
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  if (loading) return (
+    <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}>
+      <CircularProgress size={32} />
+    </Box>
+  );
 
   return (
     <Box>
@@ -91,7 +137,9 @@ const PreferencesSection = () => {
         <Box sx={{ mt: 2 }}>
           <Button
             variant="contained"
-            startIcon={<SaveOutlinedIcon />}
+            onClick={handleSave}
+            disabled={isSaving}
+            startIcon={isSaving ? <CircularProgress size={20} color="inherit" /> : <SaveOutlinedIcon />}
             sx={{
                 borderRadius: '10px',
                 textTransform: 'none',
@@ -101,10 +149,21 @@ const PreferencesSection = () => {
                 '&:hover': { boxShadow: 'none' }
             }}
           >
-            Save Preferences
+            {isSaving ? 'Saving...' : 'Save Preferences'}
           </Button>
         </Box>
       </Box>
+
+      <Snackbar 
+        open={snackbar.open} 
+        autoHideDuration={4000} 
+        onClose={() => setSnackbar({ ...snackbar, open: false })}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+      >
+        <Alert severity={snackbar.severity} sx={{ borderRadius: '12px', boxShadow: '0 8px 32px rgba(0,0,0,0.1)' }}>
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 };

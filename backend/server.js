@@ -315,10 +315,13 @@ app.post("/api/admin/reset-quotas", auth, async (req, res) => {
 // ───────────────────────────────────────────────────────────────────────────────
 // 8) Email generator
 if (ENABLE_EMAIL) {
-  app.post("/api/generate-email", modelLimiter, async (req, res) => {
+  app.post("/api/generate-email", auth, modelLimiter, async (req, res) => {
     try {
+      const User = (await import("./models/User.js")).default;
+      const user = await User.findById(req.user.id).select('+defaultTone +defaultSignature');
+      
       const notes = sanitizeText(req.body?.notes || req.body?.prompt, 4000);
-      const tone = sanitizeText(req.body?.tone || "Professional", 40);
+      const tone = sanitizeText(req.body?.tone || user?.defaultTone || "Professional", 40);
 
       if (/^\s*(hi|hello|hey)\b/i.test(notes) && notes.length < 80) {
         return res.status(400).json({
@@ -328,11 +331,15 @@ if (ENABLE_EMAIL) {
 
       if (!notes) return res.status(400).json({ error: 'Missing "notes"' });
 
-      const prompt = `
-You are LetterLab Pro, an executive communications assistant with a professional tone: ${tone}
+      let prompt = `
+You are LetterLab Pro, an executive communications assistant with a tone: ${tone}
 User notes:
 """${notes}"""
 `.trim();
+
+      if (user?.defaultSignature) {
+        prompt += `\n\nAPPEND THIS SIGNATURE exactly at the end:\n${user.defaultSignature}`;
+      }
 
       const { text } = await generateContentWithFallback(prompt);
       if (!text?.trim()) return res.status(502).json({ error: "Empty response" });
