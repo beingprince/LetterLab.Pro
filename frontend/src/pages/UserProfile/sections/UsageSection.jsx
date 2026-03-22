@@ -7,7 +7,7 @@ const UsageSection = ({ data, loading }) => {
   const q = data.quota;
   // Use "Used" values for progress calculation to show filling bar
   const chatUsed = q.chatTokensUsed ?? 0;
-  const chatLimit = q.chatTokensLimit ?? 5000;
+  const chatLimit = q.chatTokensLimit ?? 50000;
   const chatPct = chatLimit > 0 ? Math.round((chatUsed / chatLimit) * 100) : 0;
 
   const emailUsed = q.emailsUsedToday ?? 0;

@@ -15,9 +15,9 @@ const UserSchema = new mongoose.Schema(
     lockedUntil: { type: Date, default: null },
     quotaWarnedAt: { type: Date, default: null },
 
-    // E-Week: Chat quota (token-based, 5k/day ≈ 50 replies)
-    chatTokensLimit: { type: Number, default: 5000 },
-    chatTokensRemaining: { type: Number, default: 5000 },
+    // E-Week: Chat quota (token-based, 50k/day ≈ 50 replies)
+    chatTokensLimit: { type: Number, default: 50000 },
+    chatTokensRemaining: { type: Number, default: 50000 },
     chatLockedUntil: { type: Date, default: null },
     chatQuotaWarnedAt: { type: Date, default: null },
     chatLastReset: { type: Date, default: Date.now },
